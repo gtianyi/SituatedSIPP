@@ -52,6 +52,9 @@ set(DEFAULT_DESTINATIONS
 
 add_compile_options(
     -Wall -Wextra           # Typical baseline
+    -Wno-sign-compare       # trun off Werror=sign-compare because of the SIPP codebase
+    -Wno-return-type        # trun off Werror=return-type because of the SIPP codebase
+    -Wno-address            # trun off Werror=address because of the SIPP codebase
     #-Wpedantic              # Non-standard C++ is used
 
     #-Wshadow                # Variable declaration shadows one from a parent scope

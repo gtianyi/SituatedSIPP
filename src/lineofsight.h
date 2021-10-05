@@ -13,7 +13,7 @@
 #define CN_OBSTACLE 1
 
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 class LineOfSight

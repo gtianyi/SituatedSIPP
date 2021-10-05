@@ -67,7 +67,7 @@ bool Task::getTask(const char *fileName)
         return false;
     }
     int k(0);
-    for(element; element; element = element->NextSiblingElement("agent"))
+    for(; element; element = element->NextSiblingElement("agent"))
     {
         Agent agent;
         agent.id_num = k;

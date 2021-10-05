@@ -74,10 +74,10 @@ struct Node
     double  size;
     double  g;
     double  F;
+    Node*   Parent;
     double  heading;
     int     heading_id;
     bool    optimal;
-    Node*   Parent;
     int     interval_id;
     SafeInterval interval;
     bool operator< (const Node& other) const
