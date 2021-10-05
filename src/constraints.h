@@ -7,7 +7,7 @@
 #include "structs.h"
 #include <algorithm>
 #include <iostream>
-#include <lineofsight.h>
+#include "lineofsight.h"
 #include "map.h"
 
 class Constraints

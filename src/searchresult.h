@@ -3,7 +3,8 @@
 
 #include <vector>
 #include <list>
-#include <structs.h>
+
+#include "structs.h"
 
 struct ResultPathInfo
 {
