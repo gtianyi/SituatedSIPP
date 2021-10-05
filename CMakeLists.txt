@@ -1,41 +1,99 @@
-cmake_minimum_required( VERSION 2.8 )
+cmake_minimum_required(VERSION 3.14)
 
-project( SituatedSIPP )
+project(SituatedSIPP LANGUAGES C CXX)
 
-set(Boost_USE_STATIC_LIBS OFF) 
-#find_package(Boost COMPONENTS multi_index)
-include_directories( "/home/aifs1/gu/.conan/data/boost/1.74.0/_/_/package/8773c88b4cea0ec86a6e2f9053eb6a7a40608da3/include/boost" )
-include_directories( "." )
+# Project wide C++ standard
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+#set(DCMAKE_BUILD_TYPE RELEASE)
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -Wall -Wextra" )
-set( CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++" )
+# Let CMake easily find our custom CMake modules
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-set( SOURCE_FILES 
-     main.cpp  
-     tinyxml2.cpp
-     xmlLogger.cpp 
-     mission.cpp 
-     map.cpp 
-     task.cpp
-     config.cpp 
-     dynamicobstacles.cpp
-     aa_sipp.cpp
-     constraints.cpp )
+include(conan_auto_install)
 
-set( HEADER_FILES 
-     tinyxml2.h
-     heuristic.h
-     searchresult.h 
-     gl_const.h 
-     xmlLogger.h 
-     mission.h 
-     map.h 
-     task.h
-     dynamicobstacles.h
-     config.h
-     lineofsight.h
-     aa_sipp.h 
-     structs.h
-     constraints.h )
+# Setup conan targets
+if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup(TARGETS)
+    conan_check_overridden_packages()
+else()
+    message(FATAL_ERROR "not found conan dir. run conan install first ")
+endif()
 
-add_executable( ssipp ${SOURCE_FILES} ${HEADER_FILES} )
+message(STATUS "Build type: " ${CMAKE_BUILD_TYPE})
+
+# Declare a convenience function to create tests
+#include(add_test_executable)
+
+# Dynamic libraries preferred by default
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
+
+# Put all binaries and libraries in the same place
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+# Convenience default settings for install destinations. Use it to
+# install targets to the right place. For instance:
+#
+#    add_library(mylib)
+#    install(TARGETS mylib ${DEFAULT_DESTINATIONS})
+#
+# It will purposely not install static libraries, since they are
+# not needed once the project has been deployed.
+# cmake-format: off
+set(DEFAULT_DESTINATIONS
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib EXCLUDE_FROM_ALL
+    OBJECTS DESTINATION lib EXCLUDE_FROM_ALL)
+
+add_compile_options(
+    -Wall -Wextra           # Typical baseline
+    #-Wpedantic              # Non-standard C++ is used
+
+    #-Wshadow                # Variable declaration shadows one from a parent scope
+    #-Wnon-virtual-dtor      # Class with virtual functions has a non-virtual destructor
+    #-Wold-style-cast        # C-style casts
+    #-Wcast-align            # Potential errors dereferencing pointers
+    #-Woverloaded-virtual    # Overload (not override) a virtual function
+    #-Wconversion            # Type conversions that may lose data
+    #-Wsign-conversion       # Sign conversions
+    #-Wdouble-promotion      # float is implicit promoted to double
+    #-Wformat=2              # Security issues around functions that format output (like printf)
+    #-ffast-math             # perform more aggressive floating-point optimizations
+    )
+# cmake-format: on
+
+#This allows colored output and error highlighting
+#when building from command - line, for both
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    add_compile_options(-fdiagnostics-color=always)
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    add_compile_options(-fcolor-diagnostics)
+endif()
+
+# Treat warnings as errors unless in DEVELOPMENT_MODE
+option(ENABLE_WERROR "Warnings treated as errors" ON)
+if(ENABLE_WERROR)
+    add_compile_options(-Werror)
+endif()
+
+
+option(ENABLE_DOXYGEN "Use Doxygen to generate documentation by providing 'make doc'." OFF)
+if(ENABLE_DOXYGEN)
+    include(doxygen)
+    enable_doxygen()
+endif()
+
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    message("release mode")
+    add_compile_options(-O3)
+else()
+    message("debug mode")
+    add_compile_options(-D DEBUG)
+endif()
+
+add_subdirectory(src)
