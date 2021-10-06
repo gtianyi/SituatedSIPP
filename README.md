@@ -71,6 +71,8 @@ For more details see the Conan [Getting Started](https://docs.conan.io/en/latest
 
 **[CMake](https://cmake.org/)** &mdash; an open-source, cross-platform family of tools designed to build, test and package software.
 
+**[Ninja](https://ninja-build.org/)** &mdash; an alternative to CMake. Ninja is a small build system with a focus on speed.
+
 **[Boost](https://www.boost.org/)** &mdash; open-source, cross-platform peer-reviewed portable C++ source libraries.
 
 ### Installing
