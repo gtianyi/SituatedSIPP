@@ -155,7 +155,8 @@ Input file should contain:
 ## Launch
 To launch the application you need to have an input XML-file with all required information. If it's all-in-one file:
 ```
-./ssipp initial_file_name.xml
+cd <build folder>
+bin/ssipp initial_file_name.xml
 ```
 Due to simplify the procedure of performing experiments with many tasks, the parts of input XML-file can be devided into several files:
 * Task-file &mdash; contains part `<agents>`.
@@ -165,7 +166,7 @@ Due to simplify the procedure of performing experiments with many tasks, the par
 
 The application can be launched with separated input files in the following way:
 ```
-   ./ssipp task_file_name.xml map_file_name.xml config_file_name.xml
+./bin/ssipp task_file_name.xml map_file_name.xml config_file_name.xml
 ```
 or
 ```
