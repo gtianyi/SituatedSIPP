@@ -2,12 +2,12 @@
 
 ## Overview
 This project contains an implementation of different versions of Realtime Safe Interval Path Planning algorithm. 
-<!--> 
+<!---> 
 as described in the [ICAPS 2020 paper](https://aaai.org/ojs/index.php/ICAPS/article/view/6674) ([arXiv version](https://arxiv.org/abs/2006.01195)).
 <-->
 
 Technically this project was forked from [Bounded-Subtopmial SIPP](https://github.com/PathPlanning/SuboptimalSIPP) and previously [AA-SIPP(m) project](https://github.com/PathPlanning/AA-SIPP-m/) and then additional functionality was added, i.e. real-time framework and different realt-time components
-<!-->
+<!--->
 (see the paper for more details): 
 * Weighted SIPP with duplicate states and limited re-expansions (WSIPPd)
 * Weighted SIPP with (unlimited) re-expansions (WSIPPr) 
