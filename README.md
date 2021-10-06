@@ -1,13 +1,16 @@
 # SuboptimalSIPP
 
 ## Overview
-This project contains an implementation of different versions of Bounded Sub-Optimal Safe Interval Path Planning algorithm as described in the [ICAPS 2020 paper](https://aaai.org/ojs/index.php/ICAPS/article/view/6674) ([arXiv version](https://arxiv.org/abs/2006.01195)).
+This project contains an implementation of different versions of Realtime Safe Interval Path Planning algorithm. 
+[//]: as described in the [ICAPS 2020 paper](https://aaai.org/ojs/index.php/ICAPS/article/view/6674) ([arXiv version](https://arxiv.org/abs/2006.01195)).
 
-Technically this project was forked from [AA-SIPP(m) project](https://github.com/PathPlanning/AA-SIPP-m/) and then additional functionality was added, i.e. three different suboptimal versions of SIPP were implemented (see the paper for more details): 
+Technically this project was forked from [Bounded-Subtopmial SIPP](https://github.com/PathPlanning/SuboptimalSIPP) and previously [AA-SIPP(m) project](https://github.com/PathPlanning/AA-SIPP-m/) and then additional functionality was added, i.e. real-time framework and different realt-time components
+<!-->
+(see the paper for more details): 
 * Weighted SIPP with duplicate states and limited re-expansions (WSIPPd)
 * Weighted SIPP with (unlimited) re-expansions (WSIPPr) 
 * SIPP with FOCAL list (FocalSIPP)
-
+<-->
 
 Planning is carried out in (x, y, \theta) configuration space. Agents' headings, translating and rotating speeds, sizes are taken into account. Agents are considered to be open disks of predefined radii. Radius of each agent can be specified and can be any positive real number, e.g. some agents can be bigger than the grid cells. They can be smaller as well. "Open disks" means that when the distance between the agent of radius r_1 and the agent of radius r_2 equals r_1 + r_2 no collision occurs, the distance has to be less than r_1 + r_2 for the collision to occur. 
 
@@ -29,26 +32,77 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
+**[Conan](https://conan.io) package manager is used to manage project's external dependencies. This section describes the process of setting it up.  Installation is as simple as running
+
 **[Qt Creator](https://info.qt.io/download-qt-for-device-creation?hsCtaTracking=c80600ba-f2ea-45ed-97ef-6949c1c4c236%7C643bd8f4-2c59-4c4c-ba1a-4aaa05b51086)**  &mdash; a cross-platform C++, JavaScript and QML integrated development environment which is part of the SDK for the Qt GUI Application development framework.
 
 **[CMake](https://cmake.org/)** &mdash; an open-source, cross-platform family of tools designed to build, test and package software.
 
 **[Boost](https://www.boost.org/)** &mdash; open-source, cross-platform peer-reviewed portable C++ source libraries.
 
+#### Conan Setup
+
+The [Conan](https://conan.io) package manager is used to manage project's external
+dependencies. This section describes the process of setting it up.  Installation is as simple as running
+
+```
+sudo pip3 install conan
+```
+
+##### Creating Profiles
+We need to setup a Conan profile — a list of properties that characterize the
+environment.  The following commands will create a new profile called `default` and set it up
+for Ubuntu 16.04 environment.  If you are using several profiles, you may want to choose a
+more descriptive name for it.
+```
+# create new profile called 'default'
+conan profile new default --detect
+# modify settings of the 'default' profile
+conan profile update settings.compiler.version=5.4 default
+conan profile update settings.compiler.libcxx=libstdc++11 default
+```
+At the moment, there exist precompiled versions of the packages needed by
+the project for this particular profile:
+
+```
+os=Linux
+arch=x86_64
+compiler=gcc
+compiler.version=5.4
+compiler.libcxx=libstdc++11
+build_type=Release
+```
+
+Note that you can have multiple profiles and also modify existing ones when needed.
+For more details see the Conan [Getting Started](https://docs.conan.io/en/latest/getting_started.html) guide.
+
+
 ### Installing
 
 Download current repository to your local machine. Use
 ```
-git clone https://github.com/PathPlanning/AA-SIPP-m.git
+git clone https://github.com:gtianyi/SituatedSIPP
+mkdir build_release && cd build_release
+conan install ../SituatedSIPP --build missing
+cmake -GNinja ../SituatedSIPP
+ninja ssipp
 ```
-or direct downloading.
 
-Built current project using **Qt Creator** or **CMake**. For example, using CMake
-```bash
-cd PATH_TO_THE_PROJECT
-cmake .
-make
+For debug purpose, you can also do the following
 ```
+cd ..
+mkdir build_debug && cd build_debug
+conan install ../SituatedSIPP --build missing
+cmake -DCMAKE_BUILD_TYPE=Debug -GNinja ../SituatedSIPP
+ninja ssipp
+```
+
+## clang-d user config
+```
+cd <repo dir>
+ln -s ../build_release/compile_commands.json compile_commands.json
+```
+If you also use editor plugin such as clangd, don't forget to symlink the build flag to the root of the source tree. For more details see the clangd [prject-setup](https://clangd.llvm.org/installation.html#project-setup) guide.
 
 ## Running
 Make the algorithm work by launching the built executable with the command line argument specifying the location on the input XML-file that encodes the planning task. The result of planning in the form of the other XML file will appear in the same folder as input file and, by default, will be named `_log.xml`. See more about the input/output files below.
