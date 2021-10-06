@@ -1,4 +1,4 @@
-# SuboptimalSIPP
+# SituatedSIPP
 
 ## Overview
 This project contains an implementation of different versions of Realtime Safe Interval Path Planning algorithm. 
@@ -163,11 +163,11 @@ Due to simplify the procedure of performing experiments with many tasks, the par
 
 The application can be launched with separated input files in the following way:
 ```
-   ./SuboptimalSIPP task_file_name.xml map_file_name.xml config_file_name.xml
+   ./ssipp task_file_name.xml map_file_name.xml config_file_name.xml
 ```
 or
 ```
-   ./SuboptimalSIPP task_file_name.xml map_file_name.xml config_file_name.xml obstacles_file_name.xml
+   ./ssipp task_file_name.xml map_file_name.xml config_file_name.xml obstacles_file_name.xml
 ```
 If `<loglevel>` has value `1` or `2` the output file will be placed in the same folder as input file and, by default, will be named `_log.xml`. For examlpe,
 ```
