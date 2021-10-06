@@ -2,17 +2,17 @@
 
 ## Overview
 This project contains an implementation of different versions of Realtime Safe Interval Path Planning algorithm. 
-<!---> 
+<!--- 
 as described in the [ICAPS 2020 paper](https://aaai.org/ojs/index.php/ICAPS/article/view/6674) ([arXiv version](https://arxiv.org/abs/2006.01195)).
-<-->
+-->
 
 Technically this project was forked from [Bounded-Subtopmial SIPP](https://github.com/PathPlanning/SuboptimalSIPP) and previously [AA-SIPP(m) project](https://github.com/PathPlanning/AA-SIPP-m/) and then additional functionality was added, i.e. real-time framework and different realt-time components
-<!--->
+<!---
 (see the paper for more details): 
 * Weighted SIPP with duplicate states and limited re-expansions (WSIPPd)
 * Weighted SIPP with (unlimited) re-expansions (WSIPPr) 
 * SIPP with FOCAL list (FocalSIPP)
-<-->
+-->
 
 Planning is carried out in (x, y, \theta) configuration space. Agents' headings, translating and rotating speeds, sizes are taken into account. Agents are considered to be open disks of predefined radii. Radius of each agent can be specified and can be any positive real number, e.g. some agents can be bigger than the grid cells. They can be smaller as well. "Open disks" means that when the distance between the agent of radius r_1 and the agent of radius r_2 equals r_1 + r_2 no collision occurs, the distance has to be less than r_1 + r_2 for the collision to occur. 
 
