@@ -175,9 +175,9 @@ If `<loglevel>` has value `1` or `2` the output file will be placed in the same 
 ```
 In case of using separate input files the output file by default will be named as the task-file, i.e. `task_file_name_log.xml`.
 
+<!---
 ## Multi-agents
 Recall that this project was forked from [AA-SIPP(m) project](https://github.com/PathPlanning/AA-SIPP-m/). A nice by-product of this is that one can run sup-optimal SIPP in the prioritized multi-agent path finding mode. It this case some additional parameters should be set (like specifying other agents' start-goal locations etc.). Refer to the readmi of the original repo to sort it out.
 
-<!---
 [![Build Status](https://travis-ci.org/PathPlanning/SuboptimalSIPP.svg?branch=master)](https://travis-ci.org/PathPlanning/SuboptimalSIPP)
 -->
