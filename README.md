@@ -73,7 +73,7 @@ For more details see the Conan [Getting Started](https://docs.conan.io/en/latest
 
 ### Installing
 
-Download current repository to your local machine. Use
+Download and compile current repository to your local machine. Use
 ```
 git clone https://github.com:gtianyi/SituatedSIPP
 mkdir build_release && cd build_release
