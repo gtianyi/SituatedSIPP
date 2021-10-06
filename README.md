@@ -32,18 +32,9 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-**[Conan](https://conan.io) package manager is used to manage project's external dependencies. This section describes the process of setting it up.  Installation is as simple as running
-
-**[Qt Creator](https://info.qt.io/download-qt-for-device-creation?hsCtaTracking=c80600ba-f2ea-45ed-97ef-6949c1c4c236%7C643bd8f4-2c59-4c4c-ba1a-4aaa05b51086)**  &mdash; a cross-platform C++, JavaScript and QML integrated development environment which is part of the SDK for the Qt GUI Application development framework.
-
-**[CMake](https://cmake.org/)** &mdash; an open-source, cross-platform family of tools designed to build, test and package software.
-
-**[Boost](https://www.boost.org/)** &mdash; open-source, cross-platform peer-reviewed portable C++ source libraries.
+**[Conan](https://conan.io)**  &mdash; package manager is used to manage project's external dependencies. This section describes the process of setting it up.  Installation is as simple as running
 
 #### Conan Setup
-
-The [Conan](https://conan.io) package manager is used to manage project's external
-dependencies. This section describes the process of setting it up.  Installation is as simple as running
 
 ```
 sudo pip3 install conan
@@ -76,6 +67,11 @@ build_type=Release
 Note that you can have multiple profiles and also modify existing ones when needed.
 For more details see the Conan [Getting Started](https://docs.conan.io/en/latest/getting_started.html) guide.
 
+**[Qt Creator](https://info.qt.io/download-qt-for-device-creation?hsCtaTracking=c80600ba-f2ea-45ed-97ef-6949c1c4c236%7C643bd8f4-2c59-4c4c-ba1a-4aaa05b51086)**  &mdash; a cross-platform C++, JavaScript and QML integrated development environment which is part of the SDK for the Qt GUI Application development framework.
+
+**[CMake](https://cmake.org/)** &mdash; an open-source, cross-platform family of tools designed to build, test and package software.
+
+**[Boost](https://www.boost.org/)** &mdash; open-source, cross-platform peer-reviewed portable C++ source libraries.
 
 ### Installing
 
