@@ -153,7 +153,7 @@ Input file should contain:
 ## Launch
 To launch the application you need to have an input XML-file with all required information. If it's all-in-one file:
 ```
-./SuboptimalSIPP initial_file_name.xml
+./ssipp initial_file_name.xml
 ```
 Due to simplify the procedure of performing experiments with many tasks, the parts of input XML-file can be devided into several files:
 * Task-file &mdash; contains part `<agents>`.
