@@ -35,11 +35,9 @@ These instructions will get you a copy of the project up and running on your loc
 **[Conan](https://conan.io)**  &mdash; package manager is used to manage project's external dependencies. This section describes the process of setting it up.  Installation is as simple as running
 
 #### Conan Setup
-
 ```
 sudo pip3 install conan
 ```
-
 ##### Creating Profiles
 We need to setup a Conan profile — a list of properties that characterize the
 environment.  The following commands will create a new profile called `default` and set it up
