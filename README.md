@@ -92,12 +92,11 @@ ninja ssipp
 ```
 
 ## clang-d user config
+If you also use editor plugin such as clangd, don't forget to symlink the build flag to the root of the source tree. For more details see the clangd [project-setup](https://clangd.llvm.org/installation.html#project-setup) guide. So do the following:
 ```
 cd <repo dir>
 ln -s ../build_release/compile_commands.json compile_commands.json
 ```
-If you also use editor plugin such as clangd, don't forget to symlink the build flag to the root of the source tree. For more details see the clangd [project-setup](https://clangd.llvm.org/installation.html#project-setup) guide.
-
 ## Running
 Make the algorithm work by launching the built executable with the command line argument specifying the location on the input XML-file that encodes the planning task. The result of planning in the form of the other XML file will appear in the same folder as input file and, by default, will be named `_log.xml`. See more about the input/output files below.
 
