@@ -1,7 +1,7 @@
 #ifndef AA_SIPP_H
 #define AA_SIPP_H
 
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <algorithm>
 #include <unordered_map>
