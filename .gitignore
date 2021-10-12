@@ -1,3 +1,4 @@
 compile_commands.json
 __pycache__/
 *log.xml
+*all.txt
