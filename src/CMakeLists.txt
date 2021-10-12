@@ -8,6 +8,7 @@ set( SOURCE_FILES
      config.cpp 
      dynamicobstacles.cpp
      aa_sipp.cpp
+     realtime_sipp.cpp
      constraints.cpp )
 
 set( HEADER_FILES 
@@ -23,6 +24,7 @@ set( HEADER_FILES
      config.h
      lineofsight.h
      aa_sipp.h 
+     realtime_sipp.h 
      structs.h
      constraints.h )
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef AA_SIPP_H
 #define AA_SIPP_H
 
@@ -24,10 +25,10 @@ class AA_SIPP
 public:
 
     AA_SIPP(const Config &config);
-    ~AA_SIPP();
-    SearchResult startSearch(Map &map, Task &task, DynamicObstacles &obstacles);
+    virtual ~AA_SIPP();
+    virtual SearchResult startSearch(Map &map, Task &task, DynamicObstacles &obstacles);
     SearchResult sresult;
-private:
+protected:
 
     void addOpen(Node &newNode);
     Node findMin();
@@ -42,7 +43,7 @@ private:
     void calculateLineSegment(std::vector<Node> &line, const Node &start, const Node &goal);
     void addConstraints(){}
     Node resetParent(Node current, Node Parent, const Map &map);
-    bool findPath(unsigned int numOfCurAgent, const Map &map);
+    virtual bool findPath(unsigned int numOfCurAgent, const Map &map);
     std::vector<conflict> CheckConflicts(const Task &task);//bruteforce checker. It splits final(already built) trajectories into sequences of points and checks distances between them
     void setPriorities(const Task &task);
     double getHValue(int i, int j);

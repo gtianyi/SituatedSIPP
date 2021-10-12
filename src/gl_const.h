@@ -29,7 +29,7 @@
 #define CN_DEFAULT_ADDITIONALWAIT           0
 #define CN_DEFAULT_STARTSAFEINTERVAL        0
 #define CN_DEFAULT_INFLATEINTERVALS         0
-#define CN_DEFAULT_ALGTYPE                  1
+#define CN_DEFAULT_ALGTYPE                  4
 #define CNS_DEFAULT_ALGTYPE                 "1"
 #define CN_DEFAULT_WEIGHT                   1
 #define CNS_DEFAULT_WEIGHT                  "1"
