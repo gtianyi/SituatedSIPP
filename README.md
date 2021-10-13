@@ -1,20 +1,20 @@
 # SituatedSIPP
 
 ## Overview
-This project contains an implementation of different versions of Realtime Safe Interval Path Planning algorithm. 
-<!--- 
+This project contains an implementation of different versions of Realtime Safe Interval Path Planning algorithm.
+<!---
 as described in the [ICAPS 2020 paper](https://aaai.org/ojs/index.php/ICAPS/article/view/6674) ([arXiv version](https://arxiv.org/abs/2006.01195)).
 -->
 
 Technically this project was forked from [Bounded-Subtopmial SIPP](https://github.com/PathPlanning/SuboptimalSIPP) and previously [AA-SIPP(m) project](https://github.com/PathPlanning/AA-SIPP-m/) and then additional functionality was added, i.e. real-time framework and different realt-time components
 <!---
-(see the paper for more details): 
+(see the paper for more details):
 * Weighted SIPP with duplicate states and limited re-expansions (WSIPPd)
-* Weighted SIPP with (unlimited) re-expansions (WSIPPr) 
+* Weighted SIPP with (unlimited) re-expansions (WSIPPr)
 * SIPP with FOCAL list (FocalSIPP)
 -->
 
-Planning is carried out in (x, y, \theta) configuration space. Agents' headings, translating and rotating speeds, sizes are taken into account. Agents are considered to be open disks of predefined radii. Radius of each agent can be specified and can be any positive real number, e.g. some agents can be bigger than the grid cells. They can be smaller as well. "Open disks" means that when the distance between the agent of radius r_1 and the agent of radius r_2 equals r_1 + r_2 no collision occurs, the distance has to be less than r_1 + r_2 for the collision to occur. 
+Planning is carried out in (x, y, \theta) configuration space. Agents' headings, translating and rotating speeds, sizes are taken into account. Agents are considered to be open disks of predefined radii. Radius of each agent can be specified and can be any positive real number, e.g. some agents can be bigger than the grid cells. They can be smaller as well. "Open disks" means that when the distance between the agent of radius r_1 and the agent of radius r_2 equals r_1 + r_2 no collision occurs, the distance has to be less than r_1 + r_2 for the collision to occur.
 
 Agents' valid actions are (i) translate (ii) rotate in place (iii) wait in place. Moves' endpoints are tied to the centers of grid cells. Moves can be of arbitrary durations, i.e. the durations are not discretized into timesteps, e.g. duration of the translation action is moving speed (set by the user) times the length of the segment agent is traversing. Inertial effects are neglected so far, i.e. agents accelerate/decelerate instantaneously.
 
@@ -123,12 +123,12 @@ Input file should contain:
       * `id` &mdash; attribute that defines the identicator for agent. It is used only for notifications and can have any value. In cases when ID doesn't specified the number in the order of enumeration is used.
       * `start.x`, `start.y`, `goal.x`, `goal.y` &mdash; mandatory attributes that defines the coordinates of start and goal locations. Legal values for `start.x` and `goal.x` are [0, .., *width* - 1], for `start.y` and `goal.y` - [0, .., *height* - 1]. (0,0) coordinates correspond to the upper left corner of the grid. Two agents can't have equal start or goal location and the distance between their start and goal locations must be not lower than the sum of their sizes. Moreover these locations must be traversable with respect to the sizes of the agents.
       * `size`, `movespeed`, `rotationspeed`, `start.heading`, `goal.heading` &mdash; additional attributes that allow to change the values of these attributes for an exact agent. The values specified here have a higher priority than the values specified in the default parameters.
-      
+
 * Mandatory tag `<map>`. It describes the environment.
-    * `<grid>` &mdash; mandatory tag that describes the square grid constituting the map. 
+    * `<grid>` &mdash; mandatory tag that describes the square grid constituting the map.
     * `height` and `width` &mdash; mandatory attributes of tag `<grid>` that define size of the map. Origin is in the upper left corner. (0,0) - is upper left, (*width* - 1, *height* - 1) is lower right.
-    *  `<row>` &mdash; mandatory tags, each of which describes one line of the grid. Each `row` contains a sequence of "0" and "1" separated by blanks. "0" stands for traversable cell, "1" &mdash; for not traversable (actually any other figure but "0" can be used instead of "1"). Total number of "0" and "1" in each row must be equal to the width of the grid. Total number of rows must be equal to the height of the grid. 
-    
+    *  `<row>` &mdash; mandatory tags, each of which describes one line of the grid. Each `row` contains a sequence of "0" and "1" separated by blanks. "0" stands for traversable cell, "1" &mdash; for not traversable (actually any other figure but "0" can be used instead of "1"). Total number of "0" and "1" in each row must be equal to the width of the grid. Total number of rows must be equal to the height of the grid.
+
 * Mandatory tag `<algorithm>`. It describes the parameters of the algorithm. In cases when some tags, that describes the settings, are not specified or are incorrect the default values are taken.
     * `<algtype>` &mdash; possible values are `1` - WSIPPd, `2` - WSIPPr, `3` - FocalSIPP. By default the value is `1`.
     * `<weight>` &mdash; possible value is any real number in range `[1;10]`. Defines the weight of heuristic function. By default the value is `1.0`.
@@ -139,19 +139,19 @@ Input file should contain:
     * `<planforturns>` &mdash; defines the option of taking into account the headings of agents and the time required to change them. Possible values `true` or `false`. The cost of changing the heading is defined by the attributes `rotationspeed` that were described above. By default the value is `false`.
    * `<waitbeforemove>` &mdash; defines additional delay that each agent performs before starting to move along the next section. Possible values are [0;100]. By default the value is `0`.
    * `<inflatecollisionintervals>` &mdash; this option increases the time between the moment when the agent and a dynamic obstacle pass through the same location. Possible values are [0;100]. By default the value is `0`.
-   
+
 * Optional tag `<options>`. Options that are not related to search.
     * `<loglevel>` &mdash; defines the level of detalization of log-file. Default value is "1". Possible values:
         - "0" &mdash; log-file is not created.
-        - "1" &mdash; log-file contains the names of input files, short `<summary>`, `<path>` and found trajectories inside tags `<agent>`. `<summary>` contains info of the path length, number of steps, elapsed time, etc. `<path>` tag looks like `<grid>` but cells forming the path are marked by "\*" instead of "0". Each tag `<agent>` contains a path that consists of a sequence of sections with start and goal locations and duration. 
+        - "1" &mdash; log-file contains the names of input files, short `<summary>`, `<path>` and found trajectories inside tags `<agent>`. `<summary>` contains info of the path length, number of steps, elapsed time, etc. `<path>` tag looks like `<grid>` but cells forming the path are marked by "\*" instead of "0". Each tag `<agent>` contains a path that consists of a sequence of sections with start and goal locations and duration.
         - "2" &mdash; instead of names of the input files all the input data is copied to the log-file plus the log-info that were made by loglevel="1".
     * `<logpath>` - defines the directory where the log-file should be written. If not specified directory of the input file is used.
     * `<logname>` - defines the name of log-file. If not specified the name of the log file is: "input file name" + "\_log" + input file extension.
-    
+
 * Optional tag `<dynamicobstacles>`. Contains the trajectories of dynamic obstacles.
-   * Optional tag `<defaultparameters>`. It is used to change the default size value. Note that move speed and rotation speed can't be modified as their exact values already sewn inside duration attributes of the sections. The same can be said about the headings. 
+   * Optional tag `<defaultparameters>`. It is used to change the default size value. Note that move speed and rotation speed can't be modified as their exact values already sewn inside duration attributes of the sections. The same can be said about the headings.
    * `<obstacle>` &mdash; contains the trajcetory of one dynamic obstacle represented as a seqence of sections. Can have its own `size` attribute.
-      * `<section>` &mdash; describes a part of a trajectory. It must contain attributes `start.x`, `start.y`, `goal.x`, `goal.y` and `duration`. 
+      * `<section>` &mdash; describes a part of a trajectory. It must contain attributes `start.x`, `start.y`, `goal.x`, `goal.y` and `duration`.
 ## Launch
 To launch the application you need to have an input XML-file with all required information. If it's all-in-one file:
 ```
@@ -177,6 +177,20 @@ If `<loglevel>` has value `1` or `2` the output file will be placed in the same 
 "initial_file_name.xml" -> "initial_file_name_log.xml"
 ```
 In case of using separate input files the output file by default will be named as the task-file, i.e. `task_file_name_log.xml`.
+
+
+## Visualizing log files
+To view an animation of a log file use the visualizer.py script.  This requires numpy and pygame.  Install pygame as below, numpy installation is left as an exercise.
+
+```bash
+python3 -m pip install -U pygame --user
+python3 -m pygame.examples.aliens
+```
+To run the visualizer give it as it's first argument the log file.
+```bash
+./visualizer.py ../../instances/Examples/small/task_log.xml
+```
+
 
 <!---
 ## Multi-agents
