@@ -2,12 +2,45 @@
 import numpy as np
 import xml.etree.ElementTree as ET
 import pygame
+import sys
+
 BLACK = (0, 0, 0)
 GREY = (128, 128, 128)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GOLD = (255, 215, 0)
 
+pixel_factor = 10
+
+class StaticMap:
+    def __init__(self, tree):
+        m = tree.find("map")
+        grid = m.find("grid")
+        self.map_array = np.zeros((int(grid.attrib["height"]),
+                              int(grid.attrib["width"])), dtype=int)
+        acc = 0
+        for row in grid.findall("row"):
+            self.map_array[acc] = row.text.strip().split(" ")
+            acc += 1
+
+    def shape(self):
+        return self.map_array.shape
+
+    def width(self):
+        return self.shape()[1]
+    def height(self):
+        return self.shape()[0]
+
+    def render(self):
+        background = pygame.Surface((self.width(), self.height()))
+        for i in range(self.height()):
+            for j in range(self.width()):
+                rect = pygame.Rect((j), (i), 1, 1)
+                if self.map_array[i, j] == 1:
+                    pygame.draw.rect(background, BLACK, rect, 0)
+                else:
+                    pygame.draw.rect(background, WHITE, rect, 0)
+        return background, rect
 
 class Agent:
     def __init__(self, defaults, init_config):
@@ -61,17 +94,6 @@ class Obstacle:
             self.sections.append(Section(s.attrib))
 
 
-def read_map(tree):
-    m = tree.find("map")
-    grid = m.find("grid")
-    map_array = np.zeros((int(grid.attrib["height"]),
-                          int(grid.attrib["width"])), dtype=int)
-    acc = 0
-    for row in grid.findall("row"):
-        map_array[acc] = row.text.strip().split(" ")
-        acc += 1
-    return map_array
-
 
 def read_agents(tree):
     agents = tree.find("agents")
@@ -107,28 +129,21 @@ def read_solution_path(tree):
 
 if __name__ == '__main__':
     tree = ET.parse('../examples/all_in_one_example_log.xml')
-    map_array = read_map(tree)
+    pygame.init()
+    map = StaticMap(tree)
     agent_list = read_agents(tree)
     dynamic_obstacles = read_dynamic_obstacles(tree)
     solved_agent, solution_path = read_solution_path(tree)
-    pygame.init()
     # load and set the logo
     pygame.display.set_caption("minimal program")
     # create a surface on screen that has the size of 240 x 180
-    screen = pygame.display.set_mode((10*map_array.shape[1], 10*map_array.shape[0]))
-    screen.fill(GREY)
+    screen = pygame.display.set_mode((pixel_factor*map.width(),pixel_factor*map.height()), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+    screen.fill("grey")
+    background, _ = map.render()
+    screen.blit(pygame.transform.scale(background, screen.get_rect().size), (0, 0))
+    pygame.display.update()
     # define a variable to control the main loop
     running = True
-
-    #draw grid
-    for i in range(map_array.shape[0]):
-        for j in range(map_array.shape[1]):
-            rect = pygame.Rect(10*(j), 10*(i), 10, 10)
-            if map_array[i, j] == 1:
-                pygame.draw.rect(screen, BLACK, rect, 0)
-            else:
-                pygame.draw.rect(screen, WHITE, rect, 0)
-
     for agent in agent_list:
         if agent.id_num != solved_agent.id_num:
             rect = pygame.Rect(10*(agent.start_i), 10*(agent.start_j), 10, 10)
@@ -146,10 +161,14 @@ if __name__ == '__main__':
     while running:
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+            if event.type == pygame.QUIT:
+                pygame.display.quit()
+                sys.exit()
+            elif event.type == pygame.VIDEORESIZE:
+                screen = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+                screen.fill("grey")
+                screen.blit(pygame.transform.scale(background, screen.get_rect().size), (0, 0))
+                pygame.display.update()
         p = solution_path[i]
         time = clock.tick(60)
         dt = time/(p.duration*1000)
