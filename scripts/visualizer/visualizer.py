@@ -50,9 +50,14 @@ class Agent:
         agent_list = []
         default = agents.find("defaultparameters").attrib
         for a in agents.findall("agent"):
-            print(a)
             agent_list.append(Agent(a, default))
         return agent_list
+
+    def render_goal(self):
+        surf = pygame.Surface((1, 1))
+        rect = pygame.Rect(self.goal_i, self.goal_j, 1, 1)
+        pygame.draw.rect(surf, "green", pygame.Rect(0,0,1,1), 0)
+        return surf, rect
 
     def __init__(self, tree, defaults):
         init_config = tree.attrib
@@ -167,8 +172,9 @@ def update_fps(clock):
 	fps = str(int(clock.get_fps()))
 	return fps
 
-def render_all(screen, background, dynamic_objects, time):
+def render_all(screen, background, dynamic_objects, goal, time):
     bg = background.copy()
+    bg.blit(goal[0], goal[1])
     for i in range(len(dynamic_objects)):
         p = dynamic_objects[i]
         if i == 0:
@@ -211,9 +217,11 @@ if __name__ == '__main__':
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print("")
                 pygame.display.quit()
                 sys.exit()
             elif event.type == pygame.VIDEORESIZE:
                 screen = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
         time = (datetime.datetime.now() - start_time).total_seconds()
-        render_all(screen, background, dynamic_objects, time)
+        print("\r" + str(time), end = "")
+        render_all(screen, background, dynamic_objects, solved_agent.render_goal(),time)
