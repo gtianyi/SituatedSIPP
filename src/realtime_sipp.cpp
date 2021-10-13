@@ -150,81 +150,101 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     int             reexpanded(0);
     int             close_id(0);
     std::list<Node> reexpanded_list;
-    while (!stopCriterion(curNode, goalNode)) {
-        curNode    = findMin();
-        auto range = close.equal_range(curNode.i * map.width + curNode.j);
-        for (auto it = range.first; it != range.second; it++) {
-            if (it->second.interval_id ==
-                curNode.interval_id) // && it->second.heading_id ==
-                                     // curNode.heading_id)
-            {
-                reexpanded++;
-                reexpanded_list.push_back(curNode);
-                if (config->planforturns &&
-                    it->second.heading_id != curNode.heading_id) {
-                    reexpanded--;
-                }
-                break;
-            }
-        }
-        curNode.close_id = close_id;
-        close_id++;
-        close.insert({curNode.i * map.width + curNode.j, curNode});
-        for (Node s : findSuccessors(curNode, map)) {
-            if (config->use_likhachev) {
-                range    = close.equal_range(s.i * map.width + s.j);
-                bool add = true;
-                for (auto it = range.first; it != range.second; it++) {
-                    if (it->second.interval_id == curNode.interval_id &&
-                        (!config->planforturns ||
-                         it->second.heading_id == curNode.heading_id)) {
-                        add = false;
-                        break;
+    // real-time search loop
+    while (1) {
+        int expansionLimit(100);
+        int curExpansion(0);
+        // expansion phrase
+        while (!stopCriterion(curNode, goalNode) &&
+               curExpansion < expansionLimit) {
+            curExpansion++;
+            curNode    = findMin();
+            auto range = close.equal_range(curNode.i * map.width + curNode.j);
+            for (auto it = range.first; it != range.second; it++) {
+                if (it->second.interval_id ==
+                    curNode.interval_id) // && it->second.heading_id ==
+                                         // curNode.heading_id)
+                {
+                    reexpanded++;
+                    reexpanded_list.push_back(curNode);
+                    if (config->planforturns &&
+                        it->second.heading_id != curNode.heading_id) {
+                        reexpanded--;
                     }
+                    break;
                 }
-                s.optimal = false;
-                if (add) {
+            }
+            curNode.close_id = close_id;
+            close_id++;
+            close.insert({curNode.i * map.width + curNode.j, curNode});
+            for (Node s : findSuccessors(curNode, map)) {
+                if (config->use_likhachev) {
+                    range    = close.equal_range(s.i * map.width + s.j);
+                    bool add = true;
+                    for (auto it = range.first; it != range.second; it++) {
+                        if (it->second.interval_id == curNode.interval_id &&
+                            (!config->planforturns ||
+                             it->second.heading_id == curNode.heading_id)) {
+                            add = false;
+                            break;
+                        }
+                    }
+                    s.optimal = false;
+                    if (add) {
+                        addOpen(s);
+                    }
+                    if (curNode.optimal == true) {
+                        s.optimal = true;
+                        s.F = config->h_weight * (s.g + getHValue(s.i, s.j));
+                        addOpen(s);
+                    }
+                } else {
                     addOpen(s);
                 }
-                if (curNode.optimal == true) {
-                    s.optimal = true;
-                    s.F       = config->h_weight * (s.g + getHValue(s.i, s.j));
-                    addOpen(s);
-                }
-            } else {
-                addOpen(s);
             }
         }
-    }
-    if (goalNode.g < CN_INFINITY) {
-        makePrimaryPath(goalNode);
+        // decision-making phase
+        // if goal found commit all the way to the goal
+        if (goalNode.g < CN_INFINITY) {
+            makePrimaryPath(goalNode);
 #ifdef __linux__
-        gettimeofday(&end, nullptr);
-        resultPath.runtime =
-          (end.tv_sec - begin.tv_sec) +
-          static_cast<double>(end.tv_usec - begin.tv_usec) / 1000000;
+            gettimeofday(&end, nullptr);
+            resultPath.runtime =
+              (end.tv_sec - begin.tv_sec) +
+              static_cast<double>(end.tv_usec - begin.tv_usec) / 1000000;
 #else
-        QueryPerformanceCounter(&end);
-        resultPath.runtime =
-          static_cast<double long>(end.QuadPart - begin.QuadPart) /
-          freq.QuadPart;
+            QueryPerformanceCounter(&end);
+            resultPath.runtime =
+              static_cast<double long>(end.QuadPart - begin.QuadPart) /
+              freq.QuadPart;
 #endif
-        resultPath.sections = hppath;
-        makeSecondaryPath(goalNode);
-        resultPath.pathfound       = true;
-        resultPath.expanded        = close.size();
-        resultPath.generated       = open.size() + close.size();
-        resultPath.path            = lppath;
-        resultPath.pathlength      = goalNode.g;
-        resultPath.reopened        = constraints->reopened; //;
-        resultPath.reexpanded      = reexpanded;
-        resultPath.reexpanded_list = reexpanded_list;
-        sresult.pathfound          = true;
-        sresult.flowtime += goalNode.g;
-        sresult.makespan = std::max(sresult.makespan, goalNode.g);
-        sresult.pathInfo[numOfCurAgent] = resultPath;
-        sresult.agentsSolved++;
-    } else {
+            resultPath.sections = hppath;
+            makeSecondaryPath(goalNode);
+            resultPath.pathfound       = true;
+            resultPath.expanded        = close.size();
+            resultPath.generated       = open.size() + close.size();
+            resultPath.path            = lppath;
+            resultPath.pathlength      = goalNode.g;
+            resultPath.reopened        = constraints->reopened; //;
+            resultPath.reexpanded      = reexpanded;
+            resultPath.reexpanded_list = reexpanded_list;
+            sresult.pathfound          = true;
+            sresult.flowtime += goalNode.g;
+            sresult.makespan = std::max(sresult.makespan, goalNode.g);
+            sresult.pathInfo[numOfCurAgent] = resultPath;
+            sresult.agentsSolved++;
+            break;
+        }
+
+        // if goal not found, then
+        // 1) commit the the toplevel action that would lead to the best search frontier node
+        // 2) re-root the search tree to the best successor node
+
+        // learning phase
+        // update the heuristic in closed list
+
+    }
+    if (!resultPath.pathfound) {
 #ifdef __linux__
         gettimeofday(&end, nullptr);
         resultPath.runtime =
@@ -244,5 +264,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         resultPath.pathlength           = 0;
         sresult.pathInfo[numOfCurAgent] = resultPath;
     }
+
     return resultPath.pathfound;
 }
