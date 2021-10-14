@@ -240,6 +240,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // 1) commit the the toplevel action that would lead to the best search frontier node
         // 2) re-root the search tree to the best successor node
 
+
         // learning phase
         // update the heuristic in closed list
 
@@ -266,4 +267,67 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     }
 
     return resultPath.pathfound;
+}
+
+void Realtime_SIPP::makePrimaryPath(Node curNode)
+{
+    hppath.clear();
+    hppath.shrink_to_fit();
+    std::list<Node> path;
+    path.push_front(curNode);
+    if (curNode.Parent != nullptr) {
+        curNode = *curNode.Parent;
+        if (curNode.Parent != nullptr) {
+            do {
+                path.push_front(curNode);
+                curNode = *curNode.Parent;
+            } while (curNode.Parent != nullptr);
+        }
+        path.push_front(curNode);
+    }
+    for (auto it = path.begin(); it != path.end(); it++) {
+        hppath.push_back(*it);
+    }
+    if (config->planforturns && curagent.goal_heading >= 0) {
+        Node add    = hppath.back();
+        add.heading = curagent.goal_heading;
+        hppath.back().g -=
+          getRCost(hppath.back().heading, curagent.goal_heading);
+        hppath.push_back(add);
+    }
+    for (unsigned int i = 1; i < hppath.size(); i++) {
+        if ((hppath[i].g -
+             (hppath[i - 1].g + getCost(hppath[i].i, hppath[i].j,
+                                        hppath[i - 1].i, hppath[i - 1].j) /
+                                  curagent.mspeed)) > CN_EPSILON) {
+            Node add   = hppath[i - 1];
+            add.Parent = hppath[i].Parent;
+            add.g      = hppath[i].g - getCost(hppath[i].i, hppath[i].j,
+                                          hppath[i - 1].i, hppath[i - 1].j) /
+                                    curagent.mspeed;
+            add.heading = hppath[i].heading;
+            hppath.emplace(hppath.begin() + i, add);
+            i++;
+        }
+    }
+    if (config->planforturns && curagent.goal_heading >= 0) {
+        hppath.pop_back();
+    }
+}
+
+void Realtime_SIPP::makeSecondaryPath(Node curNode)
+{
+    lppath.clear();
+    if (curNode.Parent != nullptr) {
+        std::vector<Node> lineSegment;
+        do {
+            calculateLineSegment(lineSegment, *curNode.Parent, curNode);
+            lppath.insert(lppath.begin(), ++lineSegment.begin(),
+                          lineSegment.end());
+            curNode = *curNode.Parent;
+        } while (curNode.Parent != nullptr);
+        lppath.push_front(*lineSegment.begin());
+    } else {
+        lppath.push_front(curNode);
+    }
 }

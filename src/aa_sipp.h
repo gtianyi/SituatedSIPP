@@ -38,8 +38,8 @@ protected:
     double getRCost(double headingA, double headingB);
     double calcHeading(const Node &node, const Node &son);
     std::list<Node> findSuccessors(const Node curNode, const Map &map);
-    void makePrimaryPath(Node curNode);
-    void makeSecondaryPath(Node curNode);
+    virtual void makePrimaryPath(Node curNode);
+    virtual void makeSecondaryPath(Node curNode);
     void calculateLineSegment(std::vector<Node> &line, const Node &start, const Node &goal);
     void addConstraints(){}
     Node resetParent(Node current, Node Parent, const Map &map);
