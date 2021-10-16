@@ -191,6 +191,19 @@ To run the visualizer give it as it's first argument the log file.
 ./visualizer.py ../../instances/Examples/small/task_log.xml
 ```
 
+To deal with different python version issue, we suggest to use [Miniconda]<https://docs.conda.io/en/latest/miniconda.html> environment. Once you have the miniconda installed, you can install our visualizer environment as the following.
+```bash
+conda create --name pygame python=3.8
+conda activate pygame
+python3 -m pip install --upgrade pygame==2.0.0.dev10
+python3 -m pygame.examples.aliens
+conda install -c anaconda numpy
+```
+Then, first switch to pygame conda env before run the visualizer.
+```bash
+conda activate pygame
+./visualizer.py ../../instances/Examples/small/task_log.xml
+```
 
 <!---
 ## Multi-agents
