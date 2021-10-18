@@ -5,10 +5,15 @@ class Realtime_SIPP : public AA_SIPP
 {
 
 public:
+    Realtime_SIPP(const Config& config);
 
-    Realtime_SIPP(const Config &config);
-    SearchResult startSearch(Map& map, Task& task, DynamicObstacles& obstacles) override;
-    bool findPath(unsigned int numOfCurAgent, const Map& map) override;
-    void makePrimaryPath(Node curNode) override;
-    void makeSecondaryPath(Node curNode) override;
+    SearchResult startSearch(Map& map, Task& task,
+                             DynamicObstacles& obstacles) override;
+    bool         findPath(unsigned int numOfCurAgent, const Map& map) override;
+
+private:
+    void recordingPath(Node commitedNode);
+    Node backup();
+    void recordToPrimaryPath(Node curNode);
+    void recordToSecondaryPath(Node curNode);
 };

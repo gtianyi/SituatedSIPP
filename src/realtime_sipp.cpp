@@ -151,10 +151,11 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     int             close_id(0);
     std::list<Node> reexpanded_list;
     // real-time search loop
-    while (1) {
+    int iterationCounter(0);
+    while (iterationCounter++ < 10000) {
         int expansionLimit(100);
         int curExpansion(0);
-        // expansion phrase
+        // expansion phase
         while (!stopCriterion(curNode, goalNode) &&
                curExpansion < expansionLimit) {
             curExpansion++;
@@ -206,20 +207,14 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // decision-making phase
         // if goal found commit all the way to the goal
         if (goalNode.g < CN_INFINITY) {
-            makePrimaryPath(goalNode);
-#ifdef __linux__
+            recordingPath(goalNode);
+
             gettimeofday(&end, nullptr);
             resultPath.runtime =
               (end.tv_sec - begin.tv_sec) +
               static_cast<double>(end.tv_usec - begin.tv_usec) / 1000000;
-#else
-            QueryPerformanceCounter(&end);
-            resultPath.runtime =
-              static_cast<double long>(end.QuadPart - begin.QuadPart) /
-              freq.QuadPart;
-#endif
-            resultPath.sections = hppath;
-            makeSecondaryPath(goalNode);
+
+            resultPath.sections        = hppath;
             resultPath.pathfound       = true;
             resultPath.expanded        = close.size();
             resultPath.generated       = open.size() + close.size();
@@ -237,26 +232,25 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         }
 
         // if goal not found, then
-        // 1) commit the the toplevel action that would lead to the best search frontier node
-        // 2) re-root the search tree to the best successor node
+        // 1) commit the the toplevel action that would lead to the best search
+        // frontier node
+        auto bestTLA = backup();
+        recordingPath(bestTLA);
 
+        // 2) re-root the search tree to the best successor node
+        curNode        = bestTLA;
+        curNode.Parent = nullptr;
+        open.clear();
+        addOpen(curNode);
 
         // learning phase
         // update the heuristic in closed list
-
     }
     if (!resultPath.pathfound) {
-#ifdef __linux__
         gettimeofday(&end, nullptr);
         resultPath.runtime =
           (end.tv_sec - begin.tv_sec) +
           static_cast<double>(end.tv_usec - begin.tv_usec) / 1000000;
-#else
-        QueryPerformanceCounter(&end);
-        resultPath.runtime =
-          static_cast<double long>(end.QuadPart - begin.QuadPart) /
-          freq.QuadPart;
-#endif
         std::cout << "Path for agent " << curagent.id << " not found!\n";
         sresult.pathfound    = false;
         resultPath.pathfound = false;
@@ -269,10 +263,10 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     return resultPath.pathfound;
 }
 
-void Realtime_SIPP::makePrimaryPath(Node curNode)
+void Realtime_SIPP::recordToPrimaryPath(Node committedNode)
 {
-    hppath.clear();
-    hppath.shrink_to_fit();
+    auto curNode = committedNode;
+
     std::list<Node> path;
     path.push_front(curNode);
     if (curNode.Parent != nullptr) {
@@ -315,9 +309,9 @@ void Realtime_SIPP::makePrimaryPath(Node curNode)
     }
 }
 
-void Realtime_SIPP::makeSecondaryPath(Node curNode)
+void Realtime_SIPP::recordToSecondaryPath(Node committedNode)
 {
-    lppath.clear();
+    auto curNode = committedNode;
     if (curNode.Parent != nullptr) {
         std::vector<Node> lineSegment;
         do {
@@ -330,4 +324,26 @@ void Realtime_SIPP::makeSecondaryPath(Node curNode)
     } else {
         lppath.push_front(curNode);
     }
+}
+
+void Realtime_SIPP::recordingPath(Node committedNode)
+{
+    recordToPrimaryPath(committedNode);
+
+    recordToSecondaryPath(committedNode);
+}
+
+Node Realtime_SIPP::backup()
+{
+    auto bestFrontierNode = findMin();
+
+    auto cur       = bestFrontierNode;
+    auto parentPtr = bestFrontierNode.Parent;
+
+    while (parentPtr != nullptr && parentPtr->Parent != nullptr) {
+        cur       = *parentPtr;
+        parentPtr = cur.Parent;
+    }
+
+    return cur;
 }
