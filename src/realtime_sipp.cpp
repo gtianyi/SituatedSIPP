@@ -154,7 +154,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     // real-time search loop
     int iterationCounter(0);
     while (iterationCounter++ < 10000) {
-        //DEBUG_MSG_NOLINE_BREAK( "iteration id " << iterationCounter);
+        //DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
         DEBUG_MSG( "iteration id " << iterationCounter);
         int expansionLimit(100);
         int curExpansion(0);
