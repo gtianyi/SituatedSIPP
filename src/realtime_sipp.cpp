@@ -1,4 +1,5 @@
 #include "realtime_sipp.h"
+#include "debug.h"
 
 Realtime_SIPP::Realtime_SIPP(const Config& config)
     : AA_SIPP(config)
@@ -153,6 +154,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     // real-time search loop
     int iterationCounter(0);
     while (iterationCounter++ < 10000) {
+        //DEBUG_MSG_NOLINE_BREAK( "iteration id " << iterationCounter);
+        DEBUG_MSG( "iteration id " << iterationCounter);
         int expansionLimit(100);
         int curExpansion(0);
         // expansion phase

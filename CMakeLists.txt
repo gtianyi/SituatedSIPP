@@ -5,7 +5,7 @@ project(SituatedSIPP LANGUAGES C CXX)
 # Project wide C++ standard
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-#set(DCMAKE_BUILD_TYPE RELEASE)
+set(DCMAKE_BUILD_TYPE RELEASE)
 
 # Let CMake easily find our custom CMake modules
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
