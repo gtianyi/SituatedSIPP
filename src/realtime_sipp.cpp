@@ -153,14 +153,14 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     std::list<Node> reexpanded_list;
     // real-time search loop
     int iterationCounter(0);
+    DEBUG_MSG("lookahead limit " << config->fixedlookahead);
     while (iterationCounter++ < 10000) {
-        //DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
-        DEBUG_MSG( "iteration id " << iterationCounter);
-        int expansionLimit(100);
+        // DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
+        DEBUG_MSG("iteration id " << iterationCounter);
         int curExpansion(0);
         // expansion phase
         while (!stopCriterion(curNode, goalNode) &&
-               curExpansion < expansionLimit) {
+               curExpansion < config->fixedlookahead) {
             curExpansion++;
             curNode    = findMin();
             auto range = close.equal_range(curNode.i * map.width + curNode.j);
