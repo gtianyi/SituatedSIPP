@@ -9,6 +9,7 @@
 		<timelimit>60</timelimit>
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
+		<fixedlookahead>10</fixedlookahead>
 	</algorithm>
 	<options>
 		<loglevel>2</loglevel>

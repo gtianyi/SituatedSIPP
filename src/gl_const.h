@@ -33,6 +33,7 @@
 #define CNS_DEFAULT_ALGTYPE                 "1"
 #define CN_DEFAULT_WEIGHT                   1
 #define CNS_DEFAULT_WEIGHT                  "1"
+#define CNS_DEFAULT_FIXEDLOOKAHEADLIMIT     100
 
 #define CN_HEADING_WHATEVER                 -1
 #define CNS_HEADING_WHATEVER                "whatever"
@@ -113,6 +114,7 @@
             #define CNS_TAG_OPEN            "open"
             #define CNS_TAG_NODE            "node"
             #define CNS_TAG_CLOSE           "close"
+    #define CNS_TAG_FIXEDLOOKAHEADLIMIT     "fixedlookahead"
 
 /*
  * End of XML files tags -------------------------------------------------------

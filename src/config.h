@@ -31,6 +31,7 @@ public:
     double weight;
     std::string logfilename;
     std::string logpath;
+    int fixedlookahead;
 
     bool getConfig(const char* fileName);
 };

@@ -11,6 +11,7 @@ Config::Config()
     rescheduling = CN_DEFAULT_RESCHEDULING;
     planforturns = CN_DEFAULT_PLANFORTURNS;
     additionalwait = CN_DEFAULT_ADDITIONALWAIT;
+    fixedlookahead = CNS_DEFAULT_FIXEDLOOKAHEADLIMIT;
 }
 
 bool Config::getConfig(const char* fileName)
@@ -276,6 +277,21 @@ bool Config::getConfig(const char* fileName)
         element = options->FirstChildElement(CNS_TAG_LOGFILENAME);
         if(element->GetText() != nullptr)
             logfilename = element->GetText();
+    }
+
+    element = algorithm->FirstChildElement(CNS_TAG_FIXEDLOOKAHEADLIMIT);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_FIXEDLOOKAHEADLIMIT<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_FIXEDLOOKAHEADLIMIT<<"'."<<std::endl;
+        fixedlookahead = CNS_DEFAULT_FIXEDLOOKAHEADLIMIT;
+    }
+    else
+    {
+        value = element->GetText();
+        stream<<value;
+        stream>>fixedlookahead;
+        stream.clear();
+        stream.str("");
     }
 
     return true;
