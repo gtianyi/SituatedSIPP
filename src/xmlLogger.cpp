@@ -112,7 +112,7 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
         return;
     XMLElement *element=doc->FirstChildElement(CNS_TAG_ROOT);
     element = element->FirstChildElement(CNS_TAG_LOG);
-    XMLElement *agent_elem, *path, *reexp;
+    XMLElement *agent_elem, *path, *reexp, *online_plan_paths;
     for(unsigned int i = 0; i < task.getNumberOfAgents(); i++)
     {
         Agent agent = task.getAgent(i);
@@ -175,6 +175,63 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
                 partnumber++;
             }
         }
+
+        online_plan_paths = doc->NewElement(CNS_TAG_ONLINEPLANPATHS);
+
+        if(sresult.pathInfo[i].pathfound)
+        {
+            online_plan_paths->SetAttribute(CNS_TAG_ATTR_PATHFOUND, CNS_TAG_ATTR_TRUE);
+            online_plan_paths->SetAttribute(CNS_TAG_ATTR_RUNTIME, float(sresult.pathInfo[i].runtime));
+            online_plan_paths->SetAttribute(CNS_TAG_ATTR_DURATION, float(sresult.pathInfo[i].pathlength));
+        }
+        else
+        {
+            online_plan_paths->SetAttribute(CNS_TAG_ATTR_PATHFOUND, CNS_TAG_ATTR_FALSE);
+            online_plan_paths->SetAttribute(CNS_TAG_ATTR_RUNTIME, float(sresult.pathInfo[i].runtime));
+            online_plan_paths->SetAttribute(CNS_TAG_ATTR_DURATION, 0);
+        }
+        agent_elem->LinkEndChild(online_plan_paths);
+        if (sresult.pathInfo[i].pathfound && !sresult.pathInfo[i].iterationPath.empty())
+        {
+            auto itOnlineIterationPath = sresult.pathInfo[i].iterationPath.begin();
+            int partnumber(0);
+            XMLElement *partPath;
+            while(itOnlineIterationPath != --sresult.pathInfo[i].iterationPath.end())
+            {
+                partPath = doc->NewElement(CNS_TAG_PATH);
+                partPath->SetAttribute(CNS_TAG_ATTR_ID, partnumber);
+                partPath->SetAttribute(CNS_TAG_ATTR_RUNTIME, float(itOnlineIterationPath->runtime));
+                partPath->SetAttribute(CNS_TAG_ATTR_DURATION, float(itOnlineIterationPath->pathlength));
+
+                online_plan_paths->LinkEndChild(partPath);
+                auto iterMovement = itOnlineIterationPath->sections.begin();
+                auto itMovement = itOnlineIterationPath->sections.begin();
+                int partMovementNumber(0);
+                XMLElement *partMovement;
+                while(itMovement != --itOnlineIterationPath->sections.end())
+                {
+                    partMovement = doc->NewElement(CNS_TAG_SECTION);
+                    partMovement->SetAttribute(CNS_TAG_ATTR_ID, partMovementNumber);
+                    partMovement->SetAttribute(CNS_TAG_ATTR_SX, itMovement->j);
+                    partMovement->SetAttribute(CNS_TAG_ATTR_SY, itMovement->i);
+                    if(config.planforturns)
+                        partMovement->SetAttribute(CNS_TAG_ATTR_SH, float(itMovement->heading));
+                    iterMovement++;
+                    partMovement->SetAttribute(CNS_TAG_ATTR_GX, iterMovement->j);
+                    partMovement->SetAttribute(CNS_TAG_ATTR_GY, iterMovement->i);
+                    if(config.planforturns)
+                        partMovement->SetAttribute(CNS_TAG_ATTR_GH, float(iterMovement->heading));
+                    partMovement->SetAttribute(CNS_TAG_ATTR_DURATION, float(iterMovement->g - itMovement->g));
+                    partPath->LinkEndChild(partMovement);
+                    itMovement++;
+                    partMovementNumber++;
+                }
+                online_plan_paths->LinkEndChild(partPath);
+                itOnlineIterationPath++;
+                partnumber++;
+            }
+        }
+
         reexp = doc->NewElement("reexpanded");
         agent_elem->LinkEndChild(reexp);
         for(auto s:sresult.pathInfo[i].reexpanded_list)
