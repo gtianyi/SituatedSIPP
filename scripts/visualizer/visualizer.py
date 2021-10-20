@@ -137,7 +137,8 @@ def render_agent(agent, paths, time):
     dy = section.j2 - section.j1
     x = section.i1 + (time_in_section/section.duration)*dx
     y = section.j1 + (time_in_section/section.duration)*dy
-    rect = pygame.Rect(x, y, 1, 1)
+    print(x, " ", y)
+    rect = pygame.Rect(round(x), round(y), 1, 1)
     pygame.draw.rect(surf, c[agent], pygame.Rect(0,0,1,1), 0)
     return surf, rect
 
@@ -212,16 +213,15 @@ if __name__ == '__main__':
     time = 0.0
     # main loop
     while running:
-        clock.tick(60)
+        clock.tick(1)
         # print(update_fps(clock))
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print("")
                 pygame.display.quit()
                 sys.exit()
             elif event.type == pygame.VIDEORESIZE:
                 screen = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
         time = (datetime.datetime.now() - start_time).total_seconds()
-        print("\r" + str(time), end = "")
+        #print("\r" + str(time), end = "")
         render_all(screen, background, dynamic_objects, solved_agent.render_goal(),time)
