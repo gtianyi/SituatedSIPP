@@ -12,6 +12,7 @@ struct ResultPathInfo
     double pathlength;
     double runtime;
     std::list<Node> path;
+    std::vector<std::list<Node>> iterationPath;
     std::vector<Node> sections;
     int expanded;
     int generated;
