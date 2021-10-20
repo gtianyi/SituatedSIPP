@@ -115,6 +115,7 @@
             #define CNS_TAG_NODE            "node"
             #define CNS_TAG_CLOSE           "close"
     #define CNS_TAG_FIXEDLOOKAHEADLIMIT     "fixedlookahead"
+    #define CNS_TAG_ONLINEPLANPATHS         "onlineplanpaths"
 
 /*
  * End of XML files tags -------------------------------------------------------
