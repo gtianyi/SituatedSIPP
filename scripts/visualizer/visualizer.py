@@ -117,9 +117,12 @@ class Obstacle:
             self.sections.append(Section(s.attrib))
 
 
-def render_agent(agent, paths, time):
+def render_agent(agent, agent_radius,paths, time, screen, background):
     # agent is not actually needed rn
-    surf = pygame.Surface((1, 1))
+    size = screen.get_rect()
+    bgr = background.get_rect()
+    scale = [size.width/bgr.width, size.height/bgr.height]
+    surf = pygame.Surface((size.width, size.height), pygame.SRCALPHA, 32)
     acc = 0.0
     c = {
         "Agent": GOLD,
@@ -137,10 +140,9 @@ def render_agent(agent, paths, time):
     dy = section.j2 - section.j1
     x = section.i1 + (time_in_section/section.duration)*dx
     y = section.j1 + (time_in_section/section.duration)*dy
-    print(x, " ", y)
-    rect = pygame.Rect(round(x), round(y), 1, 1)
-    pygame.draw.rect(surf, c[agent], pygame.Rect(0,0,1,1), 0)
-    return surf, rect
+    rect = pygame.Rect(round(scale[0]*(x + (1/2 - agent_radius)))  , round(scale[1]*(y + (1/2-agent_radius) )), scale[0]*2*agent_radius, scale[1]*2*agent_radius)
+    pygame.draw.ellipse(surf, c[agent], rect)
+    return surf
 
 def get_paths_done_time(paths):
     acc = 0.0
@@ -173,17 +175,17 @@ def update_fps(clock):
 	fps = str(int(clock.get_fps()))
 	return fps
 
-def render_all(screen, background, dynamic_objects, goal, time):
+def render_all(screen, background, dynamic_objects, goal, time, sizes):
     bg = background.copy()
     bg.blit(goal[0], goal[1])
+    screen.blit(pygame.transform.scale(bg, screen.get_rect().size), (0, 0))
     for i in range(len(dynamic_objects)):
         p = dynamic_objects[i]
         if i == 0:
-            a_surf, a_rect = render_agent("Agent", p, time)
+            a_surf = render_agent("Agent",sizes[i], p, time, screen, background)
         else:
-            a_surf, a_rect = render_agent("Obstacle", p, time)
-        bg.blit(a_surf, a_rect)
-    screen.blit(pygame.transform.scale(bg, screen.get_rect().size), (0, 0))
+            a_surf= render_agent("Obstacle",sizes[i], p, time, screen, background)
+        screen.blit(a_surf, (0, 0))
     pygame.display.update()
 
 
@@ -195,7 +197,9 @@ if __name__ == '__main__':
     dynamic_obstacles = read_dynamic_obstacles(tree)
     solved_agent, solution_path = read_solution_path(tree)
     dynamic_objects = [solution_path]
+    sizes = [solved_agent.size]
     for obstacle in dynamic_obstacles:
+        sizes.append(obstacle.size)
         dynamic_objects.append(obstacle.sections)
     # load and set the logo
     pygame.display.set_caption("minimal program")
@@ -213,7 +217,7 @@ if __name__ == '__main__':
     time = 0.0
     # main loop
     while running:
-        clock.tick(1)
+        clock.tick(60)
         # print(update_fps(clock))
         # event handling, gets all event from the event queue
         for event in pygame.event.get():
@@ -224,4 +228,4 @@ if __name__ == '__main__':
                 screen = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
         time = (datetime.datetime.now() - start_time).total_seconds()
         #print("\r" + str(time), end = "")
-        render_all(screen, background, dynamic_objects, solved_agent.render_goal(),time)
+        render_all(screen, background, dynamic_objects, solved_agent.render_goal(),time, sizes)
