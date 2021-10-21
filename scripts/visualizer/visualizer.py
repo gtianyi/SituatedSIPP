@@ -12,6 +12,90 @@ RED = (255, 0, 0)
 GOLD = (255, 215, 0)
 
 pixel_factor = 200
+class World:
+    def __init__(self, tree):
+        self.map = StaticMap(tree)
+        self.agent_list = Agent.read_agents(tree)
+        self.dynamic_obstacles = read_dynamic_obstacles(tree)
+        self.solved_agent, self.solution_path = read_solution_path(tree)
+        self.dynamic_objects = [self.solution_path]
+        self.sizes = [self.solved_agent.size]
+        for obstacle in self.dynamic_obstacles:
+            self.sizes.append(obstacle.size)
+            self.dynamic_objects.append(obstacle.sections)
+        self.goal = self.solved_agent.render_goal()
+        self.screen = None
+        self.background = None
+
+    def render_agent(self, agent, agent_radius, paths, time):
+        # agent is not actually needed rn
+        size = self.screen.get_rect()
+        bgr = self.background.get_rect()
+        scale = [size.width/bgr.width, size.height/bgr.height]
+        surf = pygame.Surface((size.width, size.height), pygame.SRCALPHA, 32)
+        acc = 0.0
+        c = {
+            "Agent": GOLD,
+            "Obstacle": RED
+        }
+        for section in paths:
+            acc += section.duration
+            if acc >= time:
+                break
+        if acc < time:
+            time = acc
+        section_start_time = acc - section.duration
+        time_in_section = time - section_start_time
+        dx = section.i2 - section.i1
+        dy = section.j2 - section.j1
+        x = section.i1 + (time_in_section/section.duration)*dx
+        y = section.j1 + (time_in_section/section.duration)*dy
+        rect = pygame.Rect(round(scale[0]*(x + (1/2 - agent_radius)))  , round(scale[1]*(y + (1/2-agent_radius) )), scale[0]*2*agent_radius, scale[1]*2*agent_radius)
+        pygame.draw.ellipse(surf, c[agent], rect)
+        return surf
+
+    def render_all(self, time):
+        bg = self.background.copy()
+        bg.blit(self.goal[0], self.goal[1])
+        self.screen.blit(pygame.transform.scale(bg, self.screen.get_rect().size), (0, 0))
+        for i in range(len(self.dynamic_objects)):
+            p = self.dynamic_objects[i]
+            if i == 0:
+                a_surf = self.render_agent("Agent", self.sizes[i], p, time)
+            else:
+                a_surf= self.render_agent("Obstacle", self.sizes[i], p, time)
+            self.screen.blit(a_surf, (0, 0))
+        pygame.display.update()
+
+    def start(self):
+        # create a surface on screen that has the size of 240 x 180
+        pygame.init()
+        self.screen = pygame.display.set_mode((pixel_factor*self.map.width(),pixel_factor*self.map.height()), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+        self.screen.fill("grey")
+        self.background, _ = self.map.render()
+        self.screen.blit(pygame.transform.scale(self.background, self.screen.get_rect().size), (0, 0))
+        pygame.display.update()
+        # define a variable to control the main loop
+        running = True
+        clock = pygame.time.Clock()
+        time_to_done = get_paths_done_time(self.solution_path)
+        self.start_time = datetime.datetime.now()
+        time = 0.0
+        # main loop
+        while running:
+            clock.tick(60)
+            #print(update_fps(clock))
+            # event handling, gets all event from the event queue
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
+                    sys.exit()
+                elif event.type == pygame.VIDEORESIZE:
+                    self.screen = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
+            time = (datetime.datetime.now() - self.start_time).total_seconds()
+            #print("\r" + str(time), end = "")
+            self.render_all(time)
+
 
 class StaticMap:
     def __init__(self, tree):
@@ -117,32 +201,7 @@ class Obstacle:
             self.sections.append(Section(s.attrib))
 
 
-def render_agent(agent, agent_radius,paths, time, screen, background):
-    # agent is not actually needed rn
-    size = screen.get_rect()
-    bgr = background.get_rect()
-    scale = [size.width/bgr.width, size.height/bgr.height]
-    surf = pygame.Surface((size.width, size.height), pygame.SRCALPHA, 32)
-    acc = 0.0
-    c = {
-        "Agent": GOLD,
-        "Obstacle": RED
-    }
-    for section in paths:
-        acc += section.duration
-        if acc >= time:
-            break
-    if acc < time:
-        time = acc
-    section_start_time = acc - section.duration
-    time_in_section = time - section_start_time
-    dx = section.i2 - section.i1
-    dy = section.j2 - section.j1
-    x = section.i1 + (time_in_section/section.duration)*dx
-    y = section.j1 + (time_in_section/section.duration)*dy
-    rect = pygame.Rect(round(scale[0]*(x + (1/2 - agent_radius)))  , round(scale[1]*(y + (1/2-agent_radius) )), scale[0]*2*agent_radius, scale[1]*2*agent_radius)
-    pygame.draw.ellipse(surf, c[agent], rect)
-    return surf
+
 
 def get_paths_done_time(paths):
     acc = 0.0
@@ -175,57 +234,10 @@ def update_fps(clock):
 	fps = str(int(clock.get_fps()))
 	return fps
 
-def render_all(screen, background, dynamic_objects, goal, time, sizes):
-    bg = background.copy()
-    bg.blit(goal[0], goal[1])
-    screen.blit(pygame.transform.scale(bg, screen.get_rect().size), (0, 0))
-    for i in range(len(dynamic_objects)):
-        p = dynamic_objects[i]
-        if i == 0:
-            a_surf = render_agent("Agent",sizes[i], p, time, screen, background)
-        else:
-            a_surf= render_agent("Obstacle",sizes[i], p, time, screen, background)
-        screen.blit(a_surf, (0, 0))
-    pygame.display.update()
+
 
 
 if __name__ == '__main__':
     tree = ET.parse(sys.argv[1])
-    pygame.init()
-    map = StaticMap(tree)
-    agent_list = Agent.read_agents(tree)
-    dynamic_obstacles = read_dynamic_obstacles(tree)
-    solved_agent, solution_path = read_solution_path(tree)
-    dynamic_objects = [solution_path]
-    sizes = [solved_agent.size]
-    for obstacle in dynamic_obstacles:
-        sizes.append(obstacle.size)
-        dynamic_objects.append(obstacle.sections)
-    # load and set the logo
-    pygame.display.set_caption("minimal program")
-    # create a surface on screen that has the size of 240 x 180
-    screen = pygame.display.set_mode((pixel_factor*map.width(),pixel_factor*map.height()), pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
-    screen.fill("grey")
-    background, _ = map.render()
-    screen.blit(pygame.transform.scale(background, screen.get_rect().size), (0, 0))
-    pygame.display.update()
-    # define a variable to control the main loop
-    running = True
-    clock = pygame.time.Clock()
-    time_to_done = get_paths_done_time(solution_path)
-    start_time = datetime.datetime.now()
-    time = 0.0
-    # main loop
-    while running:
-        clock.tick(60)
-        # print(update_fps(clock))
-        # event handling, gets all event from the event queue
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.display.quit()
-                sys.exit()
-            elif event.type == pygame.VIDEORESIZE:
-                screen = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
-        time = (datetime.datetime.now() - start_time).total_seconds()
-        #print("\r" + str(time), end = "")
-        render_all(screen, background, dynamic_objects, solved_agent.render_goal(),time, sizes)
+    world = World(tree)
+    world.start()
