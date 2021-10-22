@@ -3,3 +3,4 @@ __pycache__/
 *log.xml
 *all.txt
 .gdb_history
+.nfs*
