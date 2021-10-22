@@ -6,7 +6,7 @@
 #include "xmlLogger.h"
 #include "searchresult.h"
 #include "aa_sipp.h"
-#include "realtime_sipp.h"
+#include "situatedSIPP/realtime_sipp.h"
 #include "task.h"
 #include "dynamicobstacles.h"
 
