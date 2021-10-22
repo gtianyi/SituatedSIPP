@@ -273,6 +273,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 
         // learning phase
         // update the heuristic in closed list
+        //learningModule->learning(open, close);
         close.clear();
         close_id = 0;
     }
