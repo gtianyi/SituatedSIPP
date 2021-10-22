@@ -32,6 +32,7 @@ public:
     std::string logfilename;
     std::string logpath;
     int fixedlookahead;
+    std::string learningalgorithm;
 
     bool getConfig(const char* fileName);
 };
