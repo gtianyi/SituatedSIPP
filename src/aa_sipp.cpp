@@ -1,4 +1,5 @@
 #include "aa_sipp.h"
+#include "debug.h"
 
 AA_SIPP::AA_SIPP(const Config& config)
 {
@@ -220,6 +221,7 @@ void AA_SIPP::addOpen(Node& newNode)
         it++;
     }
     if (!dominated) {
+        DEBUG_MSG("    not dominated");
         open.insert(newNode);
         if (config->use_focal) {
             if (open.get<0>().begin()->F * config->focal_weight >
