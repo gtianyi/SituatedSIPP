@@ -33,25 +33,37 @@ class World:
         bgr = self.background.get_rect()
         scale = [size.width/bgr.width, size.height/bgr.height]
         surf = pygame.Surface((size.width, size.height), pygame.SRCALPHA, 32)
-        acc = 0.0
         c = {
             "Agent": GOLD,
             "Obstacle": RED
         }
+        acc = 0.0
         for section in paths:
             acc += section.duration
             if acc >= time:
                 break
         if acc < time:
             time = acc
-        section_start_time = acc - section.duration
+        sections = []
+        acc2 = 0.0
+        for section in paths:
+            acc2 += section.duration
+            if acc2 >= time:
+                sections.append(section)
+
+        section_start_time = acc - sections[0].duration
         time_in_section = time - section_start_time
-        dx = section.i2 - section.i1
-        dy = section.j2 - section.j1
-        x = section.i1 + (time_in_section/section.duration)*dx
-        y = section.j1 + (time_in_section/section.duration)*dy
-        rect = pygame.Rect(round(scale[0]*(x + (1/2 - agent_radius)))  , round(scale[1]*(y + (1/2-agent_radius) )), scale[0]*2*agent_radius, scale[1]*2*agent_radius)
+        dx = sections[0].i2 - sections[0].i1
+        dy = sections[0].j2 - sections[0].j1
+        x = sections[0].i1 + (time_in_section/sections[0].duration)*dx
+        y = sections[0].j1 + (time_in_section/sections[0].duration)*dy
+        rect = pygame.Rect(round(scale[0]*(x + (1/2 - agent_radius))) , round(scale[1]*(y + (1/2-agent_radius) )), scale[0]*2*agent_radius, scale[1]*2*agent_radius)
         pygame.draw.ellipse(surf, c[agent], rect)
+        points = [(scale[0]*(x + 1/2), scale[1]*(y + 1/2)), (scale[0]*(sections[0].i2 + 1/2), scale[1]*(sections[0].j2 + 1/2))]
+        for section in sections[1:]:
+            points.append((scale[0]*(section.i1 + 1/2), scale[1]*(section.j1 + 1/2)))
+            points.append((scale[0]*(section.i2 + 1/2), scale[1]*(section.j2 + 1/2)))
+        pygame.draw.aalines(surf, c[agent], False, points)
         return surf
 
     def render_all(self, time):
