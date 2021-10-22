@@ -13,8 +13,6 @@ public:
 
 private:
     Node backupAndRecordPartialPlan(const Node& curNode, const timeval& begin, const timeval& end);
-    void recordToPrimaryPath(const Node& curNode);
-    void recordToSecondaryPath(const Node& curNode);
     void recordToOnlinePath(const Node& rootNode, const Node& frontierNode, const timeval& begin,
                             const timeval& end);
 

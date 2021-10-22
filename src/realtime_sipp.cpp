@@ -154,6 +154,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     // real-time search loop
     int iterationCounter(0);
     DEBUG_MSG("lookahead limit " << config->fixedlookahead);
+    hppath.push_back(curNode);
+    lppath.push_back(curNode);
     while (iterationCounter++ < 10000) {
         // DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
         DEBUG_MSG("iteration id " << iterationCounter);
@@ -291,71 +293,9 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     return resultPath.pathfound;
 }
 
-void Realtime_SIPP::recordToPrimaryPath(const Node& committedNode)
-{
-    auto curNode = committedNode;
-
-    std::list<Node> path;
-    path.push_front(curNode);
-    if (curNode.Parent != nullptr) {
-        curNode = *curNode.Parent;
-        if (curNode.Parent != nullptr) {
-            do {
-                path.push_front(curNode);
-                curNode = *curNode.Parent;
-            } while (curNode.Parent != nullptr);
-        }
-        path.push_front(curNode);
-    }
-    for (auto it = path.begin(); it != path.end(); it++) {
-        hppath.push_back(*it);
-    }
-    if (config->planforturns && curagent.goal_heading >= 0) {
-        Node add    = hppath.back();
-        add.heading = curagent.goal_heading;
-        hppath.back().g -=
-          getRCost(hppath.back().heading, curagent.goal_heading);
-        hppath.push_back(add);
-    }
-    for (unsigned int i = 1; i < hppath.size(); i++) {
-        if ((hppath[i].g -
-             (hppath[i - 1].g + getCost(hppath[i].i, hppath[i].j,
-                                        hppath[i - 1].i, hppath[i - 1].j) /
-                                  curagent.mspeed)) > CN_EPSILON) {
-            Node add   = hppath[i - 1];
-            add.Parent = hppath[i].Parent;
-            add.g      = hppath[i].g - getCost(hppath[i].i, hppath[i].j,
-                                          hppath[i - 1].i, hppath[i - 1].j) /
-                                    curagent.mspeed;
-            add.heading = hppath[i].heading;
-            hppath.emplace(hppath.begin() + i, add);
-            i++;
-        }
-    }
-    if (config->planforturns && curagent.goal_heading >= 0) {
-        hppath.pop_back();
-    }
-}
-
-void Realtime_SIPP::recordToSecondaryPath(const Node& committedNode)
-{
-    auto curNode = committedNode;
-    if (curNode.Parent != nullptr) {
-        std::vector<Node> lineSegment;
-        do {
-            calculateLineSegment(lineSegment, *curNode.Parent, curNode);
-            lppath.insert(lppath.begin(), ++lineSegment.begin(),
-                          lineSegment.end());
-            curNode = *curNode.Parent;
-        } while (curNode.Parent != nullptr);
-        lppath.push_front(*lineSegment.begin());
-    } else {
-        lppath.push_front(curNode);
-    }
-}
-
-void Realtime_SIPP::recordToOnlinePath(const Node& rootNode, const Node& frontierNode, const timeval& begin,
-                                       const timeval& end)
+void Realtime_SIPP::recordToOnlinePath(const Node&    rootNode,
+                                       const Node&    frontierNode,
+                                       const timeval& begin, const timeval& end)
 {
     auto curNode = frontierNode;
 
@@ -440,10 +380,6 @@ Node Realtime_SIPP::backupAndRecordPartialPlan(const Node&    curNode,
         parentPtr = cur.Parent;
     }
 
-    recordToOnlinePath(*parentPtr, bestFrontierNode, begin, end);
-    recordToPrimaryPath(cur);
-    recordToSecondaryPath(cur);
-
     DEBUG_MSG("curNode after search i, j, g: " << curNode.i << " " << curNode.j
                                                << " " << curNode.g);
     DEBUG_MSG("best frontier i, j, g: " << bestFrontierNode.i << " "
@@ -452,5 +388,9 @@ Node Realtime_SIPP::backupAndRecordPartialPlan(const Node&    curNode,
     DEBUG_MSG("best TLA after search i, j, g: " << cur.i << " " << cur.j << " "
                                                 << cur.g);
 
+    recordToOnlinePath(*parentPtr, bestFrontierNode, begin, end);
+    hppath.push_back(cur);
+    lppath.push_back(cur);
+    
     return cur;
 }
