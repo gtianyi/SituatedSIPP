@@ -12,8 +12,11 @@ public:
     bool         findPath(unsigned int numOfCurAgent, const Map& map) override;
 
 private:
-    void recordingPath(Node commitedNode);
-    Node backup();
+    Node backupAndRecordPartialPlan(const Node& curNode, const timeval& begin, const timeval& end);
     void recordToPrimaryPath(Node curNode);
     void recordToSecondaryPath(Node curNode);
+    void recordToOnlinePath(Node frontierNode, const timeval& begin,
+                            const timeval& end);
+
+    std::vector<ResultPathInfo> onlinePlanSections;
 };

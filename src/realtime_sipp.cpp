@@ -157,6 +157,40 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     while (iterationCounter++ < 10000) {
         // DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
         DEBUG_MSG("iteration id " << iterationCounter);
+        DEBUG_MSG("search root i, j, g: " << curNode.i << " " << curNode.j
+                                          << " " << curNode.g);
+
+        // Tianyi note: this goal test might be too much simplified, check
+        // AA_SIPP::stpCriterion
+        if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
+            DEBUG_MSG("goal reached!");
+            gettimeofday(&end, nullptr);
+            resultPath.runtime =
+              (end.tv_sec - begin.tv_sec) +
+              static_cast<double>(end.tv_usec - begin.tv_usec) / 1000000;
+
+            resultPath.sections        = hppath;
+            resultPath.pathfound       = true;
+            resultPath.expanded        = close.size();
+            resultPath.generated       = open.size() + close.size();
+            resultPath.path            = lppath;
+            resultPath.iterationPath   = onlinePlanSections;
+            resultPath.pathlength      = goalNode.g;
+            resultPath.reopened        = constraints->reopened; //;
+            resultPath.reexpanded      = reexpanded;
+            resultPath.reexpanded_list = reexpanded_list;
+            sresult.pathfound          = true;
+            sresult.flowtime += goalNode.g;
+            sresult.makespan = std::max(sresult.makespan, goalNode.g);
+            sresult.pathInfo[numOfCurAgent] = resultPath;
+            sresult.agentsSolved++;
+
+            break;
+        }
+
+        timeval beginOfRealtimeCycle, endOfRealtimeCycle;
+        gettimeofday(&beginOfRealtimeCycle, NULL);
+
         int curExpansion(0);
         // expansion phase
         while (!stopCriterion(curNode, goalNode) &&
@@ -207,47 +241,26 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
                 }
             }
         }
+
+        gettimeofday(&endOfRealtimeCycle, nullptr);
+
         // decision-making phase
-        // if goal found commit all the way to the goal
-        if (goalNode.g < CN_INFINITY) {
-            recordingPath(goalNode);
-
-            gettimeofday(&end, nullptr);
-            resultPath.runtime =
-              (end.tv_sec - begin.tv_sec) +
-              static_cast<double>(end.tv_usec - begin.tv_usec) / 1000000;
-
-            resultPath.sections        = hppath;
-            resultPath.pathfound       = true;
-            resultPath.expanded        = close.size();
-            resultPath.generated       = open.size() + close.size();
-            resultPath.path            = lppath;
-            resultPath.pathlength      = goalNode.g;
-            resultPath.reopened        = constraints->reopened; //;
-            resultPath.reexpanded      = reexpanded;
-            resultPath.reexpanded_list = reexpanded_list;
-            sresult.pathfound          = true;
-            sresult.flowtime += goalNode.g;
-            sresult.makespan = std::max(sresult.makespan, goalNode.g);
-            sresult.pathInfo[numOfCurAgent] = resultPath;
-            sresult.agentsSolved++;
-            break;
-        }
-
-        // if goal not found, then
         // 1) commit the the toplevel action that would lead to the best search
         // frontier node
-        auto bestTLA = backup();
-        recordingPath(bestTLA);
+        //
+        auto bestTLA = backupAndRecordPartialPlan(curNode, beginOfRealtimeCycle,
+                                                  endOfRealtimeCycle);
 
         // 2) re-root the search tree to the best successor node
-        curNode        = bestTLA;
+        curNode = bestTLA;
+
         curNode.Parent = nullptr;
         open.clear();
         addOpen(curNode);
 
         // learning phase
         // update the heuristic in closed list
+        close.clear();
     }
     if (!resultPath.pathfound) {
         gettimeofday(&end, nullptr);
@@ -329,16 +342,83 @@ void Realtime_SIPP::recordToSecondaryPath(Node committedNode)
     }
 }
 
-void Realtime_SIPP::recordingPath(Node committedNode)
+void Realtime_SIPP::recordToOnlinePath(Node frontierNode, const timeval& begin,
+                                       const timeval& end)
 {
-    recordToPrimaryPath(committedNode);
+    auto curNode = frontierNode;
 
-    recordToSecondaryPath(committedNode);
+    std::list<Node>   path;
+    std::vector<Node> sections;
+    path.push_front(curNode);
+    if (curNode.Parent != nullptr) {
+        curNode = *curNode.Parent;
+        if (curNode.Parent != nullptr) {
+            do {
+                path.push_front(curNode);
+                curNode = *curNode.Parent;
+            } while (curNode.Parent != nullptr);
+        }
+        path.push_front(curNode);
+    }
+    for (auto it = path.begin(); it != path.end(); it++) {
+        sections.push_back(*it);
+    }
+    if (config->planforturns && curagent.goal_heading >= 0) {
+        Node add    = sections.back();
+        add.heading = curagent.goal_heading;
+        sections.back().g -=
+          getRCost(sections.back().heading, curagent.goal_heading);
+        sections.push_back(add);
+    }
+    for (unsigned int i = 1; i < sections.size(); i++) {
+        if ((sections[i].g - (sections[i - 1].g +
+                              getCost(sections[i].i, sections[i].j,
+                                      sections[i - 1].i, sections[i - 1].j) /
+                                curagent.mspeed)) > CN_EPSILON) {
+            Node add   = sections[i - 1];
+            add.Parent = sections[i].Parent;
+            add.g =
+              sections[i].g - getCost(sections[i].i, sections[i].j,
+                                      sections[i - 1].i, sections[i - 1].j) /
+                                curagent.mspeed;
+            add.heading = sections[i].heading;
+            sections.emplace(sections.begin() + i, add);
+            i++;
+        }
+    }
+    if (config->planforturns && curagent.goal_heading >= 0) {
+        sections.pop_back();
+    }
+
+    ResultPathInfo partialPath;
+    partialPath.runtime =
+      (end.tv_sec - begin.tv_sec) +
+      static_cast<double>(end.tv_usec - begin.tv_usec) / 1000000;
+
+    partialPath.sections  = sections;
+    partialPath.pathfound = true;
+    partialPath.expanded  = close.size(); // accumulated closed
+    partialPath.generated =
+      open.size() +
+      close.size(); // this is wrong becauwse open is cleaned up every iteration
+    partialPath.path       = path;
+    partialPath.pathlength = frontierNode.g;
+    onlinePlanSections.push_back(partialPath);
 }
 
-Node Realtime_SIPP::backup()
+Node Realtime_SIPP::backupAndRecordPartialPlan(const Node&    curNode,
+                                               const timeval& begin,
+                                               const timeval& end)
 {
+    // Tianyi note: this goal test might be too much simplified, check
+    // AA_SIPP::stpCriterion
     auto bestFrontierNode = findMin();
+
+    DEBUG_MSG("goal i, j: " << curagent.goal_i << " " << curagent.goal_j);
+
+    if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
+        bestFrontierNode = curNode;
+    }
 
     auto cur       = bestFrontierNode;
     auto parentPtr = bestFrontierNode.Parent;
@@ -347,6 +427,17 @@ Node Realtime_SIPP::backup()
         cur       = *parentPtr;
         parentPtr = cur.Parent;
     }
+
+    recordToOnlinePath(bestFrontierNode, begin, end);
+    recordToPrimaryPath(cur);
+    recordToSecondaryPath(cur);
+
+    DEBUG_MSG("curNode after search i, j, g: " << curNode.i << " " << curNode.j << " " << curNode.g);
+    DEBUG_MSG("best frontier i, j, g: " << bestFrontierNode.i << " "
+                                        << bestFrontierNode.j << " "
+                                        << bestFrontierNode.g);
+    DEBUG_MSG("best TLA after search i, j, g: " << cur.i << " " << cur.j << " "
+                                                << cur.g);
 
     return cur;
 }
