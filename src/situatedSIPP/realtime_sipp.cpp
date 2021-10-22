@@ -1,5 +1,5 @@
 #include "realtime_sipp.h"
-#include "debug.h"
+#include "../debug.h"
 
 Realtime_SIPP::Realtime_SIPP(const Config& config)
     : AA_SIPP(config)
