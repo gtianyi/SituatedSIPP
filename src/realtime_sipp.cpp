@@ -291,7 +291,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     return resultPath.pathfound;
 }
 
-void Realtime_SIPP::recordToPrimaryPath(Node committedNode)
+void Realtime_SIPP::recordToPrimaryPath(const Node& committedNode)
 {
     auto curNode = committedNode;
 
@@ -337,7 +337,7 @@ void Realtime_SIPP::recordToPrimaryPath(Node committedNode)
     }
 }
 
-void Realtime_SIPP::recordToSecondaryPath(Node committedNode)
+void Realtime_SIPP::recordToSecondaryPath(const Node& committedNode)
 {
     auto curNode = committedNode;
     if (curNode.Parent != nullptr) {
@@ -354,7 +354,7 @@ void Realtime_SIPP::recordToSecondaryPath(Node committedNode)
     }
 }
 
-void Realtime_SIPP::recordToOnlinePath(Node frontierNode, const timeval& begin,
+void Realtime_SIPP::recordToOnlinePath(const Node& rootNode, const Node& frontierNode, const timeval& begin,
                                        const timeval& end)
 {
     auto curNode = frontierNode;
@@ -414,7 +414,7 @@ void Realtime_SIPP::recordToOnlinePath(Node frontierNode, const timeval& begin,
       open.size() +
       close.size(); // this is wrong becauwse open is cleaned up every iteration
     partialPath.path       = path;
-    partialPath.pathlength = frontierNode.g;
+    partialPath.pathlength = frontierNode.g - rootNode.g;
     onlinePlanSections.push_back(partialPath);
 }
 
@@ -440,7 +440,7 @@ Node Realtime_SIPP::backupAndRecordPartialPlan(const Node&    curNode,
         parentPtr = cur.Parent;
     }
 
-    recordToOnlinePath(bestFrontierNode, begin, end);
+    recordToOnlinePath(*parentPtr, bestFrontierNode, begin, end);
     recordToPrimaryPath(cur);
     recordToSecondaryPath(cur);
 

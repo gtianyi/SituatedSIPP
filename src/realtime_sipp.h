@@ -13,9 +13,9 @@ public:
 
 private:
     Node backupAndRecordPartialPlan(const Node& curNode, const timeval& begin, const timeval& end);
-    void recordToPrimaryPath(Node curNode);
-    void recordToSecondaryPath(Node curNode);
-    void recordToOnlinePath(Node frontierNode, const timeval& begin,
+    void recordToPrimaryPath(const Node& curNode);
+    void recordToSecondaryPath(const Node& curNode);
+    void recordToOnlinePath(const Node& rootNode, const Node& frontierNode, const timeval& begin,
                             const timeval& end);
 
     std::vector<ResultPathInfo> onlinePlanSections;
