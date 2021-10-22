@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import pygame
 import sys
 import datetime
+import argparse
 
 BLACK = (0, 0, 0)
 GREY = (128, 128, 128)
@@ -13,7 +14,7 @@ GOLD = (255, 215, 0)
 
 pixel_factor = 200
 class World:
-    def __init__(self, tree):
+    def __init__(self, tree, online):
         self.map = StaticMap(tree)
         self.agent_list = Agent.read_agents(tree)
         self.dynamic_obstacles = read_dynamic_obstacles(tree)
@@ -24,10 +25,13 @@ class World:
             self.sizes.append(obstacle.size)
             self.dynamic_objects.append(obstacle.sections)
         self.goal = self.solved_agent.render_goal()
+        self.online = online
+        if self.online:
+            self.online_soln_paths, self.online_soln_paths_t = read_online_paths(tree)
         self.screen = None
         self.background = None
 
-    def render_agent(self, agent, agent_radius, paths, time):
+    def render_agent(self, agent, agent_radius, paths, time, path_start_time = 0.0):
         # agent is not actually needed rn
         size = self.screen.get_rect()
         bgr = self.background.get_rect()
@@ -37,7 +41,7 @@ class World:
             "Agent": GOLD,
             "Obstacle": RED
         }
-        acc = 0.0
+        acc = path_start_time
         for section in paths:
             acc += section.duration
             if acc >= time:
@@ -45,7 +49,7 @@ class World:
         if acc < time:
             time = acc
         sections = []
-        acc2 = 0.0
+        acc2 = path_start_time
         for section in paths:
             acc2 += section.duration
             if acc2 >= time:
@@ -73,7 +77,17 @@ class World:
         for i in range(len(self.dynamic_objects)):
             p = self.dynamic_objects[i]
             if i == 0:
-                a_surf = self.render_agent("Agent", self.sizes[i], p, time)
+                if self.online and time < self.online_soln_paths_t[-1]:
+                    j = 0
+                    while self.online_soln_paths_t[j] < time:
+                        j += 1
+                    if j == 0:
+                        path_start_time = 0.0
+                    else:
+                        path_start_time = self.online_soln_paths_t[j-1]
+                    a_surf = self.render_agent("Agent", self.sizes[i], self.online_soln_paths[j], time, path_start_time)
+                else:
+                    a_surf = self.render_agent("Agent", self.sizes[i], p, time)
             else:
                 a_surf= self.render_agent("Obstacle", self.sizes[i], p, time)
             self.screen.blit(a_surf, (0, 0))
@@ -176,6 +190,17 @@ class Agent:
         self.mspeed = float(vals["movespeed"])
 
 
+class Obstacle:
+    def __init__(self, defaults, init_config, sections):
+        self.start_heading = float(vals["start.heading"])
+        self.goal_i = int(vals["goal.x"])
+        self.goal_j = int(vals["goal.y"])
+        self.goal_heading = float(vals["goal.heading"])
+        self.size = float(vals["size"])
+        self.rspeed = float(vals["rotationspeed"])
+        self.mspeed = float(vals["movespeed"])
+
+
 
 
 class Section:
@@ -231,6 +256,21 @@ def read_dynamic_obstacles(tree):
         )
     return dos
 
+def read_online_paths(tree):
+    log = tree.find("log")
+    agent = log.find("agent")
+    paths = agent.find("onlineplanpaths")
+    online_paths = []
+    opd = []
+    for path in paths.findall("path"):
+        solution_path = []
+        opd.append(float(path.attrib["duration"]))
+        for s in path.findall("section"):
+            solution_path.append(Section(s.attrib))
+        online_paths.append(solution_path)
+    opd = np.asarray(opd)
+    opd[0:-1] = opd[0:-1] - opd[1:]
+    return online_paths, np.cumsum(opd)
 
 def read_solution_path(tree):
     log = tree.find("log")
@@ -246,10 +286,15 @@ def update_fps(clock):
 	fps = str(int(clock.get_fps()))
 	return fps
 
-
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Visualize task logs.')
+    parser.add_argument("tree", help="task log xml file")
+    parser.add_argument("--online", action='store_true')
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
-    tree = ET.parse(sys.argv[1])
-    world = World(tree)
+    args = parse_arguments()
+    tree = ET.parse(args.tree)
+    world = World(tree, args.online)
     world.start()
