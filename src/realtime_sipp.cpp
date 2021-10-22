@@ -196,7 +196,10 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         while (!stopCriterion(curNode, goalNode) &&
                curExpansion < config->fixedlookahead) {
             curExpansion++;
-            curNode    = findMin();
+            curNode = findMin();
+            DEBUG_MSG("  current expansion "
+                      << curExpansion << " expandNode i, j, g: " << curNode.i
+                      << " " << curNode.j << " " << curNode.g);
             auto range = close.equal_range(curNode.i * map.width + curNode.j);
             for (auto it = range.first; it != range.second; it++) {
                 if (it->second.interval_id ==
@@ -237,7 +240,10 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
                         addOpen(s);
                     }
                 } else {
+                    DEBUG_MSG("    valid successor node " << s.i << " " << s.j
+                                                          << " " << s.g);
                     addOpen(s);
+                    DEBUG_MSG("    open size " << open.size());
                 }
             }
         }
@@ -257,10 +263,16 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         curNode.Parent = nullptr;
         open.clear();
         addOpen(curNode);
+        DEBUG_MSG("open size " << open.size());
+        curExpansion = 0;
+        Node resetGoalNode(curagent.goal_i, curagent.goal_j, -1, CN_INFINITY,
+                           CN_INFINITY);
+        goalNode = resetGoalNode;
 
         // learning phase
         // update the heuristic in closed list
         close.clear();
+        close_id = 0;
     }
     if (!resultPath.pathfound) {
         gettimeofday(&end, nullptr);
@@ -432,7 +444,8 @@ Node Realtime_SIPP::backupAndRecordPartialPlan(const Node&    curNode,
     recordToPrimaryPath(cur);
     recordToSecondaryPath(cur);
 
-    DEBUG_MSG("curNode after search i, j, g: " << curNode.i << " " << curNode.j << " " << curNode.g);
+    DEBUG_MSG("curNode after search i, j, g: " << curNode.i << " " << curNode.j
+                                               << " " << curNode.g);
     DEBUG_MSG("best frontier i, j, g: " << bestFrontierNode.i << " "
                                         << bestFrontierNode.j << " "
                                         << bestFrontierNode.g);
