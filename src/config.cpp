@@ -294,5 +294,20 @@ bool Config::getConfig(const char* fileName)
         stream.str("");
     }
 
+    element = algorithm->FirstChildElement(CNS_TAG_LEARNINGALGORITHM);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_LEARNINGALGORITHM<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_LEARNINGALGORITHM<<"'."<<std::endl;
+        learningalgorithm = CNS_DEFAULT_LEARNINGALGORITHM;
+    }
+    else
+    {
+        value = element->GetText();
+        stream<<value;
+        stream>>fixedlookahead;
+        stream.clear();
+        stream.str("");
+    }
+
     return true;
 }

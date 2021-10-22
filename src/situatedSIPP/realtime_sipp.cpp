@@ -1,9 +1,12 @@
 #include "realtime_sipp.h"
 #include "../debug.h"
 
-Realtime_SIPP::Realtime_SIPP(const Config& config)
-    : AA_SIPP(config)
-{}
+Realtime_SIPP::Realtime_SIPP(const Config& config_)
+    : AA_SIPP(config_)
+{
+    learningModulePtr = configStringTolearningModule[config->learningalgorithm];
+
+}
 
 SearchResult Realtime_SIPP::startSearch(Map& map, Task& task,
                                         DynamicObstacles& obstacles)
@@ -273,9 +276,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 
         // learning phase
         // update the heuristic in closed list
-        //learningModule->learning(open, close);
-        close.clear();
-        close_id = 0;
+        learningModulePtr->learn(open, close);
     }
     if (!resultPath.pathfound) {
         gettimeofday(&end, nullptr);
