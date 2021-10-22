@@ -183,7 +183,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
             resultPath.reexpanded_list = reexpanded_list;
             sresult.pathfound          = true;
             sresult.flowtime += curNode.g;
-            sresult.makespan = std::max(sresult.makespan, goalNode.g);
+            sresult.makespan = std::max(sresult.makespan, curNode.g);
             sresult.pathInfo[numOfCurAgent] = resultPath;
             sresult.agentsSolved++;
 
