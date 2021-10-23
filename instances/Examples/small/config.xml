@@ -10,6 +10,7 @@
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
 		<fixedlookahead>10</fixedlookahead>
+		<learningalgorithm>nolearning</learningalgorithm>
 	</algorithm>
 	<options>
 		<loglevel>2</loglevel>
