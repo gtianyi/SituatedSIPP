@@ -4,8 +4,7 @@
 Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
-    learningModulePtr = configStringTolearningModule[config->learningalgorithm];
-
+    learningModulePtr = map_configStringTolearningModule[config->learningalgorithm];
 }
 
 SearchResult Realtime_SIPP::startSearch(Map& map, Task& task,

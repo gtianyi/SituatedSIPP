@@ -22,7 +22,7 @@ private:
     std::vector<ResultPathInfo>        onlinePlanSections;
     std::shared_ptr<LearningAlgorithm> learningModulePtr;
     std::unordered_map<std::string, std::shared_ptr<LearningAlgorithm>>
-      configStringTolearningModule{
+      map_configStringTolearningModule{
         {"nolearning", std::make_shared<NoLearning>()},
         {"dijkstralearning", std::make_shared<DijkstraLearning>()}};
 };

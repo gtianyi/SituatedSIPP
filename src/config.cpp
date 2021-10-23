@@ -304,7 +304,7 @@ bool Config::getConfig(const char* fileName)
     {
         value = element->GetText();
         stream<<value;
-        stream>>fixedlookahead;
+        stream>>learningalgorithm;
         stream.clear();
         stream.str("");
     }
