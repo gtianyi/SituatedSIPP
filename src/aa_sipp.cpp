@@ -221,7 +221,6 @@ void AA_SIPP::addOpen(Node& newNode)
         it++;
     }
     if (!dominated) {
-        DEBUG_MSG("    not dominated");
         open.insert(newNode);
         if (config->use_focal) {
             if (open.get<0>().begin()->F * config->focal_weight >
