@@ -11,7 +11,9 @@ public:
                        std::unordered_multimap<int, Node>& close) override
     {
 
-        DEBUG_MSG("Devin test here");
+        DEBUG_MSG_RED("Devin use this DEBUG COLOR");
+        //DEBUG_MSG_NO_LINE_BREAK_RED("Devin use this DEBUG COLOR, noline break");
+
         // Devin TODO
         // using LSSLRTA* style Dijkstra learning
         // 1. mark everthing in closed list as infinit
