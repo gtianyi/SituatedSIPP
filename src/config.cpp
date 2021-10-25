@@ -309,5 +309,34 @@ bool Config::getConfig(const char* fileName)
         stream.str("");
     }
 
+    element = algorithm->FirstChildElement(CNS_TAG_DECISIONALGORITHM);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_DECISIONALGORITHM<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_DECISIONALGORITHM<<"'."<<std::endl;
+        learningalgorithm = CNS_DEFAULT_DECISIONALGORITHM;
+    }
+    else
+    {
+        value = element->GetText();
+        stream<<value;
+        stream>>decisionalgorithm;
+        stream.clear();
+        stream.str("");
+    }
+
+    element = algorithm->FirstChildElement(CNS_TAG_EXPANSIONALGORITHM);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_EXPANSIONALGORITHM<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_EXPANSIONALGORITHM<<"'."<<std::endl;
+        learningalgorithm = CNS_DEFAULT_EXPANSIONALGORITHM;
+    }
+    else
+    {
+        value = element->GetText();
+        stream<<value;
+        stream>>expansionalgorithm;
+        stream.clear();
+        stream.str("");
+    }
     return true;
 }

@@ -35,6 +35,8 @@
 #define CNS_DEFAULT_WEIGHT                  "1"
 #define CNS_DEFAULT_FIXEDLOOKAHEADLIMIT     100
 #define CNS_DEFAULT_LEARNINGALGORITHM       "nolearning"
+#define CNS_DEFAULT_DECISIONALGORITHM       "f"
+#define CNS_DEFAULT_EXPANSIONALGORITHM      "astar"
 
 #define CN_HEADING_WHATEVER                 -1
 #define CNS_HEADING_WHATEVER                "whatever"
@@ -118,6 +120,8 @@
     #define CNS_TAG_FIXEDLOOKAHEADLIMIT     "fixedlookahead"
     #define CNS_TAG_ONLINEPLANPATHS         "onlineplanpaths"
     #define CNS_TAG_LEARNINGALGORITHM       "learningalgorithm"
+    #define CNS_TAG_EXPANSIONALGORITHM      "expansionalgorithm"
+    #define CNS_TAG_DECISIONALGORITHM       "decisionalgorithm"
 
 /*
  * End of XML files tags -------------------------------------------------------

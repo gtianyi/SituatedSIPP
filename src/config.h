@@ -33,6 +33,8 @@ public:
     std::string logpath;
     int fixedlookahead;
     std::string learningalgorithm;
+    std::string expansionalgorithm;
+    std::string decisionalgorithm;
 
     bool getConfig(const char* fileName);
 };
