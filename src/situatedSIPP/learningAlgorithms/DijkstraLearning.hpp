@@ -5,8 +5,6 @@
 class DijkstraLearning : public LearningAlgorithm
 {
 public:
-    DijkstraLearning(){}
-
     virtual void learn(OPEN_container&,
                        std::unordered_multimap<int, Node>& close) override
     {
