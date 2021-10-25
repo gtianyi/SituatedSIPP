@@ -19,6 +19,13 @@ public:
         // 3. Perform reverse dijkstra while closed is not empy. Start re-ordered top node in the open list, backup its h value to the
         // local search space, by tracing the parent pointer
         // reference code https://github.com/gtianyi/rationalRealtimeSearch/blob/master/cpp/learningAlgorithms/Dijkstra.h
+
+        // keep track of heuristic values somewhere.
+        std::unordered_multimap<int, double> h_values;
+        for (std::pair<int, int> element : close){
+          h_values[element.first] = std::numeric_limits<double>::infinity();
+        }
+        
         close.clear();
     }
 };
