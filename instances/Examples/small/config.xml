@@ -10,6 +10,8 @@
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
 		<fixedlookahead>10</fixedlookahead>
+		<expansionalgorithm>astar</expansionalgorithm>
+		<decisionalgorithm>f</decisionalgorithm>
 		<learningalgorithm>nolearning</learningalgorithm>
 	</algorithm>
 	<options>
