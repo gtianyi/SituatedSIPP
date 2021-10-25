@@ -6,8 +6,6 @@
 class LearningAlgorithm
 {
 public:
-    LearningAlgorithm(){}
-
     virtual void learn(OPEN_container&                     open,
                        std::unordered_multimap<int, Node>& close) = 0;
 };

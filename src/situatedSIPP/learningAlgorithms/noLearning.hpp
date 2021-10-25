@@ -4,7 +4,6 @@
 class NoLearning : public LearningAlgorithm
 {
 public:
-    NoLearning(){}
     virtual void learn(OPEN_container&,
                        std::unordered_multimap<int, Node>& close) override
     {
