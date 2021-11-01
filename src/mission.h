@@ -7,6 +7,7 @@
 #include "searchresult.h"
 #include "aa_sipp.h"
 #include "situatedSIPP/realtime_sipp.h"
+#include "situatedSIPP/situated_sipp.h"
 #include "task.h"
 #include "dynamicobstacles.h"
 
