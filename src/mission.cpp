@@ -75,6 +75,9 @@ void Mission::createSearch()
     if (m_config.algtype == 4) {
         delete m_pSearch;
         m_pSearch = new Realtime_SIPP(m_config);
+    } else if (m_config.algtype == 5) {
+        delete m_pSearch;
+        m_pSearch = new Situated_SIPP(m_config);
     }
 }
 

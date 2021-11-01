@@ -217,9 +217,9 @@ bool Config::getConfig(const char* fileName)
         stream>>algtype;
         stream.clear();
         stream.str("");
-        if(algtype < 1 || algtype > 3)
+        if(algtype < 1 || algtype > 5)
         {
-            std::cout << "Warning! Wrong value of '"<<CNS_TAG_ALGTYPE<<"' element. Possible variants are 1, 2 or 3 . Its value is set to '"<<CNS_DEFAULT_ALGTYPE<<"'."<<std::endl;
+            std::cout << "Warning! Wrong value of '"<<CNS_TAG_ALGTYPE<<"' element. Possible variants are 1, 2, 3, 4, 5. Its value is set to '"<<CNS_DEFAULT_ALGTYPE<<"'."<<std::endl;
             algtype = CN_DEFAULT_ALGTYPE;
         }
     }
