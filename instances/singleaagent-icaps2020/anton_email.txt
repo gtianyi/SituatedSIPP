@@ -1,0 +1,2 @@
+I've uploaded the instances to the repo. Note that there are two files for each instance - one file with agents and the other one is with dynamic obstacles. File with agents actually contains only one agent (with id=0) while the rest are dynamic obstacles. I just generated these files in this way to guarantee that dynamic obstacles don't have the same start or goal location with the agent. XML-files with maps are also included.
+
