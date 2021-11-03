@@ -104,7 +104,7 @@ struct Node
                (Parent == other.Parent) &&
                (interval == other.interval);
     }
-    auto hash_value(Node const& n) -> std::size_t{
+    auto friend hash_value(const Node& n) -> std::size_t{
         std::size_t seed = 0;
         boost::hash_combine(seed, n.i);
         boost::hash_combine(seed, n.j);

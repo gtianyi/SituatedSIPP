@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 const std::string red("\033[0;31m");
 const std::string reset("\033[0m");
 
