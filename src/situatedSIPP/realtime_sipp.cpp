@@ -1,6 +1,26 @@
 #include "realtime_sipp.h"
 #include "../debug.h"
 
+
+
+bool SIPPState::operator==(const State &other) const
+  { return (i == other.i
+            && j == other.j
+            && interval == other.interval);
+}
+
+
+std::size_t SIPPState::hash_value(State const& n){
+    std::size_t seed = 0;
+    boost::hash_combine(seed, n.i);
+    boost::hash_combine(seed, n.j);
+    boost::hash_combine(seed, n.interval);
+    return seed;
+}
+
+
+
+
 Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
@@ -392,6 +412,6 @@ Node Realtime_SIPP::backupAndRecordPartialPlan(const Node&    curNode,
     recordToOnlinePath(*parentPtr, bestFrontierNode, begin, end);
     hppath.push_back(cur);
     lppath.push_back(cur);
-    
+
     return cur;
 }
