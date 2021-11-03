@@ -1,26 +1,6 @@
 #include "realtime_sipp.h"
 #include "../debug.h"
 
-
-
-auto SIPPState::operator==(const SIPPState &other) -> bool
-  { return (i == other.i
-            && j == other.j
-            && interval == other.interval);
-}
-
-
-auto SIPPState::hash_value(SIPPState const& n) -> std::size_t{
-    std::size_t seed = 0;
-    boost::hash_combine(seed, n.i);
-    boost::hash_combine(seed, n.j);
-    boost::hash_combine(seed, n.interval);
-    return seed;
-}
-
-
-
-
 Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {

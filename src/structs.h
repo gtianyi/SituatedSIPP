@@ -9,6 +9,7 @@
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/composite_key.hpp>
+
 using namespace boost::multi_index;
 
 struct conflict
@@ -64,6 +65,13 @@ struct SafeInterval
     SafeInterval(double begin_=0, double end_=CN_INFINITY, int id_=0):begin(begin_), end(end_), id(id_) {}
     bool operator== (const SafeInterval& other) const{
       return (begin == other.begin) && (end == other.end);
+
+    }
+    static auto hash_value(SafeInterval const& i) -> std::size_t{
+        std::size_t seed = 0;
+        boost::hash_combine(seed, i.begin);
+        boost::hash_combine(seed, i.end);
+        return seed;
     }
 };
 
@@ -101,7 +109,8 @@ struct Node
         boost::hash_combine(seed, n.i);
         boost::hash_combine(seed, n.j);
         boost::hash_combine(seed, n.Parent);
-        boost::hash_combine(seed, n.interval);
+        boost::hash_combine(seed, n.interval.begin);
+        boost::hash_combine(seed, n.interval.end);
         return seed;
     }
 };

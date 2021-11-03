@@ -10,7 +10,7 @@ auto cost(const Node& n1, const Node& n2) -> double;
 class DijkstraLearning : public LearningAlgorithm
 {
 private:
-    std::unordered_map<Node, double> learned_h;
+    std::unordered_map<Node, double, boost::hash<Node>> learned_h;
 public:
     auto get_h(const Node& n) const -> double;
     void set_h(const Node& n, double h);
