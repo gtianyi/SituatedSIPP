@@ -1,4 +1,3 @@
-#pragma once
 #include "./DijkstraLearning.hpp"
 #include "set"
 #include "vector"
@@ -41,13 +40,12 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
         // reference code https://github.com/gtianyi/rationalRealtimeSearch/blob/master/cpp/learningAlgorithms/Dijkstra.h
         // keep track of heuristic values somewhere.
         std::unordered_set<Node>::iterator cit;
-        double acc = NAN;
-        Node * n = nullptr;
+        const Node * n = nullptr;
         double c = NAN;
-        std::set<std::pair<double, Node *>>::iterator oit;
-        std::set<std::pair<double, Node *>,
-                 std::greater<std::pair<double, Node *>>> open_sorted_by_h;
-        std::pair<double, Node *> p;
+        std::set<std::pair<double, const Node *>>::iterator oit;
+        std::set<std::pair<double, const Node *>,
+                 std::greater<std::pair<double, const Node *>>> open_sorted_by_h;
+        std::pair<double, const Node *> p;
         std::unordered_set<Node, boost::hash<Node>> close;
 
         for (const std::pair<int, Node> element: closed){
@@ -90,10 +88,5 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
             }
           }
         }
-          //duration = cost()
-          //acc = get_h(n);
-          //if n in
-
-
         closed.clear();
     };
