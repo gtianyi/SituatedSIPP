@@ -1,23 +1,22 @@
 #pragma once
 #include "../aa_sipp.h"
-#include "../../structs.h"
+#include "../structs.h"
 #include "learningAlgorithms/DijkstraLearning.hpp"
 #include "learningAlgorithms/noLearning.hpp"
 #include <boost/functional/hash.hpp>
 
 class SIPPState{
 public:
-  int i, j;
+  int i{}, j{};
   SafeInterval interval;
-  State(Node n){
+  SIPPState(const Node& n){
     i = n.i;
     j = n.j;
     interval = n.interval;
   }
-  bool operator==(const State &other);
-  std::size_t hash_value(State const& n);
-  }
-};
+  auto operator==(const SIPPState &other) -> bool;
+  auto hash_value(SIPPState const& n) -> std::size_t;
+  };
 
 class Realtime_SIPP : public AA_SIPP
 {

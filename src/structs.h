@@ -90,17 +90,17 @@ struct Node
         else
             return this->F < other.F;
     }
-    bool operator== (const Node& other) const{
+    auto operator== (const Node& other) const -> bool{
         return (i == other.i) &&
                (j == other.j) &&
                (Parent == other.Parent) &&
                (interval == other.interval);
     }
-    std::size_t hash_value(Node const& n){
+    auto hash_value(Node const& n) -> std::size_t{
         std::size_t seed = 0;
         boost::hash_combine(seed, n.i);
         boost::hash_combine(seed, n.j);
-        boos::hash_combine(seed, n.parent);
+        boost::hash_combine(seed, n.Parent);
         boost::hash_combine(seed, n.interval);
         return seed;
     }

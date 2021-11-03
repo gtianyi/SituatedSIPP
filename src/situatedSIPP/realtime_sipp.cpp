@@ -3,14 +3,14 @@
 
 
 
-bool SIPPState::operator==(const State &other) const
+auto SIPPState::operator==(const SIPPState &other) -> bool
   { return (i == other.i
             && j == other.j
             && interval == other.interval);
 }
 
 
-std::size_t SIPPState::hash_value(State const& n){
+auto SIPPState::hash_value(SIPPState const& n) -> std::size_t{
     std::size_t seed = 0;
     boost::hash_combine(seed, n.i);
     boost::hash_combine(seed, n.j);
