@@ -313,7 +313,7 @@ bool Config::getConfig(const char* fileName)
     if (!element)
     {
         std::cout << "Warning! No '"<<CNS_TAG_DECISIONALGORITHM<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_DECISIONALGORITHM<<"'."<<std::endl;
-        learningalgorithm = CNS_DEFAULT_DECISIONALGORITHM;
+        decisionalgorithm = CNS_DEFAULT_DECISIONALGORITHM;
     }
     else
     {
@@ -328,7 +328,7 @@ bool Config::getConfig(const char* fileName)
     if (!element)
     {
         std::cout << "Warning! No '"<<CNS_TAG_EXPANSIONALGORITHM<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_EXPANSIONALGORITHM<<"'."<<std::endl;
-        learningalgorithm = CNS_DEFAULT_EXPANSIONALGORITHM;
+        expansionalgorithm = CNS_DEFAULT_EXPANSIONALGORITHM;
     }
     else
     {
