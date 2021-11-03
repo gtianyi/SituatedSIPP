@@ -5,19 +5,6 @@
 #include "learningAlgorithms/noLearning.hpp"
 #include <boost/functional/hash.hpp>
 
-class SIPPState{
-public:
-  int i{}, j{};
-  SafeInterval interval;
-  SIPPState(const Node& n){
-    i = n.i;
-    j = n.j;
-    interval = n.interval;
-  }
-  auto operator==(const SIPPState &other) -> bool;
-  auto hash_value(SIPPState const& n) -> std::size_t;
-  };
-
 class Realtime_SIPP : public AA_SIPP
 {
 
