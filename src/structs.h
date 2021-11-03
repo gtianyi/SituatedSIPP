@@ -62,6 +62,9 @@ struct SafeInterval
     double end;
     int id;
     SafeInterval(double begin_=0, double end_=CN_INFINITY, int id_=0):begin(begin_), end(end_), id(id_) {}
+    bool operator== (const SafeInterval& other) const{
+      return (begin == other.begin) && (end == other.end);
+    }
 };
 
 struct Node
@@ -86,6 +89,20 @@ struct Node
             return this->g > other.g; //g-max
         else
             return this->F < other.F;
+    }
+    bool operator== (const Node& other) const{
+        return (i == other.i) &&
+               (j == other.j) &&
+               (Parent == other.Parent) &&
+               (interval == other.interval);
+    }
+    std::size_t hash_value(Node const& n){
+        std::size_t seed = 0;
+        boost::hash_combine(seed, n.i);
+        boost::hash_combine(seed, n.j);
+        boos::hash_combine(seed, n.parent);
+        boost::hash_combine(seed, n.interval);
+        return seed;
     }
 };
 
