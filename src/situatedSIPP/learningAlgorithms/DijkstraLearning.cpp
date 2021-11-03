@@ -1,11 +1,6 @@
 #pragma once
 #include "./DijkstraLearning.hpp"
-#include "cmath"
-#include "../../debug.h"
-#include "unordered_set"
 #include "set"
-#include "unordered_map"
-#include "learningAlgorithmBase.hpp"
 #include "vector"
 
 
@@ -32,7 +27,7 @@ void DijkstraLearning::set_h(const Node& n, double h){
 
 
 
-void DijkstraLearning::learn(OPEN_container& open, std::unordered_set<Node>& close){
+void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, Node>& closed){
 
         DEBUG_MSG_RED("Devin use this DEBUG COLOR");
         //DEBUG_MSG_NO_LINE_BREAK_RED("Devin use this DEBUG COLOR, noline break");
@@ -53,6 +48,12 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_set<Node>& clo
         std::set<std::pair<double, Node *>,
                  std::greater<std::pair<double, Node *>>> open_sorted_by_h;
         std::pair<double, Node *> p;
+        std::unordered_set<Node, boost::hash<Node>> close;
+
+        for (const std::pair<int, Node> element: closed){
+          close.insert(element.second);
+        }
+
         // step 1
         for (const Node& closen : close){
           set_h(closen, std::numeric_limits<double>::infinity());
@@ -92,8 +93,7 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_set<Node>& clo
           //duration = cost()
           //acc = get_h(n);
           //if n in
-        }
 
-        close.clear();
-    }
-};
+
+        closed.clear();
+    };
