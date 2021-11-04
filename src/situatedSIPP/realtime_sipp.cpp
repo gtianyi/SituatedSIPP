@@ -5,7 +5,8 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
     learningModulePtr = map_configStringTolearningModule[config->learningalgorithm];
-      DEBUG_MSG_RED(config->learningalgorithm);
+    learningModulePtr->setAgentSpeed(curagent.mspeed);
+    DEBUG_MSG_RED(config->learningalgorithm);
 }
 
 SearchResult Realtime_SIPP::startSearch(Map& map, Task& task,
@@ -145,7 +146,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     constraints->updateCellSafeIntervals({curagent.start_i, curagent.start_j});
     Node curNode(curagent.start_i, curagent.start_j, -1, 0, 0),
       goalNode(curagent.goal_i, curagent.goal_j, -1, CN_INFINITY, CN_INFINITY);
-    curNode.F           = getHValue(curNode.i, curNode.j);
+    //curNode.F           = getHValue(curNode.i, curNode.j);
+    curNode.F           = learningModulePtr->get_h(curNode);
     curNode.interval    = constraints->getSafeInterval(curNode.i, curNode.j, 0);
     curNode.interval_id = curNode.interval.id;
     curNode.heading     = curagent.start_heading;
@@ -254,6 +256,9 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         }
 
         gettimeofday(&endOfRealtimeCycle, nullptr);
+        // learning phase
+        // update the heuristic in closed list
+        learningModulePtr->learn(open, close);
 
         // decision-making phase
         // 1) commit the the toplevel action that would lead to the best search
@@ -274,9 +279,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
                            CN_INFINITY);
         goalNode = resetGoalNode;
 
-        // learning phase
-        // update the heuristic in closed list
-        learningModulePtr->learn(open, close);
+
+
     }
     if (!resultPath.pathfound) {
         gettimeofday(&end, nullptr);

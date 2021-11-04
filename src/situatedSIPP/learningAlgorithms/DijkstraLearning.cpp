@@ -2,29 +2,9 @@
 #include "set"
 #include "vector"
 
-
-auto cost(const Node& n1, const Node& n2) -> double{
-  return sqrt(pow(n1.i - n2.i, 2) + pow(n1.j - n2.j, 2));
-}
-
 auto lt(Node const &n1, Node const &n2, DijkstraLearning const &dl) -> bool {
    return dl.get_h(n1) < dl.get_h(n2);
  }
-
-
-auto DijkstraLearning::get_h(const Node& n) const -> double{
-      auto it = learned_h.find(n);
-      if (it == learned_h.end()){
-        return n.F - n.g;
-      }
-      return it->second;
-    }
-
-void DijkstraLearning::set_h(const Node& n, double h){
-      learned_h[n] = h;
-    }
-
-
 
 void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, Node>& closed){
 
@@ -42,6 +22,7 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
         std::unordered_set<Node>::iterator cit;
         const Node * n = nullptr;
         double c = NAN;
+        uint iteracc = 0;
         std::set<std::pair<double, const Node *>>::iterator oit;
         std::set<std::pair<double, const Node *>,
                  std::greater<std::pair<double, const Node *>>> open_sorted_by_h;
@@ -53,23 +34,30 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
         }
 
         // step 1
+        DEBUG_MSG_RED("Closed List Contents");
         for (const Node& closen : close){
+          debug_node(closen);
           set_h(closen, std::numeric_limits<double>::infinity());
         }
         // step 2
         DEBUG_MSG_RED("Open List Contents");
         for (const Node& n: open){
-          DEBUG_MSG_NO_LINE_BREAK_RED(n.i);
-          DEBUG_MSG_NO_LINE_BREAK_RED(" ");
-          DEBUG_MSG_RED(n.j);
+          debug_node(n);
           open_sorted_by_h.emplace(get_h(n), &n);
-        }
-        DEBUG_MSG_RED("Open List h");
-        for (std::pair<double, const Node *> element: open_sorted_by_h){
-          DEBUG_MSG_RED(element.first);
         }
         // step 3
         while (!close.empty() && !open_sorted_by_h.empty()){// need the open check?
+          DEBUG_MSG_NO_LINE_BREAK_RED("Iteration: ");
+          DEBUG_MSG_RED(iteracc++);
+          DEBUG_MSG_RED("Closed List Contents");
+          for (const Node& closen : close){
+            debug_node(closen);
+          }
+          DEBUG_MSG_RED("Open List Contents");
+          for (const std::pair<double, const Node *>& element: open_sorted_by_h){
+            debug_node(*element.second);
+            DEBUG_MSG_RED(get_h(*element.second));
+          }
           oit = open_sorted_by_h.begin();
           n = oit->second;
           open_sorted_by_h.erase(oit);
@@ -77,13 +65,7 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
           if (cit != close.end()){
             close.erase(cit);
           }
-          DEBUG_MSG_NO_LINE_BREAK_RED(n->i);
-          DEBUG_MSG_NO_LINE_BREAK_RED(" ");
-          DEBUG_MSG_RED(n->j);
           if (n->Parent != nullptr){
-            DEBUG_MSG_NO_LINE_BREAK_RED(n->Parent->i);
-            DEBUG_MSG_NO_LINE_BREAK_RED(" ");
-            DEBUG_MSG_RED(n->Parent->j);
             cit = close.find(*(n->Parent));
             if (cit != close.end()){
              c =  cost(*n, *(n->Parent)) + get_h(*n);
