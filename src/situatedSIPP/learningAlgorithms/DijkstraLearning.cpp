@@ -3,7 +3,7 @@
 #include "vector"
 
 auto lt(Node const &n1, Node const &n2, DijkstraLearning const &dl) -> bool {
-   return dl.get_h(n1) < dl.get_h(n2);
+   return dl.get_h(n1) > dl.get_h(n2);
  }
 
 void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, Node>& closed){
@@ -56,7 +56,6 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
           DEBUG_MSG_RED("Open List Contents");
           for (const std::pair<double, const Node *>& element: open_sorted_by_h){
             debug_node(*element.second);
-            DEBUG_MSG_RED(get_h(*element.second));
           }
           oit = open_sorted_by_h.begin();
           n = oit->second;
