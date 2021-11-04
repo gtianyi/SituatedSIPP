@@ -11,6 +11,7 @@ set( SOURCE_FILES
      situatedSIPP/realtime_sipp.cpp
      situatedSIPP/situated_sipp.cpp
      situatedSIPP/learningAlgorithms/DijkstraLearning.cpp
+     situatedSIPP/learningAlgorithms/learningAlgorithmBase.cpp
      constraints.cpp )
 
 set( HEADER_FILES
