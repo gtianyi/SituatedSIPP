@@ -67,12 +67,6 @@ struct SafeInterval
       return (begin == other.begin) && (end == other.end);
 
     }
-    static auto hash_value(SafeInterval const& i) -> std::size_t{
-        std::size_t seed = 0;
-        boost::hash_combine(seed, i.begin);
-        boost::hash_combine(seed, i.end);
-        return seed;
-    }
 };
 
 struct Node
