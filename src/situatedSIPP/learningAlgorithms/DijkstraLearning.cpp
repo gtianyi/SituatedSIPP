@@ -25,7 +25,7 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
         uint iteracc = 0;
         std::set<std::pair<double, const Node *>>::iterator oit;
         std::set<std::pair<double, const Node *>,
-                 std::greater<std::pair<double, const Node *>>> open_sorted_by_h;
+                 std::less<std::pair<double, const Node *>>> open_sorted_by_h;
         std::pair<double, const Node *> p;
         std::unordered_set<Node, boost::hash<Node>> close;
 
