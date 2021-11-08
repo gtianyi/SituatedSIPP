@@ -104,16 +104,30 @@ struct Node
                (Parent == other.Parent) &&
                (interval == other.interval);
     }
-    auto friend hash_value(const Node& n) -> std::size_t{
+    auto hash() const -> std::size_t{
         std::size_t seed = 0;
-        boost::hash_combine(seed, n.i);
-        boost::hash_combine(seed, n.j);
-        boost::hash_combine(seed, n.Parent);
-        boost::hash_combine(seed, n.interval.begin);
-        boost::hash_combine(seed, n.interval.end);
+        boost::hash_combine(seed, i);
+        boost::hash_combine(seed, j);
+        boost::hash_combine(seed, Parent);
+        boost::hash_combine(seed, interval.begin);
+        boost::hash_combine(seed, interval.end);
         return seed;
     }
 };
+
+#ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
+namespace boost{
+  inline std::size_t hash_value(const Node& n)
+    {
+        return n.hash();
+    }
+}
+#else
+inline std::size_t hash_value(const Node& n)
+  {
+      return n.hash();
+  }
+#endif
 
 typedef multi_index_container<
         Node,
