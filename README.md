@@ -28,7 +28,7 @@ Code is written in C++ and is meant to be cross-platform. Implementation relies 
 To go and try this algorithm you can use QtCreator or CMake.
 Both `.pro` and `CMakeLists` files are available in the repository.
 
-Notice, that project uses C++11 standart. Make sure that your compiler supports it.
+Notice, that project uses C++17 standart. Make sure that your compiler supports it (we use gcc-9).
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
