@@ -34,3 +34,12 @@ void LearningAlgorithm::debug_node(const Node& n){
   DEBUG_MSG_NO_LINE_BREAK_RED(" ");
   DEBUG_MSG_RED(get_h(n));
 }
+
+void LearningAlgorithm::update_nodes(OPEN_container& open){
+  Node n;
+  for (auto it = open.get<0>().begin(); it != open.get<0>().end(); it++) {
+    n = *it;
+    n.F = n.g + get_h(n);
+    open.replace(it, n);
+  }
+}

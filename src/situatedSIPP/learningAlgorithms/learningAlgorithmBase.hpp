@@ -9,6 +9,7 @@ private:
   std::unordered_map<Node, double, boost::hash<Node>> learned_h;
   double curagent_speed;
 public:
+  void update_nodes(OPEN_container& open);
   void setAgentSpeed(double speed);
   auto cost(const Node& n1, const Node& n2) -> double;
   void debug_node(const Node& n);
