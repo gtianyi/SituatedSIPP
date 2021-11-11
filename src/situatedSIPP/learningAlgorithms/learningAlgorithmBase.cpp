@@ -35,11 +35,28 @@ void LearningAlgorithm::debug_node(const Node& n){
   DEBUG_MSG_RED(get_h(n));
 }
 
-void LearningAlgorithm::update_nodes(OPEN_container& open){
+void LearningAlgorithm::update_nodes(OPEN_container& open, std::unordered_multimap<int, Node>& closed){
   Node n;
+  //int key;
+  std::vector<std::pair<int, Node>> closed_holder;
+  closed_holder.resize(closed.size());
   for (auto it = open.get<0>().begin(); it != open.get<0>().end(); it++) {
     n = *it;
     n.F = n.g + get_h(n);
     open.replace(it, n);
   }
+  /*
+  for (auto it = closed.begin(); it != closed.end(); it++) {
+    key = it->first;
+    n = it->second;
+    n.F = n.g + get_h(n);
+    closed_holder.emplace_back(key,n);
+  }
+  closed.clear();
+  for (auto it = closed_holder.begin(); it != closed_holder.end(); it++) {
+    key = it->first;
+    n = it->second;
+    closed.emplace(key, n);
+  }
+  */
 }

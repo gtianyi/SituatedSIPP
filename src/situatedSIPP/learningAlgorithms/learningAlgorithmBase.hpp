@@ -9,7 +9,7 @@ private:
   std::unordered_map<Node, double, boost::hash<Node>> learned_h;
   double curagent_speed;
 public:
-  void update_nodes(OPEN_container& open);
+  void update_nodes(OPEN_container& open, std::unordered_multimap<int, Node>& closed);
   void setAgentSpeed(double speed);
   auto cost(const Node& n1, const Node& n2) -> double;
   void debug_node(const Node& n);

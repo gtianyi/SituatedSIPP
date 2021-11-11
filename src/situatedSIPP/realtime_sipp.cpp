@@ -278,7 +278,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         Node resetGoalNode(curagent.goal_i, curagent.goal_j, -1, CN_INFINITY,
                            CN_INFINITY);
         goalNode = resetGoalNode;
-
+        close.clear();
 
 
     }
