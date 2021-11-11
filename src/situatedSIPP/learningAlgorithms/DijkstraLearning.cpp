@@ -83,5 +83,6 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
             }
           }
         }
+        update_nodes(open);
         closed.clear();
     };
