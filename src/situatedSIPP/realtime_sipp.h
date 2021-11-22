@@ -1,6 +1,7 @@
 #pragma once
+#include "constraints.h"
 #include "../aa_sipp.h"
-#include "../structs.h"
+#include "structs.h"
 #include "learningAlgorithms/DijkstraLearning.hpp"
 #include "learningAlgorithms/noLearning.hpp"
 #include <boost/functional/hash.hpp>
@@ -14,15 +15,32 @@ public:
     SearchResult startSearch(Map& map, Task& task,
                              DynamicObstacles& obstacles) override;
     bool         findPath(unsigned int numOfCurAgent, const Map& map) override;
+    RTNode findMin();
+    bool stopCriterion(const RTNode &curNode, RTNode &goalNode);
+    double calcHeading(const RTNode &node, const RTNode &son);
+    std::list<RTNode> findSuccessors(const RTNode curNode, const Map &map);
+    virtual void makePrimaryPath(RTNode curNode);
+    virtual void makeSecondaryPath(RTNode curNode);
+    void calculateLineSegment(std::vector<RTNode> &line, const RTNode &start, const RTNode &goal);
+    RTNode resetParent(RTNode current, RTNode Parent, const Map &map);
+    std::vector<conflict> CheckConflicts(const Task &task);//bruteforce checker. It splits final(already built) trajectories into sequences of points and checks distances between them
+    void update_focal(double cost);
+    std::unordered_multimap<int, RTNode> close;
+    std::list<RTNode> lppath;
+    std::vector<RTNode> hppath;
+    RTSearchResult sresult;
 
 private:
-    Node backupAndRecordPartialPlan(const Node& curNode, const timeval& begin,
+    void addOpen(RTNode &newNode);
+    RTOPEN_container open;
+    RTNode backupAndRecordPartialPlan(const RTNode& curNode, const timeval& begin,
                                     const timeval& end);
-    void recordToOnlinePath(const Node& rootNode, const Node& frontierNode,
+    void recordToOnlinePath(const RTNode& rootNode, const RTNode& frontierNode,
                             const timeval& begin, const timeval& end);
 
-    std::vector<ResultPathInfo>        onlinePlanSections;
+    std::vector<RTResultPathInfo>        onlinePlanSections;
     std::shared_ptr<LearningAlgorithm> learningModulePtr;
+    RTConstraints *constraints;
     std::unordered_map<std::string, std::shared_ptr<LearningAlgorithm>>
       map_configStringTolearningModule{
         {"nolearning", std::make_shared<NoLearning>()},

@@ -1,11 +1,10 @@
 #pragma once
 #include "learningAlgorithmBase.hpp"
 
-class NoLearning : public LearningAlgorithm
-{
+class NoLearning : public LearningAlgorithm{
 public:
-    virtual void learn(OPEN_container&  /*open*/,
-                       std::unordered_multimap<int, Node>& close) override
+    virtual void learn(RTOPEN_container&  /*open*/,
+                       std::unordered_multimap<int, RTNode>& close) override
     {
         close.clear();
     }

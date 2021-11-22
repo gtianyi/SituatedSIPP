@@ -2,11 +2,11 @@
 #include "set"
 #include "vector"
 
-auto lt(Node const &n1, Node const &n2, DijkstraLearning const &dl) -> bool {
+auto lt(RTNode const &n1, RTNode const &n2, DijkstraLearning const &dl) -> bool {
    return dl.get_h(n1) > dl.get_h(n2);
  }
 
-void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, Node>& closed){
+void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& closed){
 
         DEBUG_MSG_RED("Devin use this DEBUG COLOR");
         //DEBUG_MSG_NO_LINE_BREAK_RED("Devin use this DEBUG COLOR, noline break");
@@ -19,29 +19,29 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
         // local search space, by tracing the parent pointer
         // reference code https://github.com/gtianyi/rationalRealtimeSearch/blob/master/cpp/learningAlgorithms/Dijkstra.h
         // keep track of heuristic values somewhere.
-        std::unordered_set<Node>::iterator cit;
-        const Node * n = nullptr;
+        std::unordered_set<RTNode>::iterator cit;
+        const RTNode * n = nullptr;
         double c = NAN;
         uint iteracc = 0;
-        std::set<std::pair<double, const Node *>>::iterator oit;
-        std::set<std::pair<double, const Node *>,
-                 std::less<std::pair<double, const Node *>>> open_sorted_by_h;
-        std::pair<double, const Node *> p;
-        std::unordered_set<Node, boost::hash<Node>> close;
+        std::set<std::pair<double, const RTNode *>>::iterator oit;
+        std::set<std::pair<double, const RTNode *>,
+                 std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
+        std::pair<double, const RTNode *> p;
+        std::unordered_set<RTNode, boost::hash<RTNode>> close;
 
-        for (const std::pair<int, Node> element: closed){
+        for (const std::pair<int, RTNode> element: closed){
           close.insert(element.second);
         }
 
         // step 1
         DEBUG_MSG_RED("Closed List Contents");
-        for (const Node& closen : close){
+        for (const RTNode& closen : close){
           debug_node(closen);
           set_h(closen, std::numeric_limits<double>::infinity());
         }
         // step 2
         DEBUG_MSG_RED("Open List Contents");
-        for (const Node& n: open){
+        for (const RTNode& n: open){
           debug_node(n);
           open_sorted_by_h.emplace(get_h(n), &n);
         }
@@ -50,11 +50,11 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
           DEBUG_MSG_NO_LINE_BREAK_RED("Iteration: ");
           DEBUG_MSG_RED(iteracc++);
           DEBUG_MSG_RED("Closed List Contents");
-          for (const Node& closen : close){
+          for (const RTNode& closen : close){
             debug_node(closen);
           }
           DEBUG_MSG_RED("Open List Contents");
-          for (const std::pair<double, const Node *>& element: open_sorted_by_h){
+          for (const std::pair<double, const RTNode *>& element: open_sorted_by_h){
             debug_node(*element.second);
           }
           oit = open_sorted_by_h.begin();
@@ -69,7 +69,7 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
             if (cit != close.end()){
              c =  cost(*n, *(n->Parent)) + get_h(*n);
              if (get_h(*(n->Parent)) > c){
-               p = std::pair<double, Node *>(get_h(*(n->Parent)), n->Parent); // parent prior to updating h
+               p = std::pair<double, RTNode *>(get_h(*(n->Parent)), n->Parent); // parent prior to updating h
                set_h(*(n->Parent), c);  // update h in record
                oit = open_sorted_by_h.find(p);
                if(oit == open_sorted_by_h.end()){
@@ -83,6 +83,5 @@ void DijkstraLearning::learn(OPEN_container& open, std::unordered_multimap<int, 
             }
           }
         }
-        update_nodes(open, closed);
         //closed.clear();
     };

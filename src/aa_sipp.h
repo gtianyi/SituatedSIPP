@@ -29,11 +29,10 @@ public:
     virtual SearchResult startSearch(Map &map, Task &task, DynamicObstacles &obstacles);
     SearchResult sresult;
 protected:
-
     void addOpen(Node &newNode);
     Node findMin();
     bool stopCriterion(const Node &curNode, Node &goalNode);
-    bool testGoal(const Node &curNode, Node &goalNode);
+    bool testGoal(const Node &curNode, Node &goalNode);  // this is never defined?
     double getCost(int a_i, int a_j, int b_i, int b_j);
     double getRCost(double headingA, double headingB);
     double calcHeading(const Node &node, const Node &son);

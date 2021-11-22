@@ -9,9 +9,9 @@ set( SOURCE_FILES
      dynamicobstacles.cpp
      aa_sipp.cpp
      situatedSIPP/realtime_sipp.cpp
-     situatedSIPP/situated_sipp.cpp
      situatedSIPP/learningAlgorithms/DijkstraLearning.cpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.cpp
+     situatedSIPP/constraints.cpp
      constraints.cpp )
 
 set( HEADER_FILES
@@ -27,8 +27,9 @@ set( HEADER_FILES
      config.h
      lineofsight.h
      aa_sipp.h
+     situatedSIPP/structs.h
      situatedSIPP/realtime_sipp.h
-     situatedSIPP/situated_sipp.h
+     situatedSIPP/constraints.h
      situatedSIPP/learningAlgorithms/DijkstraLearning.hpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.hpp
      structs.h
