@@ -22,10 +22,10 @@ RTConstraints::RTConstraints(int width, int height)
     reopened = 0;
 }
 
-bool sort_function(std::pair<double, double> a, std::pair<double, double> b)
-{
-    return a.first < b.first;
-}
+//bool sort_function(std::pair<double, double> a, std::pair<double, double> b)
+//{
+//    return a.first < b.first;
+//}
 
 double RTConstraints::minDist(Point A, Point C, Point D)
 {
@@ -223,7 +223,8 @@ void RTConstraints::addConstraints(const std::vector<RTNode> &sections, double s
 {
     std::vector<std::pair<int,int>> cells;
     LineOfSight los(size);
-    section sec(sections.back(), sections.back());
+
+    section sec(sections.back().i,sections.back().j,sections.back().i,sections.back().j, sections.back().g(),sections.back().g());
     sec.g2 = CN_INFINITY;
     sec.size = size;
     sec.mspeed = mspeed;
@@ -236,7 +237,7 @@ void RTConstraints::addConstraints(const std::vector<RTNode> &sections, double s
     for(unsigned int a = 1; a < sections.size(); a++)
     {
         cells = los.getCellsCrossedByLine(sections[a-1].i, sections[a-1].j, sections[a].i, sections[a].j, map);
-        sec = section(sections[a-1], sections[a]);
+        sec = section(sections[a-1].i, sections[a-1].j, sections[a].i, sections[a].j,sections[a-1].g(), sections[a].g());
         sec.size = size;
         sec.mspeed = mspeed;
         for(unsigned int i = 0; i < cells.size(); i++)

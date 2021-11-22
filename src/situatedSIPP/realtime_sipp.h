@@ -2,6 +2,7 @@
 #include "constraints.h"
 #include "../aa_sipp.h"
 #include "structs.h"
+#include "dynamicobstacles.h"
 #include "learningAlgorithms/DijkstraLearning.hpp"
 #include "learningAlgorithms/noLearning.hpp"
 #include <boost/functional/hash.hpp>
@@ -12,8 +13,8 @@ class Realtime_SIPP : public AA_SIPP
 public:
     Realtime_SIPP(const Config& config);
 
-    SearchResult startSearch(Map& map, Task& task,
-                             DynamicObstacles& obstacles) override;
+    RTSearchResult startSearch(Map& map, Task& task,
+                             RTDynamicObstacles& obstacles);
     bool         findPath(unsigned int numOfCurAgent, const Map& map) override;
     RTNode findMin();
     bool stopCriterion(const RTNode &curNode, RTNode &goalNode);
