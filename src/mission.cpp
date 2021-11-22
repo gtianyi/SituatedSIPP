@@ -50,7 +50,10 @@ void Mission::createSearch()
         delete m_pSearch;
         delete m_pLogger;
     }
+    DEBUG_MSG_RED("ALGTYPE");
+    DEBUG_MSG_RED(m_config.algtype);
     if (m_config.algtype == 1) {
+
         m_config.use_focal     = false;
         m_config.use_likhachev = true;
         m_config.h_weight      = m_config.weight;
@@ -80,6 +83,10 @@ void Mission::createSearch()
     //    delete m_pSearch;
     //    m_pSearch = new Situated_SIPP(m_config);
     //}
+    if((m_config.algtype > 4) || (m_config.algtype < 1)) {
+      DEBUG_MSG_RED("invalid algtype.");
+      std::exit(EXIT_FAILURE);
+    }
 }
 
 void Mission::createLog()

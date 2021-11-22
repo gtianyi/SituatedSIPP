@@ -222,6 +222,7 @@ void AA_SIPP::addOpen(Node& newNode)
     }
     if (!dominated) {
         open.insert(newNode);
+        DEBUG_MSG_RED(config->use_focal);
         if (config->use_focal) {
             if (open.get<0>().begin()->F * config->focal_weight >
                 newNode.F - CN_EPSILON) {
