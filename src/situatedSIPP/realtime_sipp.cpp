@@ -143,6 +143,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 #endif
     close.clear();
     open.clear();
+    DEBUG_MSG_RED(constraints);
+    DEBUG_MSG_RED(config);
     constraints->use_likhachev = config->use_likhachev;
     RTResultPathInfo resultPath;
     constraints->resetSafeIntervals(map.width, map.height);
