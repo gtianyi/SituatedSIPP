@@ -5,10 +5,9 @@
 #include "unordered_map"
 #include "learningAlgorithmBase.hpp"
 
-class DijkstraLearning : public LearningAlgorithm
-{
+class DijkstraLearning : public LearningAlgorithm{
 public:
-    void learn(OPEN_container& open,
-                       std::unordered_multimap<int, Node>& close) override;
+    void learn(RTOPEN_container& open,
+                       std::unordered_multimap<int, RTNode>& close) override;
 };
-auto lt(Node const &n1, Node const &n2, DijkstraLearning const &dl) -> bool;
+auto lt(RTNode const &n1, RTNode const &n2, DijkstraLearning const &dl) -> bool;

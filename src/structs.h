@@ -85,7 +85,7 @@ struct Node
     bool    optimal;
     int     interval_id;
     SafeInterval interval;
-    bool operator< (const Node& other) const
+    virtual bool operator< (const Node& other) const
     {
         if(fabs(this->F - other.F) < CN_EPSILON) //breaking-ties
             return this->g > other.g; //g-max
@@ -98,30 +98,7 @@ struct Node
                (Parent == other.Parent) &&
                (interval == other.interval);
     }
-    auto hash() const -> std::size_t{
-        std::size_t seed = 0;
-        boost::hash_combine(seed, i);
-        boost::hash_combine(seed, j);
-        boost::hash_combine(seed, Parent);
-        boost::hash_combine(seed, interval.begin);
-        boost::hash_combine(seed, interval.end);
-        return seed;
-    }
 };
-
-#ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-namespace boost{
-  inline std::size_t hash_value(const Node& n)
-    {
-        return n.hash();
-    }
-}
-#else
-inline std::size_t hash_value(const Node& n)
-  {
-      return n.hash();
-  }
-#endif
 
 typedef multi_index_container<
         Node,
