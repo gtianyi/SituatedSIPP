@@ -1,6 +1,7 @@
 #pragma once
 #include <boost/functional/hash.hpp>
 #include "../structs.h"
+#include "../searchresult.h"
 #include <unordered_map>
 
 class RTNode{
@@ -24,6 +25,9 @@ public:
   //[[depreciated]] double g;
   inline double F() const{
       return g() + h();
+  }
+  Node toNode() const{
+    return Node(i, j, heading_id, g(), F());
   }
   inline double g() const{
     return static_g() + dynamic_g();
@@ -129,27 +133,42 @@ typedef multi_index_container<
 > RTOPEN_container;
 
 
-struct RTResultPathInfo
-{
-    bool pathfound;
-    double pathlength;
-    double runtime;
+inline std::list<Node> rtn2nl(const std::list<RTNode>& cont){
+    std::list<Node> outc;
+    for (const RTNode& rtn: cont){
+      outc.push_back(rtn.toNode());
+    }
+    return outc;
+}
+
+inline std::vector<Node> rtn2nv(const std::vector<RTNode>& cont){
+    std::vector<Node> outc;
+    for (const RTNode& rtn: cont){
+      outc.push_back(rtn.toNode());
+    }
+    return outc;
+}
+
+struct RTResultPathInfo:  public ResultPathInfo{
     std::list<RTNode> path;
     std::vector<RTResultPathInfo> iterationPath;
     std::vector<RTNode> sections;
-    int expanded;
-    int generated;
-    int reopened;
-    int reexpanded;
     std::list<RTNode> reexpanded_list;
-
     RTResultPathInfo()
     {
-        runtime = 0;
-        pathfound = false;
-        pathlength = 0;
-        path.clear();
-        sections.clear();
+      ResultPathInfo();
+      path.clear();
+      sections.clear();
+    }
+    void toRPI(){
+      ResultPathInfo::path = rtn2nl(path);
+      for (RTResultPathInfo rtrpi: iterationPath){
+        rtrpi.toRPI();
+        ResultPathInfo::iterationPath.push_back(rtrpi);
+      }
+      //ResultPathInfo::iterationPath = rtn2n(iterationPath);
+      ResultPathInfo::sections = rtn2nv(sections);
+      ResultPathInfo::reexpanded_list = rtn2nl(reexpanded_list);
     }
 };
 

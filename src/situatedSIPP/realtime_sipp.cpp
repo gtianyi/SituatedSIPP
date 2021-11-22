@@ -4,13 +4,22 @@
 Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
+    constraints = nullptr;
     learningModulePtr = map_configStringTolearningModule[config->learningalgorithm];
     learningModulePtr->setAgentSpeed(curagent.mspeed);
-    DEBUG_MSG_RED(config->learningalgorithm);
+    DEBUG_MSG_RED("Config in RTSIPP cons");
+    DEBUG_MSG_RED(config_.use_focal);
+    DEBUG_MSG_RED(config);
 }
 
-RTSearchResult Realtime_SIPP::startSearch(Map& map, Task& task,
-                                        RTDynamicObstacles& obstacles)
+SearchResult Realtime_SIPP::startSearch(Map& map, Task& task,
+                         DynamicObstacles& obstacles){
+    startRTSearch(map, task, obstacles);
+    return AA_SIPP::sresult;  // this is probably not great to do.
+}
+
+RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
+                                        DynamicObstacles& obstacles)
 {
     focal_heuristic = Heuristic(config->connectedness);
     focal_heuristic.init(map.width, map.height, task.getNumberOfAgents());
@@ -35,7 +44,10 @@ RTSearchResult Realtime_SIPP::startSearch(Map& map, Task& task,
     priorities.clear();
     setPriorities(task);
     do {
-        constraints = new RTConstraints(map.width, map.height);
+        constraints = new Constraints(map.width, map.height);
+        DEBUG_MSG_RED("constraints 43");
+        DEBUG_MSG_RED(constraints);
+
         for (int k = 0; k < obstacles.getNumberOfObstacles(); k++) {
             constraints->addConstraints(obstacles.getSections(k),
                                         obstacles.getSize(k),
@@ -143,7 +155,9 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 #endif
     close.clear();
     open.clear();
+    DEBUG_MSG_RED("constraints");
     DEBUG_MSG_RED(constraints);
+    DEBUG_MSG_RED("config");
     DEBUG_MSG_RED(config);
     constraints->use_likhachev = config->use_likhachev;
     RTResultPathInfo resultPath;

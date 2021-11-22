@@ -1,8 +1,6 @@
 #pragma once
-#include "constraints.h"
 #include "../aa_sipp.h"
 #include "structs.h"
-#include "dynamicobstacles.h"
 #include "learningAlgorithms/DijkstraLearning.hpp"
 #include "learningAlgorithms/noLearning.hpp"
 #include <boost/functional/hash.hpp>
@@ -12,9 +10,10 @@ class Realtime_SIPP : public AA_SIPP
 
 public:
     Realtime_SIPP(const Config& config);
-
-    RTSearchResult startSearch(Map& map, Task& task,
-                             RTDynamicObstacles& obstacles);
+    SearchResult startSearch(Map& map, Task& task,
+                             DynamicObstacles& obstacles);
+    RTSearchResult startRTSearch(Map& map, Task& task,
+                             DynamicObstacles& obstacles);
     bool         findPath(unsigned int numOfCurAgent, const Map& map) override;
     RTNode findMin();
     bool stopCriterion(const RTNode &curNode, RTNode &goalNode);
@@ -41,7 +40,7 @@ private:
 
     std::vector<RTResultPathInfo>        onlinePlanSections;
     std::shared_ptr<LearningAlgorithm> learningModulePtr;
-    RTConstraints *constraints;
+    //RTConstraints *constraints;
     std::unordered_map<std::string, std::shared_ptr<LearningAlgorithm>>
       map_configStringTolearningModule{
         {"nolearning", std::make_shared<NoLearning>()},

@@ -9,7 +9,7 @@
 		<timelimit>60</timelimit>
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
-		<algtype>5</algtype>
+		<algtype>1</algtype>
 		<fixedlookahead>10</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>f</decisionalgorithm>

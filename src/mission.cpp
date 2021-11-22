@@ -38,8 +38,9 @@ bool Mission::getConfig()
 
 bool Mission::getObstacles()
 {
-    if (obstaclesName)
+    if (obstaclesName){
         return m_obstacles.getObstacles(obstaclesName);
+}
     else
         return false;
 }
@@ -100,8 +101,8 @@ void Mission::createLog()
 void Mission::startSearch()
 {
     // std::cout<<"SEARCH STARTED\n";
+     m_pSearch->startSearch(m_map, m_task, m_obstacles);
 
-    sr = m_pSearch->startSearch(m_map, m_task, m_obstacles);
 }
 
 void Mission::printSearchResultsToConsole()
