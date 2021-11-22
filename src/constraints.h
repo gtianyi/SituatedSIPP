@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "gl_const.h"
 #include "structs.h"
+#include "situatedSIPP/structs.h"
 #include <algorithm>
 #include <iostream>
 #include "lineofsight.h"
@@ -17,9 +18,12 @@ public:
     ~Constraints(){}
     void updateCellSafeIntervals(std::pair<int, int> cell);
     std::vector<SafeInterval> getSafeIntervals(Node curNode, const std::unordered_multimap<int, Node> &close, int w);
+    std::vector<SafeInterval> getSafeIntervals(RTNode curNode, const std::unordered_multimap<int, RTNode> &close, int w);
     std::vector<SafeInterval> getSafeIntervals(Node curNode);
     void addConstraints(const std::vector<Node> &sections, double size, double mspeed, const Map &map);
+    void addConstraints(const std::vector<RTNode> &sections, double size, double mspeed, const Map &map);
     std::vector<SafeInterval> findIntervals(Node curNode, std::vector<double> &EAT, const std::unordered_multimap<int, Node> &close, const Map &map);
+    std::vector<SafeInterval> findIntervals(RTNode curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map);
     SafeInterval getSafeInterval(int i, int j, int n) {return safe_intervals[i][j][n];}
     void resetSafeIntervals(int width, int height);
     void addStartConstraint(int i, int j, int size, std::vector<std::pair<int, int>> cells, double agentsize = 0.5);
@@ -34,6 +38,7 @@ public:
 
 private:
     bool hasCollision(const Node &curNode, double startTimeA, const section &constraint, bool &goal_collision);
+    bool hasCollision(const RTNode &curNode, double startTimeA, const section &constraint, bool &goal_collision);
     std::vector<std::vector<std::vector<section>>> constraints;
     std::vector<std::vector<std::vector<SafeInterval>>> safe_intervals;
     double rspeed;
