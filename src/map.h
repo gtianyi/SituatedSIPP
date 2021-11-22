@@ -10,6 +10,7 @@
 #include "tinyxml2.h"
 #include "gl_const.h"
 #include "lineofsight.h"
+#include "situatedSIPP/structs.h"
 
 class Map
 {
@@ -26,6 +27,7 @@ public:
     bool CellIsObstacle(int i, int j) const;
     int  getValue(int i, int j) const;
     std::vector<Node> getValidMoves(int i, int j, int k, double size) const;
+    std::vector<RTNode> getValidRTMoves(int i, int j, int k, double size) const;
 };
 
 #endif

@@ -116,6 +116,14 @@ struct Focal_Elem
     int leaps;
     double g;
     double F;
+    Focal_Elem(double g_, double f_, int leaps_ = 0)
+    {
+        open_id = -1;
+        g = g_;
+        F = f_;
+        leaps = leaps_;
+    }
+
     Focal_Elem(const Node& node, int leaps_ = 0)
     {
         open_id = node.open_id;
@@ -159,6 +167,7 @@ struct section
     section(int _i1=-1, int _j1=-1, int _i2=-1, int _j2=-1, double _g1=-1, double _g2=-1)
         :i1(_i1), j1(_j1), i2(_i2), j2(_j2), g1(_g1), g2(_g2){}
     section(const Node &a, const Node &b):i1(a.i), j1(a.j), i2(b.i), j2(b.j), g1(a.g), g2(b.g){}
+    //section(const RTNode &a, const RTNode &b):i1(a.i), j1(a.j), i2(b.i), j2(b.j), g1(a.g()), g2(b.g()){}
     int i1;
     int j1;
     int i2;

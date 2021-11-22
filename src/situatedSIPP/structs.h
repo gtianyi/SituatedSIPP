@@ -1,17 +1,16 @@
 #pragma once
 #include <boost/functional/hash.hpp>
 #include "../structs.h"
+#include <unordered_map>
 
 class RTNode{
 private:
   static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_h;
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
-  static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_g;
-  static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_g;
-
 public:
   int     i, j;
   double  size;
+  double s_g, d_g;  // node can have a
   RTNode*   Parent;
   double  heading;
   int     heading_id;
@@ -19,7 +18,7 @@ public:
   int     interval_id;
   SafeInterval interval;
 
-  RTNode(int _i=-1, int _j=-1, int h_id=0):i(_i),j(_j),Parent(nullptr), heading_id(h_id){optimal = false;}
+  RTNode(int _i=-1, int _j=-1, double initial_static_g = 0.0,  double initial_dynamic_g = 0.0, int h_id=0):i(_i),j(_j),s_g(initial_static_g),d_g(initial_dynamic_g),Parent(nullptr),heading_id(h_id){optimal = false;}
   ~RTNode(){ Parent = nullptr; }
   //[[depreciated]] double F;
   //[[depreciated]] double g;
@@ -42,10 +41,10 @@ public:
      return _dynamic_h[*this];
   }
   double static_g() const{
-    return _static_g[static_key()];
+    return s_g;
   }
   double dynamic_g() const{
-      return _dynamic_g[*this];
+      return d_g;
   }
   void set_static_h(double val){
     _static_h[static_key()] = val;
@@ -54,10 +53,10 @@ public:
     _dynamic_h[*this] = val;
   }
   void set_static_g(double val){
-    _static_g[static_key()] = val;
+    s_g = val;
   }
   void set_dynamic_g(double val){
-    _dynamic_g[*this] = val;
+    d_g = val;
   }
 
   void set_zero(){
@@ -87,18 +86,21 @@ public:
         return (i == other.i) &&
                (j == other.j) &&
                (Parent == other.Parent) &&
-               (interval == other.interval);
+               (s_g == other.static_g()) &&
+               (d_g == other.dynamic_g());
   }
   std::size_t hash() const{
       std::size_t seed = 0;
       boost::hash_combine(seed, i);
       boost::hash_combine(seed, j);
       boost::hash_combine(seed, Parent);
-      boost::hash_combine(seed, interval.begin);
-      boost::hash_combine(seed, interval.end);
+      boost::hash_combine(seed, s_g);
+      boost::hash_combine(seed, d_g);
       return seed;
   }
 };
+
+
 
 #ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
 namespace boost{
@@ -121,8 +123,8 @@ typedef multi_index_container<
         indexed_by<
                     //ordered_non_unique<BOOST_MULTI_INDEX_MEMBER(Node, double, F)>,
                     ordered_non_unique<identity<RTNode>>,
-                    hashed_non_unique<composite_key<RTNode, BOOST_MULTI_INDEX_MEMBER(Node, int, i), BOOST_MULTI_INDEX_MEMBER(Node, int, j),BOOST_MULTI_INDEX_MEMBER(Node, int, interval_id)>>,
-                    hashed_unique<BOOST_MULTI_INDEX_MEMBER(Node, int, open_id)>
+                    hashed_non_unique<composite_key<RTNode, BOOST_MULTI_INDEX_MEMBER(RTNode, int, i), BOOST_MULTI_INDEX_MEMBER(RTNode, int, j),BOOST_MULTI_INDEX_MEMBER(RTNode, int, interval_id)>>,
+                    hashed_unique<identity<RTNode>>
         >
 > RTOPEN_container;
 
