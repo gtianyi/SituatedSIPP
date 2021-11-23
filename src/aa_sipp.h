@@ -19,6 +19,9 @@
 #else
     #include <windows.h>
 #endif
+
+void debug_open(const OPEN_container& open);
+
 class AA_SIPP
 {
 

@@ -11,6 +11,7 @@
 #include "lineofsight.h"
 #include "map.h"
 
+
 class Constraints
 {
 public:
@@ -34,6 +35,7 @@ public:
     double minDist(Point A, Point C, Point D);
     bool use_likhachev;
     int reopened;
+    void debug_safe_intervals();
 
 
 private:
