@@ -1,5 +1,6 @@
 #include "aa_sipp.h"
 #include "debug.h"
+#include "structs.h"
 
 AA_SIPP::AA_SIPP(const Config& config)
 {
@@ -194,6 +195,8 @@ Node AA_SIPP::findMin()
 
 void AA_SIPP::addOpen(Node& newNode)
 {
+    DEBUG_MSG_RED("adding:");
+    newNode.debug();
     auto range     = open.get<1>().equal_range(boost::make_tuple<int, int, int>(
       newNode.i, newNode.j, newNode.interval_id));
     auto it        = range.first;
@@ -211,6 +214,8 @@ void AA_SIPP::addOpen(Node& newNode)
             dominated = true;
         } else if ((newNode.g + getRCost(it->heading, newNode.heading) -
                     it->g) < CN_EPSILON) {
+            DEBUG_MSG_NO_LINE_BREAK_RED("Dominates: ");
+            it->debug();
             open.get<1>().erase(it);
             range = open.get<1>().equal_range(boost::make_tuple<int, int, int>(
               newNode.i, newNode.j, newNode.interval_id));
@@ -220,9 +225,10 @@ void AA_SIPP::addOpen(Node& newNode)
         }
         it++;
     }
+    DEBUG_MSG_NO_LINE_BREAK_RED("Dominated: ");
+    DEBUG_MSG_RED(dominated);
     if (!dominated) {
         open.insert(newNode);
-        DEBUG_MSG_RED(config->use_focal);
         if (config->use_focal) {
             if (open.get<0>().begin()->F * config->focal_weight >
                 newNode.F - CN_EPSILON) {
@@ -484,10 +490,13 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 #endif
     close.clear();
     open.clear();
+    DEBUG_MSG_RED("Reach findPath");
     constraints->use_likhachev = config->use_likhachev;
     ResultPathInfo resultPath;
     constraints->resetSafeIntervals(map.width, map.height);
+    //constraints->debug_safe_intervals();
     constraints->updateCellSafeIntervals({curagent.start_i, curagent.start_j});
+    //constraints->debug_safe_intervals();
     Node curNode(curagent.start_i, curagent.start_j, -1, 0, 0),
       goalNode(curagent.goal_i, curagent.goal_j, -1, CN_INFINITY, CN_INFINITY);
     curNode.F           = getHValue(curNode.i, curNode.j);
@@ -496,6 +505,7 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     curNode.heading     = curagent.start_heading;
     curNode.optimal     = true;
     addOpen(curNode);
+    debug_open(open);
     int             reexpanded(0);
     int             close_id(0);
     std::list<Node> reexpanded_list;
@@ -543,6 +553,7 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
             } else {
                 addOpen(s);
             }
+            debug_open(open);
         }
     }
     if (goalNode.g < CN_INFINITY) {
@@ -799,6 +810,32 @@ void AA_SIPP::calculateLineSegment(std::vector<Node>& line, const Node& start,
                 i += step_i;
                 error -= delta_j;
             }
+        }
+    }
+}
+
+
+void debug_open(const OPEN_container& open){
+    DEBUG_MSG_RED("OPEN:");
+    for (auto n : open){
+        DEBUG_MSG_NO_LINE_BREAK_RED(n.i);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(n.j);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(n.heading);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(n.g);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(n.F);
+        if (n.Parent){
+            DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+            DEBUG_MSG_NO_LINE_BREAK_RED(n.Parent->i);
+            DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+            DEBUG_MSG_NO_LINE_BREAK_RED(n.Parent->j);
+            DEBUG_MSG_RED(" ");
+        }
+        else{
+            DEBUG_MSG_RED(" nil");
         }
     }
 }

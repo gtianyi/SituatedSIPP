@@ -54,7 +54,6 @@ void Mission::createSearch()
     DEBUG_MSG_RED("ALGTYPE");
     DEBUG_MSG_RED(m_config.algtype);
     if (m_config.algtype == 1) {
-
         m_config.use_focal     = false;
         m_config.use_likhachev = true;
         m_config.h_weight      = m_config.weight;
@@ -101,7 +100,7 @@ void Mission::createLog()
 void Mission::startSearch()
 {
     // std::cout<<"SEARCH STARTED\n";
-     m_pSearch->startSearch(m_map, m_task, m_obstacles);
+    sr = m_pSearch->startSearch(m_map, m_task, m_obstacles);
 
 }
 

@@ -1,4 +1,5 @@
 #include "constraints.h"
+#include "debug.h"
 
 Constraints::Constraints(int width, int height)
 {
@@ -557,3 +558,28 @@ bool Constraints::hasCollision(const RTNode &curNode, double startTimeA, const s
     else
         return false;
 }
+
+void Constraints::debug_safe_intervals(){
+    DEBUG_MSG_NO_LINE_BREAK_RED("j");
+    for (int j=0; j < safe_intervals[0].size(); j++){
+            DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+            DEBUG_MSG_NO_LINE_BREAK_RED(j);
+        }
+    DEBUG_MSG_RED("");
+    for (int i=0;i<safe_intervals.size();i++){
+        DEBUG_MSG_NO_LINE_BREAK_RED(i);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        for (int j=0; j < safe_intervals[i].size(); j++){
+            DEBUG_MSG_NO_LINE_BREAK_RED("{");
+            for (int k=0; k < safe_intervals[i][j].size(); k++){
+                DEBUG_MSG_NO_LINE_BREAK_RED("(");
+                DEBUG_MSG_NO_LINE_BREAK_RED(safe_intervals[i][j][k].begin);
+                DEBUG_MSG_NO_LINE_BREAK_RED(",");
+                DEBUG_MSG_NO_LINE_BREAK_RED(safe_intervals[i][j][k].end);
+                DEBUG_MSG_NO_LINE_BREAK_RED(")");
+            }
+            DEBUG_MSG_NO_LINE_BREAK_RED("}");
+        }
+        DEBUG_MSG_RED("");
+    }
+ }

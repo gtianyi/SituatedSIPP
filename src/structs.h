@@ -1,5 +1,6 @@
 #ifndef STRUCTS_H
 #define STRUCTS_H
+#include "debug.h"
 #include "gl_const.h"
 #include <utility>
 #include <vector>
@@ -97,6 +98,13 @@ struct Node
                (j == other.j) &&
                (Parent == other.Parent) &&
                (interval == other.interval);
+    }
+    void debug() const{
+        DEBUG_MSG_NO_LINE_BREAK_RED(i);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(j);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_RED(g);
     }
 };
 
