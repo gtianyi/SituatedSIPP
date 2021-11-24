@@ -188,7 +188,9 @@ Node AA_SIPP::findMin()
     }
     auto min = *pointer;
     open.get<2>().erase(pointer);
-    if (open.get<0>().begin()->F > cost + CN_EPSILON)
+    DEBUG_MSG_RED("Open Size");
+    DEBUG_MSG_RED(open.size());
+    if ((open.size() > 0) && (open.get<0>().begin()->F > cost + CN_EPSILON))
         update_focal(cost);
     return min;
 }
