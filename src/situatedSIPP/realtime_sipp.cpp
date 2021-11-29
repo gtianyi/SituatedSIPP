@@ -1,5 +1,6 @@
 #include "realtime_sipp.h"
 #include "../debug.h"
+#include "structs.h"
 
 Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
@@ -7,15 +8,34 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     constraints = nullptr;
     learningModulePtr = map_configStringTolearningModule[config->learningalgorithm];
     learningModulePtr->setAgentSpeed(curagent.mspeed);
-    DEBUG_MSG_RED("Config in RTSIPP cons");
-    DEBUG_MSG_RED(config_.use_focal);
-    DEBUG_MSG_RED(config);
+}
+
+SearchResult rtsr2sr(const RTSearchResult& rtsr){
+    // convert the realtime search results to a search result.
+    SearchResult sr;
+    sr.pathfound = rtsr.pathfound;
+    sr.makespan = rtsr.makespan;
+    sr.flowtime = rtsr.flowtime;
+    sr.runtime = rtsr.runtime;
+    sr.agents = rtsr.agents;
+    sr.agentsSolved = rtsr.agentsSolved;
+    sr.tries = rtsr.tries;
+    sr.pathInfo.clear();
+    for (auto path_info: rtsr.pathInfo){
+        sr.pathInfo.push_back(path_info.toRPI());  
+    }
+    return sr;
+
+
+
+
 }
 
 SearchResult Realtime_SIPP::startSearch(Map& map, Task& task,
                          DynamicObstacles& obstacles){
-    startRTSearch(map, task, obstacles);
-    return AA_SIPP::sresult;  // this is probably not great to do.
+    RTSearchResult rtsr =  startRTSearch(map, task, obstacles);
+    return rtsr2sr(rtsr);
+    //return AA_SIPP::sresult;  // this is probably not great to do.  //turns out it was not
 }
 
 RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
@@ -45,9 +65,6 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
     setPriorities(task);
     do {
         constraints = new Constraints(map.width, map.height);
-        DEBUG_MSG_RED("constraints 43");
-        DEBUG_MSG_RED(constraints);
-
         for (int k = 0; k < obstacles.getNumberOfObstacles(); k++) {
             constraints->addConstraints(obstacles.getSections(k),
                                         obstacles.getSize(k),
@@ -89,6 +106,10 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
                                                    curagent.start_j);
             }
             if (findPath(current_priorities[numOfCurAgent], map)) {
+                DEBUG_MSG_NO_LINE_BREAK_RED("Looking for:");
+                DEBUG_MSG_RED(current_priorities[numOfCurAgent]);
+                DEBUG_MSG_RED(sresult.pathInfo[current_priorities[numOfCurAgent]].sections.size());
+                
                 constraints->addConstraints(
                   sresult.pathInfo[current_priorities[numOfCurAgent]].sections,
                   curagent.size, curagent.mspeed, map);
@@ -212,7 +233,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
             sresult.makespan = std::max(sresult.makespan, curNode.g());
             sresult.pathInfo[numOfCurAgent] = resultPath;
             sresult.agentsSolved++;
-
+            DEBUG_MSG_RED("Here:");
+            DEBUG_MSG_RED(resultPath.sections.size());
             break;
         }
 
