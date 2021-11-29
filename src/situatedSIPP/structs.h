@@ -160,16 +160,32 @@ struct RTResultPathInfo:  public ResultPathInfo{
       path.clear();
       sections.clear();
     }
-    void toRPI(){
-      ResultPathInfo::path = rtn2nl(path);
+    ResultPathInfo toRPI(){ // make this return instead of mutate
+      ResultPathInfo rpi;
+      rpi.pathfound = pathfound;
+      rpi.pathlength = pathlength;
+      rpi.runtime = runtime;
+      rpi.expanded = expanded;
+      rpi.generated = generated;
+      rpi.reopened = reopened;
+      rpi.reexpanded = reexpanded;
+      rpi.path = rtn2nl(path);
+      DEBUG_MSG_RED("pathfound");
+      DEBUG_MSG_RED(pathfound);
       for (RTResultPathInfo rtrpi: iterationPath){
-        rtrpi.toRPI();
-        ResultPathInfo::iterationPath.push_back(rtrpi);
+        rpi.iterationPath.push_back(rtrpi.toRPI());
       }
       //ResultPathInfo::iterationPath = rtn2n(iterationPath);
-      ResultPathInfo::sections = rtn2nv(sections);
-      ResultPathInfo::reexpanded_list = rtn2nl(reexpanded_list);
+      //DEBUG_MSG_RED("RTSECTIONS");
+      //DEBUG_MSG_RED(sections.size());
+      rpi.sections = rtn2nv(sections);
+      DEBUG_MSG_RED("Section lengths");
+      DEBUG_MSG_RED(rpi.sections.size());
+      //DEBUG_MSG_RED(ResultPathInfo::sections.size());
+      rpi.reexpanded_list = rtn2nl(reexpanded_list);
+      return rpi;
     }
+
 };
 
 struct RTSearchResult

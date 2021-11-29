@@ -5,6 +5,8 @@
 #include "learningAlgorithms/noLearning.hpp"
 #include <boost/functional/hash.hpp>
 
+SearchResult rtsr2sr(const RTSearchResult& rtsr);
+
 class Realtime_SIPP : public AA_SIPP
 {
 
