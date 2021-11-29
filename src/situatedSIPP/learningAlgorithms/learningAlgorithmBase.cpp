@@ -24,6 +24,7 @@ void LearningAlgorithm::setAgentSpeed(double speed){
 }
 
 void LearningAlgorithm::debug_node(const RTNode& n){
+  (void)n;
   DEBUG_MSG_NO_LINE_BREAK_RED(n.i);
   DEBUG_MSG_NO_LINE_BREAK_RED(" ");
   DEBUG_MSG_NO_LINE_BREAK_RED(n.j);
