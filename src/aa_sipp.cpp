@@ -13,7 +13,7 @@ AA_SIPP::~AA_SIPP() = default;
 auto AA_SIPP::stopCriterion(const Node& curNode, Node& goalNode) -> bool
 {
     if (open.empty()) {
-        // std::cout << "OPEN list is empty! ";
+        DEBUG_MSG("Break lookahead, OPEN list is empty! ");
         return true;
     }
     if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j &&
