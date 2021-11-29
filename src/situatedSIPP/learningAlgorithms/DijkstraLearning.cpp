@@ -42,8 +42,6 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         }
         // step 3
         while (!close.empty() && !open_sorted_by_h.empty()){// need the open check?
-          DEBUG_MSG_NO_LINE_BREAK_RED("Iteration: ");
-          DEBUG_MSG_RED(iteracc++);
           DEBUG_MSG_RED("Closed List Contents");
           for (const RTNode& closen : close){
             debug_node(closen);
