@@ -106,10 +106,6 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
                                                    curagent.start_j);
             }
             if (findPath(current_priorities[numOfCurAgent], map)) {
-                DEBUG_MSG_NO_LINE_BREAK_RED("Looking for:");
-                DEBUG_MSG_RED(current_priorities[numOfCurAgent]);
-                DEBUG_MSG_RED(sresult.pathInfo[current_priorities[numOfCurAgent]].sections.size());
-                
                 constraints->addConstraints(
                   sresult.pathInfo[current_priorities[numOfCurAgent]].sections,
                   curagent.size, curagent.mspeed, map);
@@ -176,10 +172,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 #endif
     close.clear();
     open.clear();
-    DEBUG_MSG_RED("constraints");
-    DEBUG_MSG_RED(constraints);
-    DEBUG_MSG_RED("config");
-    DEBUG_MSG_RED(config);
     constraints->use_likhachev = config->use_likhachev;
     RTResultPathInfo resultPath;
     constraints->resetSafeIntervals(map.width, map.height);
@@ -232,9 +224,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
             sresult.flowtime += curNode.g();
             sresult.makespan = std::max(sresult.makespan, curNode.g());
             sresult.pathInfo[numOfCurAgent] = resultPath;
-            sresult.agentsSolved++;
-            DEBUG_MSG_RED("Here:");
-            DEBUG_MSG_RED(resultPath.sections.size());
+            sresult.agentsSolved++; 
             break;
         }
 

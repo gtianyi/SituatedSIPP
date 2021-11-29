@@ -7,10 +7,6 @@ auto lt(RTNode const &n1, RTNode const &n2, DijkstraLearning const &dl) -> bool 
  }
 
 void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& closed){
-
-        DEBUG_MSG_RED("Devin use this DEBUG COLOR");
-        //DEBUG_MSG_NO_LINE_BREAK_RED("Devin use this DEBUG COLOR, noline break");
-
         // Devin TODO
         // using LSSLRTA* style Dijkstra learning
         // 1. mark everthing in closed list as infinity
