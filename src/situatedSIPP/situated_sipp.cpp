@@ -4,7 +4,8 @@
 Situated_SIPP::Situated_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
-    learningModulePtr = map_configStringTolearningModule[config->learningalgorithm];
+    learningModulePtr =
+      map_configStringTolearningModule[config->learningalgorithm];
 }
 
 SearchResult Situated_SIPP::startSearch(Map& map, Task& task,
@@ -254,10 +255,14 @@ bool Situated_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 
         gettimeofday(&endOfRealtimeCycle, nullptr);
 
+        if (open.empty()) {
+            DEBUG_MSG("open is empty, deadend!");
+            break;
+        }
+
         // decision-making phase
         // 1) commit the the toplevel action that would lead to the best search
         // frontier node
-        //
         auto bestTLA = backupAndRecordPartialPlan(curNode, beginOfRealtimeCycle,
                                                   endOfRealtimeCycle);
 
@@ -267,7 +272,6 @@ bool Situated_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         curNode.Parent = nullptr;
         open.clear();
         addOpen(curNode);
-        DEBUG_MSG("open size " << open.size());
         curExpansion = 0;
         Node resetGoalNode(curagent.goal_i, curagent.goal_j, -1, CN_INFINITY,
                            CN_INFINITY);
@@ -392,6 +396,6 @@ Node Situated_SIPP::backupAndRecordPartialPlan(const Node&    curNode,
     recordToOnlinePath(*parentPtr, bestFrontierNode, begin, end);
     hppath.push_back(cur);
     lppath.push_back(cur);
-    
+
     return cur;
 }
