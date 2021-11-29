@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<root>
+	<algorithm>
+		<allowanyangle>false</allowanyangle>
+		<connectedness>3</connectedness>
+		<rescheduling>random</rescheduling>
+		<startsafeinterval>3</startsafeinterval>
+		<prioritization>fifo</prioritization>
+		<timelimit>60</timelimit>
+		<planforturns>false</planforturns>
+		<waitbeforemove>0</waitbeforemove>
+		<algtype>1</algtype>
+		<fixedlookahead>10</fixedlookahead>
+		<expansionalgorithm>astar</expansionalgorithm>
+		<decisionalgorithm>f</decisionalgorithm>
+		<learningalgorithm>nolearning</learningalgorithm>
+	</algorithm>
+	<options>
+		<loglevel>2</loglevel>
+		<logpath />
+        <logfilename>tianyilog.xml</logfilename>
+	</options>
+</root>
