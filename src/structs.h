@@ -72,7 +72,14 @@ struct SafeInterval
 
 struct Node
 {
-    Node(int _i=-1, int _j=-1, int h_id=0, double _g=-1, double _F=-1):i(_i),j(_j),g(_g),F(_F),Parent(nullptr), heading_id(h_id){optimal = false;}
+    Node(int _i=-1, int _j=-1, int h_id=0, double _g=-1, double _F=-1):i(_i),j(_j),g(_g),F(_F),Parent(nullptr), heading_id(h_id){
+        optimal = false;
+        size = CN_DEFAULT_SIZE;
+        heading = CN_DEFAULT_SHEADING;
+        close_id = -1;
+        open_id = -1;
+        interval_id = -1;
+    }
     ~Node(){ Parent = nullptr; }
     int     i, j;
     int     open_id;
