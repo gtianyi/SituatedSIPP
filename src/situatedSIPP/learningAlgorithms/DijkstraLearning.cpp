@@ -18,7 +18,6 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         std::unordered_set<RTNode>::iterator cit;
         const RTNode * n = nullptr;
         double c = NAN;
-        uint iteracc = 0;
         std::set<std::pair<double, const RTNode *>>::iterator oit;
         std::set<std::pair<double, const RTNode *>,
                  std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
