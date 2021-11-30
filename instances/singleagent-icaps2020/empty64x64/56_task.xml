@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<root>
+    <agents number="1">
+       <agent id="0" start.x="17" start.y="49" goal.x="50" goal.y="5" size="0.5" movespeed="1"/>
+    </agents>
+</root>
