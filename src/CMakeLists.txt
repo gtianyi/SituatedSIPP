@@ -10,6 +10,7 @@ set( SOURCE_FILES
      aa_sipp.cpp
      situatedSIPP/realtime_sipp.cpp
      situatedSIPP/learningAlgorithms/DijkstraLearning.cpp
+     situatedSIPP/learningAlgorithms/PlrtaLearning.cpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.cpp
      constraints.cpp )
 
@@ -30,6 +31,7 @@ set( HEADER_FILES
      situatedSIPP/realtime_sipp.h
      situatedSIPP/learningAlgorithms/DijkstraLearning.hpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.hpp
+     situatedSIPP/learningAlgorithms/PlrtaLearning.hpp
      structs.h
      constraints.h )
 

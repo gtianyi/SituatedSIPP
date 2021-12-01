@@ -34,7 +34,7 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
             RTNode copy_of_closen = RTNode(closen); 
             debug_node(closen);
             copy_of_closen.set_static_h(std::numeric_limits<double>::infinity());
-            copy_of_closen.set_dynamic_h(0.0);
+            copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
         }
         // step 2
         DEBUG_MSG_RED("Open List Contents");
@@ -62,11 +62,10 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
           if (n->Parent != nullptr){
             cit = close.find(*(n->Parent));
             if (cit != close.end()){
-             c =  cost(*n, *(n->Parent)) + n->h();
-             if (n->Parent->h() > c){
+             c =  cost(*n, *(n->Parent)) + n->static_h();
+             if (n->Parent->static_h() > c){
                p = std::pair<double, RTNode *>(n->Parent->h(), n->Parent); // parent prior to updating h
-               n->Parent->set_static_h(c + n->static_g());  // update h in record
-               n->Parent->set_dynamic_h(n->dynamic_g() - n->Parent->dynamic_g()); // is this correct?
+               n->Parent->set_static_h(c);  // update h in record
                oit = open_sorted_by_h.find(p);
                if(oit == open_sorted_by_h.end()){
                  open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
@@ -76,6 +75,10 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
                  open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
                }
              }
+            c = n->dynamic_g() + n->dynamic_h() - n->Parent->dynamic_g();
+            if (c < n->Parent->dynamic_h()){
+                n->Parent->set_dynamic_h(c);
+            }
             }
           }
         }
