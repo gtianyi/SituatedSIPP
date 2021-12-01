@@ -11,9 +11,6 @@ private:
 public:
   void setAgentSpeed(double speed);
   auto cost(const RTNode& n1, const RTNode& n2) -> double;
-  void debug_node(const RTNode& n);
-  auto get_h(const RTNode& n) const -> double;
-  void set_h(const RTNode& n, double h);
   virtual void learn(RTOPEN_container& open,
                        std::unordered_multimap<int, RTNode>& close) = 0;
 };

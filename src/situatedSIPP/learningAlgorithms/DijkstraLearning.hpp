@@ -10,4 +10,3 @@ public:
     void learn(RTOPEN_container& open,
                        std::unordered_multimap<int, RTNode>& close) override;
 };
-auto lt(RTNode const &n1, RTNode const &n2, DijkstraLearning const &dl) -> bool;

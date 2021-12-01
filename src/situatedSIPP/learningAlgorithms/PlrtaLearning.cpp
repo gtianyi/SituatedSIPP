@@ -2,10 +2,6 @@
 #include "set"
 #include "vector"
 
-auto lt(RTNode const &n1, RTNode const &n2, PlrtaLearning const &dl) -> bool {
-   return dl.get_h(n1) > dl.get_h(n2);
- }
-
 void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& closed){
         // Devin TODO
         // using LSSLRTA* style Dijkstra learning
@@ -32,25 +28,25 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
         DEBUG_MSG_RED("Closed List Contents");
         for (const RTNode& closen : close){
             RTNode copy_of_closen = RTNode(closen); 
-            debug_node(closen);
+            closen.debug();
             copy_of_closen.set_static_h(std::numeric_limits<double>::infinity());
             copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
         }
         // step 2
         DEBUG_MSG_RED("Open List Contents");
         for (const RTNode& n: open){
-          debug_node(n);
+          n.debug();
           open_sorted_by_h.emplace(n.h(), &n);
         }
         // step 3
         while (!close.empty() && !open_sorted_by_h.empty()){// need the open check?
           DEBUG_MSG_RED("Closed List Contents");
           for (const RTNode& closen : close){
-            debug_node(closen);
+            closen.debug();
           }
           DEBUG_MSG_RED("Open List Contents");
           for (const std::pair<double, const RTNode *>& element: open_sorted_by_h){
-            debug_node(*element.second);
+            element.second->debug();
           }
           oit = open_sorted_by_h.begin();
           n = oit->second;
@@ -62,6 +58,8 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
           if (n->Parent != nullptr){
             cit = close.find(*(n->Parent));
             if (cit != close.end()){
+             DEBUG_MSG_RED("Cost");
+             DEBUG_MSG_RED(cost(*n, *(n->Parent)));
              c =  cost(*n, *(n->Parent)) + n->static_h();
              if (n->Parent->static_h() > c){
                p = std::pair<double, RTNode *>(n->Parent->h(), n->Parent); // parent prior to updating h

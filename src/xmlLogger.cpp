@@ -221,6 +221,8 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
                     partMovement->SetAttribute(CNS_TAG_ATTR_GY, iterMovement->i);
                     if(config.planforturns)
                         partMovement->SetAttribute(CNS_TAG_ATTR_GH, float(iterMovement->heading));
+                    itMovement->debug();
+                    iterMovement->debug();
                     partMovement->SetAttribute(CNS_TAG_ATTR_DURATION, float(iterMovement->g - itMovement->g));
                     partPath->LinkEndChild(partMovement);
                     itMovement++;
@@ -229,6 +231,8 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
                 online_plan_paths->LinkEndChild(partPath);
                 itOnlineIterationPath++;
                 partnumber++;
+                DEBUG_MSG_RED("");
+
             }
         }
 
