@@ -80,6 +80,10 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
                 n->Parent->set_dynamic_h(c);
             }
             }
+            DEBUG_MSG_RED("Learning Parent");
+            n->Parent->debug();
+            DEBUG_MSG_RED("Learning Child");
+            n->debug();
           }
         }
         //closed.clear();

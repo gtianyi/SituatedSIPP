@@ -103,6 +103,19 @@ public:
       boost::hash_combine(seed, d_g);
       return seed;
   }
+  void debug() const{
+        DEBUG_MSG_NO_LINE_BREAK_RED(i);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(j);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(static_g());
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(dynamic_g());
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(static_h());
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_RED(dynamic_h());
+    }
 };
 
 
