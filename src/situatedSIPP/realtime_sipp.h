@@ -1,6 +1,7 @@
 #pragma once
 #include "../aa_sipp.h"
 #include "structs.h"
+#include "learningAlgorithms/PlrtaLearning.hpp"
 #include "learningAlgorithms/DijkstraLearning.hpp"
 #include "learningAlgorithms/noLearning.hpp"
 #include <boost/functional/hash.hpp>
@@ -46,5 +47,6 @@ private:
     std::unordered_map<std::string, std::shared_ptr<LearningAlgorithm>>
       map_configStringTolearningModule{
         {"nolearning", std::make_shared<NoLearning>()},
-        {"dijkstralearning", std::make_shared<DijkstraLearning>()}};
+        {"dijkstralearning", std::make_shared<DijkstraLearning>()},
+        {"plrtalearning", std::make_shared<PlrtaLearning>()}};
 };
