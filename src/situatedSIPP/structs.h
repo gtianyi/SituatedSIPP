@@ -21,6 +21,7 @@ public:
 
   RTNode(int _i=-1, int _j=-1, double initial_static_g = 0.0,  double initial_dynamic_g = 0.0, int h_id=0):i(_i),j(_j),s_g(initial_static_g),d_g(initial_dynamic_g),Parent(nullptr),heading_id(h_id){optimal = false;}
   ~RTNode(){ Parent = nullptr; }
+ 
   //[[depreciated]] double F;
   //[[depreciated]] double g;
   inline double F() const{
