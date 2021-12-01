@@ -2,10 +2,6 @@
 #include "set"
 #include "vector"
 
-auto lt(RTNode const &n1, RTNode const &n2, DijkstraLearning const &dl) -> bool {
-   return dl.get_h(n1) > dl.get_h(n2);
- }
-
 void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& closed){
         // Devin TODO
         // using LSSLRTA* style Dijkstra learning
@@ -31,24 +27,26 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         // step 1
         DEBUG_MSG_RED("Closed List Contents");
         for (const RTNode& closen : close){
-          debug_node(closen);
-          set_h(closen, std::numeric_limits<double>::infinity());
+          closen.debug();
+          RTNode copy_of_closen = RTNode(closen); 
+          copy_of_closen.set_static_h(0.0);
+          copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
         }
         // step 2
         DEBUG_MSG_RED("Open List Contents");
         for (const RTNode& n: open){
-          debug_node(n);
-          open_sorted_by_h.emplace(get_h(n), &n);
+          n.debug();
+          open_sorted_by_h.emplace(n.h(), &n);
         }
         // step 3
         while (!close.empty() && !open_sorted_by_h.empty()){// need the open check?
           DEBUG_MSG_RED("Closed List Contents");
           for (const RTNode& closen : close){
-            debug_node(closen);
+            closen.debug();
           }
           DEBUG_MSG_RED("Open List Contents");
           for (const std::pair<double, const RTNode *>& element: open_sorted_by_h){
-            debug_node(*element.second);
+            element.second->debug();
           }
           oit = open_sorted_by_h.begin();
           n = oit->second;
@@ -60,17 +58,17 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
           if (n->Parent != nullptr){
             cit = close.find(*(n->Parent));
             if (cit != close.end()){
-             c =  cost(*n, *(n->Parent)) + get_h(*n);
-             if (get_h(*(n->Parent)) > c){
-               p = std::pair<double, RTNode *>(get_h(*(n->Parent)), n->Parent); // parent prior to updating h
-               set_h(*(n->Parent), c);  // update h in record
+             c =  cost(*n, *(n->Parent)) + n->h();
+             if (n->Parent->h() > c){
+               p = std::pair<double, RTNode *>(n->Parent->h(), n->Parent); // parent prior to updating h
+               n->Parent->set_dynamic_h(c);  // update h in record
                oit = open_sorted_by_h.find(p);
                if(oit == open_sorted_by_h.end()){
-                 open_sorted_by_h.emplace(get_h(*(n->Parent)), n->Parent);
+                 open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
                }
                else{
                  open_sorted_by_h.erase(oit);
-                 open_sorted_by_h.emplace(get_h(*(n->Parent)), n->Parent);
+                 open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
                }
              }
             }
