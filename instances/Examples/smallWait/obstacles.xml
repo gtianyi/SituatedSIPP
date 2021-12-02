@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<root>
+	<dynamicobstacles>
+		<defaultparameters size="0.4"/>
+        <obstacle id="0" size="0.5">
+            <section id="0" start.x="6" start.y="2" start.heading="180" goal.x="6" goal.y="2" goal.heading="180" duration="4"/>
+            <section id="1" start.x="6" start.y="2" start.heading="180" goal.x="4" goal.y="2" goal.heading="180" duration="12"/>
+        </obstacle>
+	</dynamicobstacles>
+</root>

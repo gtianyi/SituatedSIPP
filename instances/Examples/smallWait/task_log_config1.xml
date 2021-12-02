@@ -1,0 +1,68 @@
+<?xml version="1.0" ?>
+<root>
+    <agents number="7">
+        <defaultparameters size="0.4" movespeed="0.25" rotationspeed="0.2" start.heading="180" goal.heading="90"/>
+        <agent id="0" start.x="7" start.y="2" goal.x="5" goal.y="0" size="0.5"/>
+    </agents>
+    <map type="grid">
+        <grid width="11" height="5">
+            <row>1 1 1 1 1 0 1 1 1 1 1 </row>
+            <row>1 1 1 1 1 0 1 1 1 1 1 </row>
+            <row>0 0 0 0 0 0 0 0 0 0 0 </row>
+            <row>1 1 1 1 1 0 1 1 1 1 1 </row>
+            <row>1 1 1 1 1 0 1 1 1 1 1 </row>
+        </grid>
+    </map>
+    <algorithm>
+        <allowanyangle>false</allowanyangle>
+        <connectedness>3</connectedness>
+        <rescheduling>random</rescheduling>
+        <startsafeinterval>3</startsafeinterval>
+        <prioritization>fifo</prioritization>
+        <timelimit>60</timelimit>
+        <planforturns>false</planforturns>
+        <waitbeforemove>0</waitbeforemove>
+        <algtype>1</algtype>
+        <fixedlookahead>10</fixedlookahead>
+        <expansionalgorithm>astar</expansionalgorithm>
+        <decisionalgorithm>f</decisionalgorithm>
+        <learningalgorithm>nolearning</learningalgorithm>
+    </algorithm>
+    <options>
+        <loglevel>2</loglevel>
+        <logpath/>
+        <logfilename>tianyilog.xml</logfilename>
+    </options>
+    <dynamicobstacles>
+        <defaultparameters size="0.4"/>
+        <obstacle id="0" size="0.5">
+            <section id="0" start.x="6" start.y="2" start.heading="180" goal.x="6" goal.y="2" goal.heading="180" duration="4"/>
+            <section id="1" start.x="6" start.y="2" start.heading="180" goal.x="4" goal.y="2" goal.heading="180" duration="12"/>
+        </obstacle>
+    </dynamicobstacles>
+    <log>
+        <summary runtime="0.0033489999" tries="1" agentssolved="1 (100.000000%)" flowtime="24.1" makespan="24.1"/>
+        <path>
+            <row number="0">1 1 1 1 1 0 1 1 1 1 1 </row>
+            <row number="1">1 1 1 1 1 * 1 1 1 1 1 </row>
+            <row number="2">0 0 0 0 0 * * * 0 0 0 </row>
+            <row number="3">1 1 1 1 1 0 1 1 1 1 1 </row>
+            <row number="4">1 1 1 1 1 0 1 1 1 1 1 </row>
+        </path>
+        <agent id="0" start.x="7" start.y="2" goal.x="5" goal.y="0" size="0.5" movespeed="0.25" rotationspeed="0.2">
+            <path pathfound="true" runtime="0.0032319999" duration="24.1">
+                <section id="0" start.x="7" start.y="2" goal.x="7" goal.y="2" duration="6.0999999"/>
+                <section id="1" start.x="7" start.y="2" goal.x="6" goal.y="2" duration="4"/>
+                <section id="2" start.x="6" start.y="2" goal.x="6" goal.y="2" duration="2"/>
+                <section id="3" start.x="6" start.y="2" goal.x="5" goal.y="2" duration="4"/>
+                <section id="4" start.x="5" start.y="2" goal.x="5" goal.y="1" duration="4"/>
+                <section id="5" start.x="5" start.y="1" goal.x="5" goal.y="0" duration="4"/>
+            </path>
+            <onlineplanpaths pathfound="true" runtime="0.0032319999" duration="24.1"/>
+            <reexpanded>
+                <node x="8" y="2"/>
+                <node x="6" y="2"/>
+            </reexpanded>
+        </agent>
+    </log>
+</root>
