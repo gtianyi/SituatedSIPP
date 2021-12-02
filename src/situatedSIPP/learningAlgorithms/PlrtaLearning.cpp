@@ -58,30 +58,35 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
           if (n->Parent != nullptr){
             cit = close.find(*(n->Parent));
             if (cit != close.end()){
-             DEBUG_MSG_RED("Cost");
-             DEBUG_MSG_RED(cost(*n, *(n->Parent)));
-             c =  cost(*n, *(n->Parent)) + n->static_h();
-             if (n->Parent->static_h() > c){
-               p = std::pair<double, RTNode *>(n->Parent->h(), n->Parent); // parent prior to updating h
-               n->Parent->set_static_h(c);  // update h in record
-               oit = open_sorted_by_h.find(p);
-               if(oit == open_sorted_by_h.end()){
-                 open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
-               }
-               else{
-                 open_sorted_by_h.erase(oit);
-                 open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
-               }
-             }
-            c = n->dynamic_g() + n->dynamic_h() - n->Parent->dynamic_g();
-            if (c < n->Parent->dynamic_h()){
-                n->Parent->set_dynamic_h(c);
-            }
-            }
-            DEBUG_MSG_RED("Learning Parent");
-            n->Parent->debug();
-            DEBUG_MSG_RED("Learning Child");
-            n->debug();
+              bool changed = false;
+              DEBUG_MSG_RED("Cost");
+              DEBUG_MSG_RED(cost(*n, *(n->Parent)));
+              c =  cost(*n, *(n->Parent)) + n->static_h();
+              if (n->Parent->static_h() > c){
+                p = std::pair<double, RTNode *>(n->Parent->h(), n->Parent); // parent prior to updating h
+                n->Parent->set_static_h(c);  // update h in record
+                changed = true;
+                }
+              c = n->dynamic_g() + n->dynamic_h() - n->Parent->dynamic_g();
+              if (c < n->Parent->dynamic_h()){
+                  n->Parent->set_dynamic_h(c);
+                  changed = true;
+                }
+              if (changed){
+                oit = open_sorted_by_h.find(p);
+                if(oit == open_sorted_by_h.end()){
+                  open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
+                  }
+                else{
+                  open_sorted_by_h.erase(oit);
+                  open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
+                  }
+                }
+              }   
+          DEBUG_MSG_RED("Learning Parent");
+          n->Parent->debug();
+          DEBUG_MSG_RED("Learning Child");
+          n->debug();
           }
         }
         //closed.clear();
