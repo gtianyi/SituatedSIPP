@@ -12,12 +12,12 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GOLD = (255, 215, 0)
 
-pixel_factor = 200
+pixel_factor = 1
 class World:
-    def __init__(self, tree, online):
-        self.map = StaticMap(tree)
-        self.agent_list = Agent.read_agents(tree)
-        self.dynamic_obstacles = read_dynamic_obstacles(tree)
+    def __init__(self, tree, online, maptree, obstree):
+        self.map = StaticMap(maptree)
+        #self.agent_list = Agent.read_agents(tree)
+        self.dynamic_obstacles = read_dynamic_obstacles(obstree)
         self.solved_agent, self.solution_path = read_solution_path(tree)
         self.dynamic_objects = [self.solution_path]
         self.sizes = [self.solved_agent.size]
@@ -158,7 +158,10 @@ class Agent:
     def read_agents(tree):
         agents = tree.find("agents")
         agent_list = []
-        default = agents.find("defaultparameters").attrib
+        try:
+            default = agents.find("defaultparameters").attrib
+        except:
+            default = {}
         for a in agents.findall("agent"):
             agent_list.append(Agent(a, default))
         return agent_list
@@ -248,7 +251,10 @@ def get_paths_done_time(paths):
 
 def read_dynamic_obstacles(tree):
     dynamicobstacles = tree.find("dynamicobstacles")
-    default = dynamicobstacles.find("defaultparameters").attrib
+    try:
+        default = dynamicobstacles.find("defaultparameters").attrib
+    except:
+        default = {}
     dos = []
     for obstacle in dynamicobstacles.findall("obstacle"):
         dos.append(
@@ -290,11 +296,21 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Visualize task logs.')
     parser.add_argument("tree", help="task log xml file")
     parser.add_argument("--online", action='store_true')
+    parser.add_argument("--map", default = "")
+    parser.add_argument("--obs", default = "")
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = parse_arguments()
     tree = ET.parse(args.tree)
-    world = World(tree, args.online)
+    if args.map == "":
+        maptree = tree
+    else:
+        maptree = ET.parse(args.map)
+    if args.obs == "":
+        obstree = tree
+    else:
+        obstree = ET.parse(args.obs)
+    world = World(tree, args.online, maptree, obstree)
     world.start()
