@@ -12,6 +12,7 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
         exit(0);
     }
     decisionModulePtr = map_configStringToDecisionModule[config->decisionalgorithm];
+    RTNode::set_dynmode(config->dynmode);
 }
 
 SearchResult rtsr2sr(const RTSearchResult& rtsr){
@@ -163,6 +164,7 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
 
 std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> RTNode::_static_h;
 std::unordered_map<RTNode, double, boost::hash<RTNode>> RTNode::_dynamic_h;
+int RTNode::dynmode = 0;
 
 
 bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)

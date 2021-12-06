@@ -35,7 +35,7 @@ public:
     std::string learningalgorithm;
     std::string expansionalgorithm;
     std::string decisionalgorithm;
-
+    int dynmode;
     bool getConfig(const char* fileName);
 };
 

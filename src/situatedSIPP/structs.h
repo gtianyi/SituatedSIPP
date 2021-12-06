@@ -8,7 +8,7 @@ class RTNode{
 private:
   static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_h;
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
-  const static int dynmode; // 0 location, parent, g; 1 location, interval end
+  static int dynmode; // 0 location, parent, g; 1 location, interval end
 public:
   int     i, j;
   double  size;
@@ -95,13 +95,24 @@ public:
                (s_g == other.static_g()) &&
                (d_g == other.dynamic_g());
   }
+
+  void static set_dynmode(int dm){
+    RTNode::dynmode = dm;
+  }
+
   std::size_t hash() const{
       std::size_t seed = 0;
-      boost::hash_combine(seed, i);
-      boost::hash_combine(seed, j);
-      boost::hash_combine(seed, Parent);
-      boost::hash_combine(seed, s_g);
-      boost::hash_combine(seed, d_g);
+      if (RTNode::dynmode == 0){
+        boost::hash_combine(seed, i);
+        boost::hash_combine(seed, j);
+        boost::hash_combine(seed, Parent);
+        boost::hash_combine(seed, s_g + d_g);
+      }
+      else if (RTNode::dynmode == 1){
+        boost::hash_combine(seed, i);
+        boost::hash_combine(seed, j);
+        boost::hash_combine(seed, interval.begin);
+      }
       return seed;
   }
   void debug() const{
