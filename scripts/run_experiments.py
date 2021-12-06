@@ -16,7 +16,7 @@ target_folder = {
     "../instances/singleagent-icaps2020/den520d/": "den520d.xml"
                 }
 
-results = pd.DataFrame(columns = ["task", "lookahead", "learning algorithm", "solved", "solution length", "solution duration"])
+results = pd.DataFrame(columns = ["task", "lookahead", "learning algorithm", "dynmode", "solved", "solution length", "solution duration"])
 lookaheads = ["10", "100", "1000"]
 learnings = ["dijkstralearning", "plrtalearning"]
 dynmode = ["0", "1"]
@@ -52,7 +52,7 @@ def run_exp(config, task, lookahead, learning, dm):
     except:
         print(" ".join(command))
         res = (float("inf"), 0)
-    return pd.Series(index = results.columns, data = (task, lookahead, learning, True, res[1], res[0]))
+    return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[1], res[0]))
 
 c = 0
 exp_results = []
