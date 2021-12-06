@@ -37,6 +37,8 @@
 #define CNS_DEFAULT_LEARNINGALGORITHM       "nolearning"
 #define CNS_DEFAULT_DECISIONALGORITHM       "f"
 #define CNS_DEFAULT_EXPANSIONALGORITHM      "astar"
+#define CNS_DEFAULT_DYNMODE                     0
+
 
 #define CN_HEADING_WHATEVER                 -1
 #define CNS_HEADING_WHATEVER                "whatever"
@@ -122,6 +124,7 @@
     #define CNS_TAG_LEARNINGALGORITHM       "learningalgorithm"
     #define CNS_TAG_EXPANSIONALGORITHM      "expansionalgorithm"
     #define CNS_TAG_DECISIONALGORITHM       "decisionalgorithm"
+    #define CNS_TAG_DYNMODE                 "dynmode"
 
 /*
  * End of XML files tags -------------------------------------------------------

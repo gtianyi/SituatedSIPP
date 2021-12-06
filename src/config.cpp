@@ -294,6 +294,21 @@ bool Config::getConfig(const char* fileName)
         stream.str("");
     }
 
+    element = algorithm->FirstChildElement(CNS_TAG_DYNMODE);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_DYNMODE<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_DYNMODE<<"'."<<std::endl;
+        dynmode = CNS_DEFAULT_DYNMODE;
+    }
+    else
+    {
+        value = element->GetText();
+        stream<<value;
+        stream>>dynmode;
+        stream.clear();
+        stream.str("");
+    }
+
     element = algorithm->FirstChildElement(CNS_TAG_LEARNINGALGORITHM);
     if (!element)
     {
