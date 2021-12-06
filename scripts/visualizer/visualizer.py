@@ -31,7 +31,7 @@ class World:
         self.screen = None
         self.background = None
 
-    def render_agent(self, agent, agent_radius, paths, time, path_start_time = 0.0):
+    def render_agent(self, agent, agent_radius, paths, time, path_start_time = 0.0, agent_speed = 1.0):
         # agent is not actually needed rn
         size = self.screen.get_rect()
         bgr = self.background.get_rect()
@@ -59,18 +59,28 @@ class World:
         time_in_section = time - section_start_time
         dx = sections[0].i2 - sections[0].i1
         dy = sections[0].j2 - sections[0].j1
-        x = sections[0].i1 + (time_in_section/sections[0].duration)*dx
-        y = sections[0].j1 + (time_in_section/sections[0].duration)*dy
+        dpos = (dx**2 + dy**2)**0.5
+        dt = dpos/agent_speed
+        dwait = sections[0].duration - dt
+        if (dt == 0):
+            x = sections[0].i1
+            y = sections[0].j1
+        else:
+            move_time = max(0, (time_in_section - dwait)/dt)
+            x = sections[0].i1 + move_time*dx
+            y = sections[0].j1 + (time_in_section/sections[0].duration)*dy
+        
         rect = pygame.Rect(round(scale[0]*(x + (1/2 - agent_radius))) , round(scale[1]*(y + (1/2-agent_radius) )), scale[0]*2*agent_radius, scale[1]*2*agent_radius)
         pygame.draw.ellipse(surf, c[agent], rect)
         points = [(scale[0]*(x + 1/2), scale[1]*(y + 1/2)), (scale[0]*(sections[0].i2 + 1/2), scale[1]*(sections[0].j2 + 1/2))]
         for section in sections[1:]:
             points.append((scale[0]*(section.i1 + 1/2), scale[1]*(section.j1 + 1/2)))
             points.append((scale[0]*(section.i2 + 1/2), scale[1]*(section.j2 + 1/2)))
+            break
         pygame.draw.aalines(surf, c[agent], False, points)
         return surf
 
-    def render_all(self, time):
+    def render_all(self, time, agent_speed):
         bg = self.background.copy()
         bg.blit(self.goal[0], self.goal[1])
         self.screen.blit(pygame.transform.scale(bg, self.screen.get_rect().size), (0, 0))
@@ -85,9 +95,9 @@ class World:
                         path_start_time = 0.0
                     else:
                         path_start_time = self.online_soln_paths_t[j-1]
-                    a_surf = self.render_agent("Agent", self.sizes[i], self.online_soln_paths[j], time, path_start_time)
+                    a_surf = self.render_agent("Agent", self.sizes[i], self.online_soln_paths[j], time, path_start_time, agent_speed)
                 else:
-                    a_surf = self.render_agent("Agent", self.sizes[i], p, time)
+                    a_surf = self.render_agent("Agent", self.sizes[i], p, time, agent_speed = agent_speed)
             else:
                 a_surf= self.render_agent("Obstacle", self.sizes[i], p, time)
             self.screen.blit(a_surf, (0, 0))
@@ -120,7 +130,7 @@ class World:
                     self.screen = pygame.display.set_mode(event.size, pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE)
             time = (datetime.datetime.now() - self.start_time).total_seconds()
             #print("\r" + str(time), end = "")
-            self.render_all(time)
+            self.render_all(time, self.solved_agent.mspeed)
 
 
 class StaticMap:
