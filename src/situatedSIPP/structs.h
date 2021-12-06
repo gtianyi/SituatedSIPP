@@ -8,6 +8,7 @@ class RTNode{
 private:
   static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_h;
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
+  const static int dynmode; // 0 location, parent, g; 1 location, interval end
 public:
   int     i, j;
   double  size;

@@ -164,6 +164,7 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
 std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> RTNode::_static_h;
 std::unordered_map<RTNode, double, boost::hash<RTNode>> RTNode::_dynamic_h;
 
+
 bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 {
 
