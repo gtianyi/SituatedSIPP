@@ -4,6 +4,7 @@ import subprocess
 import os
 import pandas as pd
 from multiprocessing import Pool
+import shutil
 
 program = "../../build_release/bin/ssipp"
 
@@ -44,8 +45,8 @@ def run_exp(config, task, lookahead, learning, dm):
     outconfig = dm + config.split("/")[-1]
     tree.write(outconfig)
     obs = task.replace(".xml", "_obs.xml")
-    outfile = task.replace(".xml", "_log.xml")
-    command = [program, task, config, outconfig, obs]
+    outfile = "outfiles/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace("xml", "") + lookahead + learning + dm + ".xml"
+    command = [program, task, config, outconfig, obs, outfile]
     try:
         subprocess.run(command, timeout = timeout)
         res = parse_output(outfile)
