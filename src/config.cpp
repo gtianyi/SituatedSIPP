@@ -22,7 +22,7 @@ bool Config::getConfig(const char* fileName)
     XMLDocument doc;
     if(doc.LoadFile(fileName) != XMLError::XML_SUCCESS)
     {
-        std::cout << "Error openning input XML file."<<std::endl;
+        std::cout << "Error openning config input XML file."<<std::endl;
         return false;
     }
 

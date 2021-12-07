@@ -13,12 +13,13 @@ Mission::~Mission()
 }
 
 void Mission::setFileNames(const char* taskName, const char* mapName,
-                           const char* configName, const char* obstaclesName)
+                           const char* configName, const char* obstaclesName, const char* outName)
 {
     this->mapName       = mapName;
     this->taskName      = taskName;
     this->configName    = configName;
     this->obstaclesName = obstaclesName;
+    this->outName = outName;
 }
 
 bool Mission::getMap()
@@ -93,7 +94,7 @@ void Mission::createLog()
 {
     if (m_config.loglevel != CN_LOGLVL_NO) {
         m_pLogger = new XmlLogger(m_config.loglevel);
-        m_pLogger->createLog(taskName);
+        m_pLogger->createLog(outName);
     }
 }
 

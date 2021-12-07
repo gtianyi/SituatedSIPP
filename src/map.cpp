@@ -16,7 +16,7 @@ bool Map::getMap(const char* FileName)
     XMLDocument doc;
     if(doc.LoadFile(FileName) != XMLError::XML_SUCCESS)
     {
-        std::cout << "Error openning input XML file."<<std::endl;
+        std::cout << "Error openning map input XML file."<<std::endl;
         return false;
     }
 
