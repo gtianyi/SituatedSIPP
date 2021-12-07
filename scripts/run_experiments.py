@@ -17,7 +17,7 @@ target_folder = {
     "../instances/singleagent-icaps2020/den520d/": "den520d.xml"
                 }
 
-results = pd.DataFrame(columns = ["task", "lookahead", "learning algorithm", "dynmode", "solved", "solution length", "solution duration"])
+results = pd.DataFrame(columns = ["task", "lookahead", "learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
 lookaheads = ["10", "100", "1000"]
 learnings = ["dijkstralearning", "plrtalearning"]
 dynmode = ["0", "1"]
@@ -28,9 +28,9 @@ def parse_output(filepath):
         log = root.find("log")
         agent = log.find("agent")
         path = agent.find("path")
-        return float(path.attrib["duration"]), len(path)
+        return float(path.attrib["duration"]),float(path.attrib["runtime"]), len(path)
     except:
-        return float("inf"), 0
+        return float("inf"),float("inf"), 0
     
 def run_exp(config, task, lookahead, learning, dm):    
     tree = ET.parse(config)
@@ -52,8 +52,8 @@ def run_exp(config, task, lookahead, learning, dm):
         res = parse_output(outfile)
     except:
         print(" ".join(command))
-        res = (float("inf"), 0)
-    return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[1], res[0]))
+        res = (float("inf"),timeout, 0)
+    return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[2], res[0], res[1]))
 
 c = 0
 exp_results = []
@@ -75,4 +75,4 @@ for res in exp_results:
 
 results = pd.concat(outres, axis = 1).T
 results["solved"] = results["solution length"] != 0
-results.to_csv("even-more-results.csv")
+results.to_csv("even-even-more-results.csv")
