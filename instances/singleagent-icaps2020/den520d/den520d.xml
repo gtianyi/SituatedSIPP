@@ -271,7 +271,7 @@
         <algtype>4</algtype>
         <fixedlookahead>20</fixedlookahead>
         <expansionalgorithm>astar</expansionalgorithm>
-        <decisionalgorithm>f</decisionalgorithm>
+        <decisionalgorithm>miniminbackup</decisionalgorithm>
         <learningalgorithm>dijkstralearning</learningalgorithm>
 	</algorithm>
 	<options>
