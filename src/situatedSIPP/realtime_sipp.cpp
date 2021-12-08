@@ -6,7 +6,12 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
     constraints = nullptr;
-    learningModulePtr = map_configStringTolearningModule[config->learningalgorithm];
+    learningModulePtr = map_configStringToLearningModule[config->learningalgorithm];
+    if (map_configStringToDecisionModule.find(config->decisionalgorithm)==map_configStringToDecisionModule.end()){
+        std::cerr << "unknown decision algorithm!";
+        exit(0);
+    }
+    decisionModulePtr = map_configStringToDecisionModule[config->decisionalgorithm];
 }
 
 SearchResult rtsr2sr(const RTSearchResult& rtsr){
@@ -297,8 +302,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // 1) commit the the toplevel action that would lead to the best search
         // frontier node
         //
-        auto bestTLA = backupAndRecordPartialPlan(curNode, beginOfRealtimeCycle,
-                                                  endOfRealtimeCycle);
+        auto bestTLA = decisionModulePtr->backupAndRecordPartialPlan(curNode, beginOfRealtimeCycle,
+                                                  endOfRealtimeCycle, curagent.goal_i, curagent.goal_j, hppath, lppath, this);
 
         // 2) re-root the search tree to the best successor node
         curNode = bestTLA;
@@ -400,47 +405,6 @@ void Realtime_SIPP::recordToOnlinePath(const RTNode&    rootNode,
     partialPath.pathlength = frontierNode.g() - rootNode.g();
     onlinePlanSections.push_back(partialPath);
 }
-
-RTNode Realtime_SIPP::backupAndRecordPartialPlan(const RTNode&    curNode,
-                                               const timeval& begin,
-                                               const timeval& end)
-{
-    // Tianyi note: this goal test might be too much simplified, check
-    // AA_SIPP::stpCriterion
-    auto bestFrontierNode = findMin();
-
-    DEBUG_MSG("goal i, j: " << curagent.goal_i << " " << curagent.goal_j);
-
-    if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
-        bestFrontierNode = curNode;
-    }
-
-    auto cur       = bestFrontierNode;
-    auto parentPtr = bestFrontierNode.Parent;
-
-    while (parentPtr != nullptr && parentPtr->Parent != nullptr) {
-        cur       = *parentPtr;
-        parentPtr = cur.Parent;
-    }
-
-    DEBUG_MSG("curNode after search i, j, g: " << curNode.i << " " << curNode.j
-                                               << " " << curNode.g());
-    DEBUG_MSG("best frontier i, j, g: " << bestFrontierNode.i << " "
-                                        << bestFrontierNode.j << " "
-                                        << bestFrontierNode.g());
-    DEBUG_MSG("best TLA after search i, j, g: " << cur.i << " " << cur.j << " "
-                                                << cur.g());
-
-    DEBUG_MSG_RED("Recording online");
-    parentPtr->debug();
-    bestFrontierNode.debug();
-    recordToOnlinePath(*parentPtr, bestFrontierNode, begin, end);
-    hppath.push_back(cur);
-    lppath.push_back(cur);
-
-    return cur;
-}
-
 
 void Realtime_SIPP::addOpen(RTNode& newNode){
     auto range     = open.get<1>().equal_range(boost::make_tuple<int, int, int>(newNode.i, newNode.j, newNode.interval_id));
