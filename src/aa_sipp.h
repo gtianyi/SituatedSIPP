@@ -31,6 +31,12 @@ public:
     virtual ~AA_SIPP();
     virtual SearchResult startSearch(Map &map, Task &task, DynamicObstacles &obstacles);
     SearchResult sresult;
+
+    template <typename T>
+    friend class ExpansionAlgorithm;
+    std::shared_ptr<const Config> config;
+    double getHValue(int i, int j);
+
 protected:
     void addOpen(Node &newNode);
     Node findMin();
@@ -48,7 +54,6 @@ protected:
     virtual bool findPath(unsigned int numOfCurAgent, const Map &map);
     std::vector<conflict> CheckConflicts(const Task &task);//bruteforce checker. It splits final(already built) trajectories into sequences of points and checks distances between them
     void setPriorities(const Task &task);
-    double getHValue(int i, int j);
     bool changePriorities(int bad_i);
     void update_focal(double cost);
     Heuristic focal_heuristic;
@@ -63,7 +68,6 @@ protected:
     LineOfSight lineofsight;
     Agent curagent;
     Constraints *constraints;
-    std::shared_ptr<const Config> config;
 };
 
 #endif // AA_SIPP_H
