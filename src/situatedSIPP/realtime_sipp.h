@@ -1,6 +1,7 @@
 #pragma once
 #include "../aa_sipp.h"
 #include "decisionAlgorithms/miniminbackup.hpp"
+#include "expansionAlgorithms/astar.hpp"
 #include "learningAlgorithms/DijkstraLearning.hpp"
 #include "learningAlgorithms/PlrtaLearning.hpp"
 #include "learningAlgorithms/noLearning.hpp"
@@ -35,13 +36,13 @@ public:
                          // trajectories into sequences of points and checks
                          // distances between them
     void                                 update_focal(double cost);
+    void                                 addOpen(RTNode& newNode);
     std::unordered_multimap<int, RTNode> close;
     std::list<RTNode>                    lppath;
     std::vector<RTNode>                  hppath;
     RTSearchResult                       sresult;
 
 private:
-    void                               addOpen(RTNode& newNode);
     RTOPEN_container                   open;
     std::vector<RTResultPathInfo>      onlinePlanSections;
     std::shared_ptr<LearningAlgorithm> learningModulePtr;
@@ -57,4 +58,10 @@ private:
                        std::shared_ptr<DecisionAlgorithm<Realtime_SIPP>>>
       map_configStringToDecisionModule{
         {"miniminbackup", std::make_shared<MiniminBackup<Realtime_SIPP>>()}};
+
+    std::shared_ptr<ExpansionAlgorithm<Realtime_SIPP>> expansionModulePtr;
+    std::unordered_map<std::string,
+                       std::shared_ptr<ExpansionAlgorithm<Realtime_SIPP>>>
+      map_configStringToExpansionModule{
+        {"astar", std::make_shared<Astar<Realtime_SIPP>>()}};
 };
