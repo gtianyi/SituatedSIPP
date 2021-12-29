@@ -214,6 +214,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     curNode.interval_id = curNode.interval.id;
     curNode.heading     = curagent.start_heading;
     curNode.optimal     = true;
+    curNode.setExpansionOrderStr(config->expansionalgorithm);
+    goalNode.setExpansionOrderStr(config->expansionalgorithm);
     addOpen(curNode);
     int reexpanded(0);
     // int             close_id(0);
