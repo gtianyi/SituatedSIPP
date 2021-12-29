@@ -2,6 +2,7 @@
 #include <boost/functional/hash.hpp>
 #include "../structs.h"
 #include "../searchresult.h"
+#include "../config.h"
 #include <unordered_map>
 
 class RTNode{
@@ -9,6 +10,16 @@ private:
   static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_h;
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
   static int dynmode; // 0 location, parent, g; 1 location, interval end
+
+  bool compareNodesF(const RTNode& n1,
+                const RTNode& n2) const {
+            // Tie break on g-value
+            if (n1.F() == n2.F()) {
+                return n1.g() > n2.g();
+            }
+            return n1.F() < n2.F();
+  }
+
 public:
   int     i, j;
   double  size;
@@ -16,12 +27,18 @@ public:
   RTNode*   Parent;
   double  heading;
   int     heading_id;
+  std::string expansionOrderStr;
   bool    optimal;
   int     interval_id;
   SafeInterval interval;
 
-  RTNode(int _i=-1, int _j=-1, double initial_static_g = 0.0,  double initial_dynamic_g = 0.0, int h_id=0):i(_i),j(_j),s_g(initial_static_g),d_g(initial_dynamic_g),Parent(nullptr),heading_id(h_id){optimal = false;}
-  ~RTNode(){ Parent = nullptr; }
+  RTNode(int _i=-1, int _j=-1, double initial_static_g = 0.0, double initial_dynamic_g = 0.0, int h_id=0):i(_i),j(_j),s_g(initial_static_g),d_g(initial_dynamic_g),Parent(nullptr),heading_id(h_id){
+      optimal = false;
+      expansionOrderStr = "not set";
+  }
+  ~RTNode(){ 
+      Parent = nullptr; 
+  }
  
   //[[depreciated]] double F;
   //[[depreciated]] double g;
@@ -79,13 +96,24 @@ public:
     this->set_static_h(inf);
   }
 
+  void setExpansionOrderStr(const std::string& _expansionOrderStr){
+      expansionOrderStr = _expansionOrderStr;
+  }
+
   bool operator< (const RTNode& rhs) const {
-    if(fabs(this->F() - rhs.F()) < CN_EPSILON){ //breaking-ties
-            return this->g() > rhs.g(); //g-max
-          }
-    else{
-        return this->F() < rhs.F();
-    }
+      if(expansionOrderStr == "astar"){
+        return compareNodesF(*this, rhs);
+      }
+      else{
+          std::cerr << "unknown expansion order! " << expansionOrderStr << "\n";
+          exit(0);
+      }
+    /*if(fabs(this->F() - rhs.F()) < CN_EPSILON){ //breaking-ties*/
+            //return this->g() > rhs.g(); //g-max
+          //}
+    //else{
+        //return this->F() < rhs.F();
+    /*}*/
   }
 
   bool operator==(const RTNode& other) const{
