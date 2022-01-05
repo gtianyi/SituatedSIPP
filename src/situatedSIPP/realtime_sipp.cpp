@@ -32,6 +32,7 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     expansionModulePtr =
       map_configStringToExpansionModule[config->expansionalgorithm];
 
+    RTNode::set_expansion_order(config->expansionalgorithm);
     RTNode::set_dynmode(config->dynmode);
 }
 
@@ -186,6 +187,7 @@ std::unordered_map<std::pair<int, int>, double,
                                                         RTNode::_static_h;
 std::unordered_map<RTNode, double, boost::hash<RTNode>> RTNode::_dynamic_h;
 int                                                     RTNode::dynmode = 0;
+std::string                                             RTNode::expansionOrderStr = "Not Set";
 
 bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 {
@@ -214,8 +216,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     curNode.interval_id = curNode.interval.id;
     curNode.heading     = curagent.start_heading;
     curNode.optimal     = true;
-    curNode.setExpansionOrderStr(config->expansionalgorithm);
-    goalNode.setExpansionOrderStr(config->expansionalgorithm);
     addOpen(curNode);
     int reexpanded(0);
     // int             close_id(0);
