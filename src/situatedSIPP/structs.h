@@ -10,6 +10,7 @@ private:
   static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_h;
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
   static int dynmode; // 0 location, parent, g; 1 location, interval end
+  static std::string expansionOrderStr;
 
   bool compareNodesF(const RTNode& n1,
                 const RTNode& n2) const {
@@ -27,14 +28,12 @@ public:
   RTNode*   Parent;
   double  heading;
   int     heading_id;
-  std::string expansionOrderStr;
   bool    optimal;
   int     interval_id;
   SafeInterval interval;
 
   RTNode(int _i=-1, int _j=-1, double initial_static_g = 0.0, double initial_dynamic_g = 0.0, int h_id=0):i(_i),j(_j),s_g(initial_static_g),d_g(initial_dynamic_g),Parent(nullptr),heading_id(h_id){
       optimal = false;
-      expansionOrderStr = "not set";
   }
   ~RTNode(){ 
       Parent = nullptr; 
@@ -96,16 +95,13 @@ public:
     this->set_static_h(inf);
   }
 
-  void setExpansionOrderStr(const std::string& _expansionOrderStr){
-      expansionOrderStr = _expansionOrderStr;
-  }
-
   bool operator< (const RTNode& rhs) const {
       if(expansionOrderStr == "astar"){
         return compareNodesF(*this, rhs);
       }
       else{
           std::cerr << "unknown expansion order! " << expansionOrderStr << "\n";
+          std::cerr << "Must set RTNode expansion order whenever instantiating a new node!\n";
           exit(0);
       }
     /*if(fabs(this->F() - rhs.F()) < CN_EPSILON){ //breaking-ties*/
@@ -126,6 +122,10 @@ public:
 
   void static set_dynmode(int dm){
     RTNode::dynmode = dm;
+  }
+
+  void static set_expansion_order(const std::string& expansionAlgorithmStr){
+    RTNode::expansionOrderStr = expansionAlgorithmStr;
   }
 
   std::size_t hash() const{

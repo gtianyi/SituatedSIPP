@@ -39,7 +39,6 @@ public:
             // close_id++;
             close.insert({curNode.i * map.width + curNode.j, curNode});
             for (RTNode s : searchClassPtr->findSuccessors(curNode, map)) {
-                s.setExpansionOrderStr(std::string("astar"));
                 if (searchClassPtr->config->use_likhachev) {
                     range    = close.equal_range(s.i * map.width + s.j);
                     bool add = true;
