@@ -353,5 +353,20 @@ bool Config::getConfig(const char* fileName)
         stream.clear();
         stream.str("");
     }
+
+    element = algorithm->FirstChildElement(CNS_TAG_MAXNUMOFINTEVALS);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_MAXNUMOFINTEVALS<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_MAXNUMOFINTEVALS<<"'."<<std::endl;
+        maxNumOfIntervalsPerMove = CNS_DEFAULT_MAXNUMOFINTEVALS;
+    }
+    else
+    {
+        value = element->GetText();
+        stream<<value;
+        stream>>maxNumOfIntervalsPerMove;
+        stream.clear();
+        stream.str("");
+    }
     return true;
 }

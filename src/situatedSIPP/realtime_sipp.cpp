@@ -525,7 +525,8 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
             if (angleNode.g() <= angleNode.interval.end) {
                 intervals =
                   constraints->findIntervals(newNode, EAT, close, map);
-                for (unsigned int k = 0; k < intervals.size(); k++) {
+                unsigned long num_of_intervals = std::min(config->maxNumOfIntervalsPerMove, intervals.size());
+                for (unsigned int k = 0; k < num_of_intervals; k++) {
                     newNode.interval = intervals[k];
                     newNode.Parent   = parent;
                     newNode.set_static_g(newNode.Parent->static_g() +
@@ -561,7 +562,8 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
                     }
                     intervals =
                       constraints->findIntervals(newNode, EAT, close, map);
-                    for (unsigned int k = 0; k < intervals.size(); k++) {
+                    unsigned long num_of_intervals = std::min(config->maxNumOfIntervalsPerMove, intervals.size());
+                    for (unsigned int k = 0; k < num_of_intervals; k++) {
                         newNode.interval = intervals[k];
                         newNode.Parent   = parent->Parent;
                         newNode.set_static_g(newNode.Parent->g() +
