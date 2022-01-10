@@ -273,6 +273,7 @@
         <expansionalgorithm>astar</expansionalgorithm>
         <decisionalgorithm>miniminbackup</decisionalgorithm>
         <learningalgorithm>dijkstralearning</learningalgorithm>
+        <maxnumofintervalspermove>10</maxnumofintervalspermove>
 	</algorithm>
 	<options>
 		<loglevel>1</loglevel>

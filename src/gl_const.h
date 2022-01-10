@@ -38,6 +38,7 @@
 #define CNS_DEFAULT_DECISIONALGORITHM       "f"
 #define CNS_DEFAULT_EXPANSIONALGORITHM      "astar"
 #define CNS_DEFAULT_DYNMODE                     0
+#define CNS_DEFAULT_MAXNUMOFINTEVALS        CN_INFINITY
 
 
 #define CN_HEADING_WHATEVER                 -1
@@ -125,6 +126,7 @@
     #define CNS_TAG_EXPANSIONALGORITHM      "expansionalgorithm"
     #define CNS_TAG_DECISIONALGORITHM       "decisionalgorithm"
     #define CNS_TAG_DYNMODE                 "dynmode"
+    #define CNS_TAG_MAXNUMOFINTEVALS        "maxnumofintervalspermove"
 
 /*
  * End of XML files tags -------------------------------------------------------

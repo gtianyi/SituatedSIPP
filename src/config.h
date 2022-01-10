@@ -36,6 +36,7 @@ public:
     std::string expansionalgorithm;
     std::string decisionalgorithm;
     int dynmode;
+    unsigned long maxNumOfIntervalsPerMove;
     bool getConfig(const char* fileName);
 };
 
