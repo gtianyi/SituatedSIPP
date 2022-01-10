@@ -33,7 +33,7 @@ set( HEADER_FILES
      situatedSIPP/learningAlgorithms/DijkstraLearning.hpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.hpp
      situatedSIPP/learningAlgorithms/PlrtaLearning.hpp
-     situatedSIPP/subintervals.hpp
+     situatedSIPP/subintervals.h
      structs.h
      constraints.h )
 
