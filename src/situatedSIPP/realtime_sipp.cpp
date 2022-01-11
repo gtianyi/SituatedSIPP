@@ -487,6 +487,10 @@ double Realtime_SIPP::calcHeading(const RTNode& node, const RTNode& son)
 std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
                                                 const Map&   map)
 {
+    /*if (config->isUnitWaitRepresentation){*/
+        //return findSuccessorsUsingUnitWaitRepresentation(curNode, map);
+    /*}*/
+
     RTNode                    newNode;
     RTNode                    angleNode;
     std::list<RTNode>         successors;
@@ -540,47 +544,80 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
                 }
             }
             if (config->allowanyangle) {
-                newNode = resetParent(newNode, curNode, map);
-                if (newNode.Parent->i != parent->i ||
-                    newNode.Parent->j != parent->j) {
-                    angleNode       = *newNode.Parent;
-                    newNode.heading = calcHeading(
-                      *newNode.Parent,
-                      newNode); // new heading with respect to new parent
-                    angleNode.set_static_g(
-                      angleNode.g() +
-                      getRCost(angleNode.heading, newNode.heading) +
-                      config->additionalwait); // count new additional time
-                                               // required for rotation
-                    newNode.set_static_g(
-                      newNode.g() +
-                      getRCost(angleNode.heading, newNode.heading) +
-                      config->additionalwait);
-                    newNode.Parent = &angleNode;
-                    if (angleNode.g() > angleNode.interval.end) {
-                        continue;
-                    }
-                    intervals =
-                      constraints->findIntervals(newNode, EAT, close, map);
-                    unsigned long num_of_intervals = std::min(config->maxNumOfIntervalsPerMove, intervals.size());
-                    for (unsigned int k = 0; k < num_of_intervals; k++) {
-                        newNode.interval = intervals[k];
-                        newNode.Parent   = parent->Parent;
-                        newNode.set_static_g(newNode.Parent->g() +
-                                             getCost(newNode.Parent->i,
-                                                     newNode.Parent->j,
-                                                     newNode.i, newNode.j));
-                        newNode.set_dynamic_g(EAT[k] - newNode.static_g());
-                        newNode.interval_id = newNode.interval.id;
-                        successors.push_front(newNode);
-                    }
-                }
+                std::cerr << "Please disable allowanyangle in cofig\n";
+                exit(1);
             }
         }
     }
 
     return successors;
 }
+
+/*std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(const RTNode curNode,*/
+        //const Map&   map)
+//{
+    //RTNode                    newNode;
+    //RTNode                    angleNode;
+    //std::list<RTNode>         successors;
+    //std::vector<double>       EAT;
+    //std::vector<SafeInterval> intervals;
+    //// double                    h_value;
+    //auto parent = &(close.find(curNode.i * map.width + curNode.j)->second);
+    //std::vector<RTNode> moves = map.getValidRTMoves(
+      //curNode.i, curNode.j, config->connectedness, curagent.size);
+    //for (auto m : moves) {
+        //if (lineofsight.checkTraversability(curNode.i + m.i, curNode.j + m.j,
+                                            //map)) {
+            //newNode.i          = curNode.i + m.i;
+            //newNode.j          = curNode.j + m.j;
+            //newNode.heading_id = m.heading_id;
+            //constraints->updateCellSafeIntervals({newNode.i, newNode.j});
+            //newNode.heading = calcHeading(curNode, newNode);
+            //DEBUG_MSG_RED("MOVE");
+            //angleNode = curNode; // the same state, but with extended g-value
+            //angleNode.debug();
+            //m.debug();
+
+            //angleNode.set_static_g(
+              //angleNode.static_g() +
+              //getRCost(angleNode.heading, newNode.heading) +
+              //config->additionalwait);
+            //angleNode.debug();
+            //newNode.set_static_g(angleNode.static_g() +
+                                 //m.g() / curagent.mspeed);
+            //newNode.set_dynamic_g(angleNode.dynamic_g());
+            //newNode.Parent  = &angleNode;
+            //newNode.optimal = curNode.optimal;
+            //newNode.set_static_h(config->h_weight *
+                                 //getHValue(newNode.i, newNode.j));
+            //newNode.debug();
+            //if (angleNode.g() <= angleNode.interval.end) {
+                //intervals =
+                  //constraints->findIntervals(newNode, EAT, close, map);
+                //unsigned long num_of_intervals = std::min(config->maxNumOfIntervalsPerMove, intervals.size());
+                //for (unsigned int k = 0; k < num_of_intervals; k++) {
+                    //newNode.interval = intervals[k];
+                    //newNode.Parent   = parent;
+                    //newNode.set_static_g(newNode.Parent->static_g() +
+                                         //getCost(newNode.Parent->i,
+                                                 //newNode.Parent->j, newNode.i,
+                                                 //newNode.j) /
+                                           //curagent.mspeed);
+                    //newNode.set_dynamic_g(EAT[k] - newNode.static_g());
+                    //newNode.interval_id = newNode.interval.id;
+                    //successors.push_front(newNode);
+                //}
+            //}
+            //if (config->allowanyangle) {
+                //std::cerr << "Please disable allowanyangle in cofig\n";
+                //exit(1);
+            //}
+        //}
+    //}
+
+    //return successors;
+/*}*/
+
 
 void Realtime_SIPP::makePrimaryPath(RTNode curNode)
 {
