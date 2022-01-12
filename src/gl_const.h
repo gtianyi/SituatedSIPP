@@ -39,6 +39,8 @@
 #define CNS_DEFAULT_EXPANSIONALGORITHM      "astar"
 #define CNS_DEFAULT_DYNMODE                     0
 #define CNS_DEFAULT_MAXNUMOFINTEVALS        CN_INFINITY
+#define CNS_DEFAULT_UNITWAITDURATION        1
+#define CNS_DEFAULT_IS_UNITWAITREPRESENTATION "false"
 
 
 #define CN_HEADING_WHATEVER                 -1
@@ -127,6 +129,8 @@
     #define CNS_TAG_DECISIONALGORITHM       "decisionalgorithm"
     #define CNS_TAG_DYNMODE                 "dynmode"
     #define CNS_TAG_MAXNUMOFINTEVALS        "maxnumofintervalspermove"
+    #define CNS_TAG_UNITWAITDURATION        "unitwaitduration"
+    #define CNS_TAG_IS_UNITWAITREPRESENTATION "isunitwaitrepresentation"
 
 /*
  * End of XML files tags -------------------------------------------------------

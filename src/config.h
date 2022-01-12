@@ -37,6 +37,8 @@ public:
     std::string decisionalgorithm;
     int dynmode;
     unsigned long maxNumOfIntervalsPerMove;
+    double unitWaitDuration;
+    bool isUnitWaitRepresentation;
     bool getConfig(const char* fileName);
 };
 

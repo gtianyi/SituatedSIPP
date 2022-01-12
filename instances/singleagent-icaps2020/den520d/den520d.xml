@@ -274,6 +274,8 @@
         <decisionalgorithm>miniminbackup</decisionalgorithm>
         <learningalgorithm>dijkstralearning</learningalgorithm>
         <maxnumofintervalspermove>10</maxnumofintervalspermove>
+        <isunitwaitrepresentation>true</isunitwaitrepresentation>
+        <unitwaitduration>1</unitwaitduration>
 	</algorithm>
 	<options>
 		<loglevel>1</loglevel>
