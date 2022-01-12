@@ -12,6 +12,7 @@ Config::Config()
     planforturns = CN_DEFAULT_PLANFORTURNS;
     additionalwait = CN_DEFAULT_ADDITIONALWAIT;
     fixedlookahead = CNS_DEFAULT_FIXEDLOOKAHEADLIMIT;
+    additionalwait = CNS_DEFAULT_UNITWAITDURATION;
 }
 
 bool Config::getConfig(const char* fileName)
@@ -367,6 +368,46 @@ bool Config::getConfig(const char* fileName)
         stream>>maxNumOfIntervalsPerMove;
         stream.clear();
         stream.str("");
+    }
+
+    element = algorithm->FirstChildElement(CNS_TAG_UNITWAITDURATION);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_UNITWAITDURATION<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_UNITWAITDURATION<<"'."<<std::endl;
+        unitWaitDuration = CNS_DEFAULT_UNITWAITDURATION;
+    }
+    else
+    {
+        value = element->GetText();
+        stream<<value;
+        stream>>unitWaitDuration;
+        stream.clear();
+        stream.str("");
+        if(unitWaitDuration < 0 || unitWaitDuration > 100)
+        {
+            std::cout << "Warning! Wrong value of '"<<CNS_TAG_UNITWAITDURATION<<"' element. It should belong to the interval [0,100]. Its value is set to '"<<CNS_DEFAULT_UNITWAITDURATION<<"'."<<std::endl;
+            unitWaitDuration = CNS_DEFAULT_UNITWAITDURATION;
+        }
+    }
+
+    element = algorithm->FirstChildElement(CNS_TAG_IS_UNITWAITREPRESENTATION);
+    if (!element)
+    {
+        std::cout << "Error! No '"<<CNS_TAG_IS_UNITWAITREPRESENTATION<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set '"<<CNS_DEFAULT_IS_UNITWAITREPRESENTATION<<"'."<<std::endl;
+        isUnitWaitRepresentation = CNS_DEFAULT_IS_UNITWAITREPRESENTATION;
+    }
+    else
+    {
+        value = element->GetText();
+        if(value == "true" || value == "1")
+            isUnitWaitRepresentation = true;
+        else if(value == "false" || value == "0")
+            isUnitWaitRepresentation = false;
+        else
+        {
+            std::cout << "Warning! Wrong '"<<CNS_TAG_IS_UNITWAITREPRESENTATION<<"' value. It's set to '"<<CNS_DEFAULT_IS_UNITWAITREPRESENTATION<<"'."<<std::endl;
+            isUnitWaitRepresentation = CNS_DEFAULT_IS_UNITWAITREPRESENTATION;
+        }
     }
     return true;
 }

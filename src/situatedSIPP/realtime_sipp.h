@@ -26,6 +26,7 @@ public:
                             const timeval& begin, const timeval& end);
 
     std::list<RTNode> findSuccessors(const RTNode curNode, const Map& map);
+    std::list<RTNode> findSuccessorsUsingUnitWaitRepresentation(const RTNode curNode, const Map& map);
     virtual void      makePrimaryPath(RTNode curNode);
     virtual void      makeSecondaryPath(RTNode curNode);
     void   calculateLineSegment(std::vector<RTNode>& line, const RTNode& start,
