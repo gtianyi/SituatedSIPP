@@ -9,10 +9,10 @@
 		<timelimit>60</timelimit>
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
-		<algtype>1</algtype>
+		<algtype>4</algtype>
 		<fixedlookahead>10</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
-		<decisionalgorithm>f</decisionalgorithm>
+		<decisionalgorithm>miniminbackup</decisionalgorithm>
 		<learningalgorithm>nolearning</learningalgorithm>
 	</algorithm>
 	<options>

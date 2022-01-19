@@ -1,4 +1,5 @@
 #include "mission.h"
+#include "debug.h"
 
 Mission::Mission()
 {
@@ -75,11 +76,14 @@ void Mission::createSearch()
         m_config.h_weight      = 1.0;
         m_config.focal_weight  = m_config.weight;
     }
+    DEBUG_MSG_RED("Creating anyangle search object");
     m_pSearch = new AA_SIPP(m_config);
     if (m_config.algtype == 4) {
+        DEBUG_MSG_RED("Creating Realtime SIPP object");
         delete m_pSearch;
         m_pSearch = new Realtime_SIPP(m_config);
     }
+    DEBUG_MSG_RED("Created.");
     //else if (m_config.algtype == 5) {
     //    delete m_pSearch;
     //    m_pSearch = new Situated_SIPP(m_config);
