@@ -1,3 +1,4 @@
+#include "debug.h"
 #include"mission.h"
 #include <iostream>
 
@@ -42,11 +43,15 @@ int main(int argc, char* argv[])
         {
             std::cout<<"OBSTACLES LOADED\n";
         }
-
+        DEBUG_MSG_RED("Creating search.");
         mission.createSearch();
+        DEBUG_MSG_RED("Creating log.");
         mission.createLog();
+        DEBUG_MSG_RED("Starting search.");
         mission.startSearch();
+        DEBUG_MSG_RED("Printing search results.");
         mission.printSearchResultsToConsole();
+        DEBUG_MSG_RED("Saving search results.");
         mission.saveSearchResultsToLog();
     }
 }

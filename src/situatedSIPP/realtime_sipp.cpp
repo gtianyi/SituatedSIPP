@@ -6,7 +6,7 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
     constraints = nullptr;
-
+    DEBUG_MSG_RED("Point 1");
     if (map_configStringToLearningModule.find(config->learningalgorithm) ==
         map_configStringToLearningModule.end()) {
         std::cerr << "unknown learning algorithm!";
@@ -14,16 +14,18 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     }
     learningModulePtr =
       map_configStringToLearningModule[config->learningalgorithm];
-
+    DEBUG_MSG_RED("Point 2");
     if (map_configStringToDecisionModule.find(config->decisionalgorithm) ==
         map_configStringToDecisionModule.end()) {
+        DEBUG_MSG_RED(config->decisionalgorithm);
         std::cerr << "unknown decision algorithm!";
         exit(0);
     }
     decisionModulePtr =
       map_configStringToDecisionModule[config->decisionalgorithm];
+    DEBUG_MSG_RED("Point 3");
     RTNode::set_dynmode(config->dynmode);
-
+    DEBUG_MSG_RED("Point 4");
     if (map_configStringToExpansionModule.find(config->expansionalgorithm) ==
         map_configStringToExpansionModule.end()) {
         std::cerr << "unknown expansion algorithm!";
@@ -31,9 +33,10 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     }
     expansionModulePtr =
       map_configStringToExpansionModule[config->expansionalgorithm];
-
+    DEBUG_MSG_RED("Point 5");
     RTNode::set_expansion_order(config->expansionalgorithm);
     RTNode::set_dynmode(config->dynmode);
+    DEBUG_MSG_RED("Point 6");
 }
 
 SearchResult rtsr2sr(const RTSearchResult& rtsr)
