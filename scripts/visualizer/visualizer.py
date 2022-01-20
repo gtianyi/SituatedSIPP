@@ -12,7 +12,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GOLD = (255, 215, 0)
 
-pixel_factor = 1
+pixel_factor = 10
 class World:
     def __init__(self, tree, online, maptree, obstree):
         self.map = StaticMap(maptree)
