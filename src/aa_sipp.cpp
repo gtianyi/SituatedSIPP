@@ -15,6 +15,12 @@ auto AA_SIPP::stopCriterion(const Node& curNode, Node& goalNode) -> bool
 {
     if (open.empty()) {
         DEBUG_MSG("Break lookahead, OPEN list is empty! ");
+        if (curNode.interval.end == CN_INFINITY){
+            sresult.agentFate = "trapped";
+        }
+        else{
+            sresult.agentFate = "died";
+        }
         return true;
     }
     if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j &&
@@ -438,7 +444,7 @@ SearchResult AA_SIPP::startSearch(Map& map, Task& task,
         if (timespent > config->timelimit) {
             break;
         }
-    } while (changePriorities(bad_i) && !solution_found);
+    } while (changePriorities(bad_i) && !solution_found && (sresult.agentFate == "survived"));
 
 #ifdef __linux__
     gettimeofday(&end, nullptr);

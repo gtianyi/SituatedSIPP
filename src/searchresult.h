@@ -1,6 +1,7 @@
 #ifndef SEARCHRESULT_H
 #define SEARCHRESULT_H
 
+#include <string>
 #include <vector>
 #include <list>
 
@@ -33,6 +34,7 @@ struct ResultPathInfo
 struct SearchResult
 {
     bool pathfound;
+    std::string agentFate; // survived, died, trapped, timed out
     double makespan;
     double flowtime;
     double runtime;
@@ -45,6 +47,7 @@ struct SearchResult
     SearchResult() : pathInfo(1)
     {
         pathfound = false;
+        agentFate = "survived";
         runtime = 0;
         flowtime = 0;
         makespan = 0;
