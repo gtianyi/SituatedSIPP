@@ -44,6 +44,7 @@ SearchResult rtsr2sr(const RTSearchResult& rtsr)
     // convert the realtime search results to a search result.
     SearchResult sr;
     sr.pathfound    = rtsr.pathfound;
+    sr.agentFate    = rtsr.agentFate;
     sr.makespan     = rtsr.makespan;
     sr.flowtime     = rtsr.flowtime;
     sr.runtime      = rtsr.runtime;
@@ -134,6 +135,7 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
                 constraints->removeStartConstraint(cells, curagent.start_i,
                                                    curagent.start_j);
             }
+            DEBUG_MSG_RED("Finding Path");
             if (findPath(current_priorities[numOfCurAgent], map)) {
                 constraints->addConstraints(
                   sresult.pathInfo[current_priorities[numOfCurAgent]].sections,
@@ -161,7 +163,8 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
         if (timespent > config->timelimit) {
             break;
         }
-    } while (changePriorities(bad_i) && !solution_found);
+     DEBUG_MSG_RED(sresult.agentFate);
+    } while (changePriorities(bad_i) && !solution_found && (sresult.agentFate == "survived"));
 
 #ifdef __linux__
     gettimeofday(&end, nullptr);
@@ -236,6 +239,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 
         // Tianyi note: this goal test might be too much simplified, check
         // AA_SIPP::stpCriterion
+        
         if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
             DEBUG_MSG("goal reached!");
             gettimeofday(&end, nullptr);
@@ -262,20 +266,33 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         }
 
         timeval beginOfRealtimeCycle, endOfRealtimeCycle;
+        DEBUG_MSG_RED("Expanding");
         gettimeofday(&beginOfRealtimeCycle, NULL);
 
         expansionModulePtr->runSearch(curNode, goalNode, map, close, reexpanded,
                                       reexpanded_list, this);
 
         gettimeofday(&endOfRealtimeCycle, nullptr);
+        if (open.empty()) {
+            DEBUG_MSG("Break lookahead, OPEN list is empty! ");
+            if (curNode.interval.end == CN_INFINITY){
+                sresult.agentFate = "trapped";
+            }
+            else{
+                sresult.agentFate = "died";
+            }
+                break;
+        }
         // learning phase
         // update the heuristic in closed list
+        DEBUG_MSG_RED("LEARNING");
         learningModulePtr->learn(open, close);
 
         // decision-making phase
         // 1) commit the the toplevel action that would lead to the best search
         // frontier node
         //
+        DEBUG_MSG_RED("Deciding");
         auto bestTLA = decisionModulePtr->backupAndRecordPartialPlan(
           curNode, beginOfRealtimeCycle, endOfRealtimeCycle, curagent.goal_i,
           curagent.goal_j, hppath, lppath, this);
@@ -452,6 +469,12 @@ bool Realtime_SIPP::stopCriterion(const RTNode& curNode, RTNode& goalNode)
 {
     if (open.empty()) {
         // std::cout << "OPEN list is empty! ";
+        if (curNode.interval.end == CN_INFINITY){
+            sresult.agentFate = "trapped";
+        }
+        else{
+            sresult.agentFate = "died";
+        }
         return true;
     }
     if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j &&
@@ -511,7 +534,6 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
             newNode.heading_id = m.heading_id;
             constraints->updateCellSafeIntervals({newNode.i, newNode.j});
             newNode.heading = calcHeading(curNode, newNode);
-            DEBUG_MSG_RED("MOVE");
             angleNode = curNode; // the same state, but with extended g-value
             angleNode.debug();
             m.debug();
@@ -586,7 +608,6 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
 
             newNode.heading         = calcHeading(curNode, newNode);
             newNodeWithWait.heading = calcHeading(curNode, newNodeWithWait);
-            DEBUG_MSG_RED("MOVE");
             angleNode = curNode; // the same state, but with extended g-value
             angleNodeWithWait =
               curNode; // the same state, but with extended g-value
