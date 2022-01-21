@@ -237,6 +237,7 @@ struct RTResultPathInfo:  public ResultPathInfo{
 struct RTSearchResult
 {
     bool pathfound;
+    std::string agentFate; // survived, died, trapped, timed out
     double makespan;
     double flowtime;
     double runtime;
@@ -249,6 +250,7 @@ struct RTSearchResult
     RTSearchResult() : pathInfo(1)
     {
         pathfound = false;
+        agentFate = "survived";
         runtime = 0;
         flowtime = 0;
         makespan = 0;
