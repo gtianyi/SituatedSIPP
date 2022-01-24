@@ -41,6 +41,8 @@ struct SearchResult
     unsigned int agents;
     int agentsSolved;
     int tries;
+    unsigned long expansions;
+    std::string timingInformation;
     std::vector<ResultPathInfo> pathInfo;
 
 
@@ -52,6 +54,8 @@ struct SearchResult
         flowtime = 0;
         makespan = 0;
         agents = 0;
+        expansions = 0;
+        timingInformation = "";
     }
 
     ~SearchResult()

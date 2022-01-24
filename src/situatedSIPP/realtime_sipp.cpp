@@ -51,6 +51,8 @@ SearchResult rtsr2sr(const RTSearchResult& rtsr)
     sr.agents       = rtsr.agents;
     sr.agentsSolved = rtsr.agentsSolved;
     sr.tries        = rtsr.tries;
+    sr.expansions = rtsr.expansions;
+    sr.timingInformation = rtsr.timingInformation;
     sr.pathInfo.clear();
     for (auto path_info : rtsr.pathInfo) {
         sr.pathInfo.push_back(path_info.toRPI());
@@ -125,9 +127,8 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
             }
         }
         timer.stop_si();
-        for (unsigned int numOfCurAgent = 0;
-            timer.resume_si();
-             numOfCurAgent < task.getNumberOfAgents(); numOfCurAgent++) {
+        timer.resume_si();
+        for (unsigned int numOfCurAgent = 0; numOfCurAgent < task.getNumberOfAgents(); numOfCurAgent++) {
             curagent = task.getAgent(current_priorities[numOfCurAgent]);
             constraints->setParams(curagent.size, curagent.mspeed,
                                    curagent.rspeed, config->planforturns,
@@ -193,6 +194,7 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
                       << "\n";
         }
     }
+    sresult.timingInformation = timer.elapsed_time_csv();
     return sresult;
 }
 
@@ -275,6 +277,13 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
             sresult.agentsSolved++;
             break;
         }
+        DEBUG_MSG_RED(config->timelimit);
+        DEBUG_MSG_RED(timer.elapsed_s());
+        if (timer.elapsed_s() > config->timelimit){
+            DEBUG_MSG("CPU Time limit reached");
+            sresult.agentFate = "timed out";
+            break;
+        }
 
         timeval beginOfRealtimeCycle, endOfRealtimeCycle;
         DEBUG_MSG_RED("Expanding");
@@ -292,7 +301,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
             else{
                 sresult.agentFate = "died";
             }
-                break;
+            break;
         }
         // learning phase
         // update the heuristic in closed list

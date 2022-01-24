@@ -173,6 +173,8 @@
         #define CNS_TAG_ATTR_FALSE      "false"
     #define CNS_TAG_ATTR_TRIES          "tries"
     #define CNS_TAG_ATTR_FATE           "agentfate"
+    #define CNS_TAG_ATTR_TIMING         "timingcsv"
+    #define CNS_TAG_ATTR_TOTALEXPANSIONS "totalexpansions"
     #define CNS_TAG_ATTR_AGENTSSOLVED   "agentssolved"
     #define CNS_TAG_ATTR_PATHSFOUND     "pathsfound"
     #define CNS_TAG_ATTR_PATHFOUND      "pathfound"
