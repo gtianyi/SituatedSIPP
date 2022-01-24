@@ -10,9 +10,10 @@
 
 SearchResult rtsr2sr(const RTSearchResult& rtsr);
 
+
+
 class Realtime_SIPP : public AA_SIPP
 {
-
 public:
     Realtime_SIPP(const Config& config);
     SearchResult startSearch(Map& map, Task& task, DynamicObstacles& obstacles);
@@ -44,6 +45,7 @@ public:
     RTSearchResult                       sresult;
 
 private:
+    RTTimer timer;
     RTOPEN_container                   open;
     std::vector<RTResultPathInfo>      onlinePlanSections;
     std::shared_ptr<LearningAlgorithm> learningModulePtr;
