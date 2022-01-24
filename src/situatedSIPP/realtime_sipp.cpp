@@ -94,18 +94,21 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
     setPriorities(task);
     learningModulePtr->setAgentSpeed(curagent.mspeed);
     do {
+        timer.resume_si();
         constraints = new Constraints(map.width, map.height);
         for (int k = 0; k < obstacles.getNumberOfObstacles(); k++) {
             constraints->addConstraints(obstacles.getSections(k),
                                         obstacles.getSize(k),
                                         obstacles.getMSpeed(k), map);
         }
+        timer.stop_si();
         sresult.pathInfo.clear();
         sresult.pathInfo.resize(task.getNumberOfAgents());
         sresult.agents       = task.getNumberOfAgents();
         sresult.agentsSolved = 0;
         sresult.flowtime     = 0;
         sresult.makespan     = 0;
+        timer.resume_si();
         for (int k = 0; k < task.getNumberOfAgents(); k++) {
             curagent = task.getAgent(k);
             constraints->setParams(curagent.size, curagent.mspeed,
@@ -121,7 +124,9 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
                   cells, curagent.size);
             }
         }
+        timer.stop_si();
         for (unsigned int numOfCurAgent = 0;
+            timer.resume_si();
              numOfCurAgent < task.getNumberOfAgents(); numOfCurAgent++) {
             curagent = task.getAgent(current_priorities[numOfCurAgent]);
             constraints->setParams(curagent.size, curagent.mspeed,
@@ -135,11 +140,14 @@ RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
                 constraints->removeStartConstraint(cells, curagent.start_i,
                                                    curagent.start_j);
             }
+            timer.stop_si();
             DEBUG_MSG_RED("Finding Path");
             if (findPath(current_priorities[numOfCurAgent], map)) {
+                timer.resume_si();
                 constraints->addConstraints(
                   sresult.pathInfo[current_priorities[numOfCurAgent]].sections,
                   curagent.size, curagent.mspeed, map);
+                timer.stop_si();
             } else {
                 bad_i = current_priorities[numOfCurAgent];
                 break;
@@ -210,14 +218,17 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     open.clear();
     constraints->use_likhachev = config->use_likhachev;
     RTResultPathInfo resultPath;
+    timer.resume_si();
     constraints->resetSafeIntervals(map.width, map.height);
     constraints->updateCellSafeIntervals({curagent.start_i, curagent.start_j});
+    timer.stop_si();
     RTNode curNode(curagent.start_i, curagent.start_j, -1);
     curNode.set_zero();
     RTNode goalNode(curagent.goal_i, curagent.goal_j, -1);
     goalNode.set_inf();
     // curNode.F           = getHValue(curNode.i, curNode.j);
     curNode.set_static_h(curNode.static_h());
+
     curNode.interval    = constraints->getSafeInterval(curNode.i, curNode.j, 0);
     curNode.interval_id = curNode.interval.id;
     curNode.heading     = curagent.start_heading;
@@ -268,10 +279,10 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         timeval beginOfRealtimeCycle, endOfRealtimeCycle;
         DEBUG_MSG_RED("Expanding");
         gettimeofday(&beginOfRealtimeCycle, NULL);
-
+        timer.resume_expansion();
         expansionModulePtr->runSearch(curNode, goalNode, map, close, reexpanded,
                                       reexpanded_list, this);
-
+        timer.stop_expansion();
         gettimeofday(&endOfRealtimeCycle, nullptr);
         if (open.empty()) {
             DEBUG_MSG("Break lookahead, OPEN list is empty! ");
@@ -286,17 +297,19 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // learning phase
         // update the heuristic in closed list
         DEBUG_MSG_RED("LEARNING");
+        timer.resume_learning();
         learningModulePtr->learn(open, close);
-
+        timer.stop_learning();
         // decision-making phase
         // 1) commit the the toplevel action that would lead to the best search
         // frontier node
         //
         DEBUG_MSG_RED("Deciding");
+        timer.resume_decision();
         auto bestTLA = decisionModulePtr->backupAndRecordPartialPlan(
           curNode, beginOfRealtimeCycle, endOfRealtimeCycle, curagent.goal_i,
           curagent.goal_j, hppath, lppath, this);
-
+        timer.stop_decision();
         // 2) re-root the search tree to the best successor node
         curNode = bestTLA;
 
@@ -532,7 +545,11 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
             newNode.i          = curNode.i + m.i;
             newNode.j          = curNode.j + m.j;
             newNode.heading_id = m.heading_id;
+            timer.stop_expansion();
+            timer.resume_si();
             constraints->updateCellSafeIntervals({newNode.i, newNode.j});
+            timer.stop_si();
+            timer.resume_expansion();
             newNode.heading = calcHeading(curNode, newNode);
             angleNode = curNode; // the same state, but with extended g-value
             angleNode.debug();
@@ -603,9 +620,11 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
             newNodeWithWait.i          = curNode.i + m.i;
             newNodeWithWait.j          = curNode.j + m.j;
             newNodeWithWait.heading_id = m.heading_id;
-
+            timer.stop_expansion();
+            timer.resume_si();
             constraints->updateCellSafeIntervals({newNode.i, newNode.j});
-
+            timer.stop_si();
+            timer.resume_expansion();
             newNode.heading         = calcHeading(curNode, newNode);
             newNodeWithWait.heading = calcHeading(curNode, newNodeWithWait);
             angleNode = curNode; // the same state, but with extended g-value

@@ -4,6 +4,58 @@
 #include "../searchresult.h"
 #include "../config.h"
 #include <unordered_map>
+#include <boost/timer/timer.hpp>
+#define PLACES 10
+
+class RTTimer{
+  private:
+    boost::timer::cpu_timer expansion_timer;
+    boost::timer::cpu_timer learning_timer;
+    boost::timer::cpu_timer decision_timer;
+    boost::timer::cpu_timer si_timer;
+  public:
+    RTTimer(){
+      expansion_timer.stop();
+      learning_timer.stop();
+      decision_timer.stop();
+      si_timer.stop();
+    }
+    void inline resume_expansion(){
+      expansion_timer.resume();
+    }
+    void inline stop_expansion(){
+      expansion_timer.stop();
+    }
+    void inline resume_learning(){
+      learning_timer.resume();
+    }
+    void inline stop_learning(){
+      learning_timer.stop();
+    }
+    void inline resume_decision(){
+      decision_timer.resume();
+    }
+    void inline stop_decision(){
+      decision_timer.stop();
+    }
+    void inline resume_si(){
+      si_timer.resume();
+    }
+    void inline stop_si(){
+      si_timer.stop();
+    }
+    std::string elapsed_time() const{
+      std::string formatted_string_to_output = "part,wall,user,system,cpu\nexpansion,";
+      formatted_string_to_output.append(expansion_timer.format(PLACES, "%w,%u,%s,%t"));
+      formatted_string_to_output.append("\nlearning");
+      formatted_string_to_output.append(learning_timer.format(PLACES, "%w,%u,%s,%t"));
+      formatted_string_to_output.append("\ndecision");
+      formatted_string_to_output.append(decision_timer.format(PLACES, "%w,%u,%s,%t"));
+      formatted_string_to_output.append("\nsafeIntervals");
+      formatted_string_to_output.append(si_timer.format(PLACES, "%w,%u,%s,%t"));
+      return formatted_string_to_output;
+    } 
+}
 
 class RTNode{
 private:
