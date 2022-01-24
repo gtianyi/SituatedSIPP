@@ -39,9 +39,9 @@ public:
                          // distances between them
     void                                 update_focal(double cost);
     void                                 addOpen(RTNode& newNode);
-    std::unordered_multimap<int, RTNode> close;
-    std::list<RTNode>                    lppath;
-    std::vector<RTNode>                  hppath;
+    std::unordered_multimap<int, RTNode>   close;
+    std::list<RTNode>                     lppath;
+    std::vector<RTNode>                   hppath;
     RTSearchResult                       sresult;
 
 private:

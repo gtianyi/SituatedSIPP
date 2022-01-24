@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <boost/timer/timer.hpp>
 #define PLACES 10
+#define NANO 0.000000001
 
 class RTTimer{
   private:
@@ -44,7 +45,19 @@ class RTTimer{
     void inline stop_si(){
       si_timer.stop();
     }
-    std::string elapsed_time() const{
+
+    double elapsed_s()  const{
+      //cpu time elapsed in seconds
+      double total_time(0);
+      DEBUG_MSG_NO_LINE_BREAK_RED("ELAPSED LONG: ");
+      DEBUG_MSG_RED(expansion_timer.elapsed().user);
+      total_time += NANO * static_cast<double>(expansion_timer.elapsed().user);
+      total_time += NANO * static_cast<double>(learning_timer.elapsed().user);
+      total_time += NANO * static_cast<double>(decision_timer.elapsed().user);
+      return total_time;
+    }
+
+    std::string elapsed_time_csv() const{
       std::string formatted_string_to_output = "part,wall,user,system,cpu\nexpansion,";
       formatted_string_to_output.append(expansion_timer.format(PLACES, "%w,%u,%s,%t"));
       formatted_string_to_output.append("\nlearning");
@@ -55,7 +68,7 @@ class RTTimer{
       formatted_string_to_output.append(si_timer.format(PLACES, "%w,%u,%s,%t"));
       return formatted_string_to_output;
     } 
-}
+};
 
 class RTNode{
 private:
@@ -296,6 +309,8 @@ struct RTSearchResult
     unsigned int agents;
     int agentsSolved;
     int tries;
+    unsigned long expansions;
+    std::string timingInformation;
     std::vector<RTResultPathInfo> pathInfo;
 
 
@@ -307,6 +322,8 @@ struct RTSearchResult
         flowtime = 0;
         makespan = 0;
         agents = 0;
+        expansions = 0;
+        timingInformation = "";
     }
 
     ~RTSearchResult()

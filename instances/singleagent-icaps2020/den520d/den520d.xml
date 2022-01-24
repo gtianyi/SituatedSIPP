@@ -269,13 +269,14 @@
 		<breakingties>g-max</breakingties>
 		<weight>1</weight>
         <algtype>4</algtype>
-        <fixedlookahead>20</fixedlookahead>
+        <fixedlookahead>2</fixedlookahead>
         <expansionalgorithm>astar</expansionalgorithm>
         <decisionalgorithm>miniminbackup</decisionalgorithm>
         <learningalgorithm>dijkstralearning</learningalgorithm>
         <maxnumofintervalspermove>10</maxnumofintervalspermove>
         <isunitwaitrepresentation>true</isunitwaitrepresentation>
         <unitwaitduration>1</unitwaitduration>
+	<timelimit>1.0</timelimit>
 	</algorithm>
 	<options>
 		<loglevel>1</loglevel>

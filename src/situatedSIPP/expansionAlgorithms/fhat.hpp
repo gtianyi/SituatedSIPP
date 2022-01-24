@@ -69,5 +69,7 @@ public:
                 }
             }
         }
+        searchClassPtr->sresult.expansions += curExpansion;
+
     }
 };
