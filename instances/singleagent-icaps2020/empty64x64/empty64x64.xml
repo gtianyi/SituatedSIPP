@@ -76,7 +76,6 @@
 		<weight>1</weight>
         <algtype>4</algtype>
         <fixedlookahead>20</fixedlookahead>
-        <expansionalgorithm>astar</expansionalgorithm>
         <decisionalgorithm>f</decisionalgorithm>
         <learningalgorithm>dijkstralearning</learningalgorithm>
 	</algorithm>

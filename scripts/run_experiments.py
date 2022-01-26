@@ -5,21 +5,31 @@ import os
 import pandas as pd
 from multiprocessing import Pool
 import shutil
+import slack
+import socket
+
+hostname = socket.gethostname()
+slack_client = slack.WebClient(token=sys.argv[1])
+client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + hostname + " est: 24 hours")
 
 program = "../../build_release/bin/ssipp"
 
-timeout = 30
+timeout = str(1)
 
 target_folder = {
     "../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
     "../instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
     "../instances/singleagent-icaps2020/rooms/": "rooms.xml",
     "../instances/singleagent-icaps2020/den520d/": "den520d.xml"
-                }
+    }
 
-results = pd.DataFrame(columns = ["task", "lookahead", "learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
+results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
 lookaheads = ["10", "100", "1000"]
-learnings = ["dijkstralearning", "plrtalearning"]
+learnings = ["nolearning","dijkstralearning", "plrtalearning"]
+expansion = ["fhat", "astar"]
+decision = ["miniminbackup"]
+unitwait = ["NA", "0.1", "1"]
+numinterval = ["1", "3", "100"]
 dynmode = ["0", "1"]
 def parse_output(filepath):
     tree = ET.parse(filepath)
@@ -32,7 +42,7 @@ def parse_output(filepath):
     except:
         return float("inf"),float("inf"), 0
     
-def run_exp(config, task, lookahead, learning, dm):    
+def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni):    
     tree = ET.parse(config)
     root = tree.getroot()
     alg = root.find("algorithm")
@@ -42,18 +52,35 @@ def run_exp(config, task, lookahead, learning, dm):
     look.text = lookahead
     dyn = ET.SubElement(alg, 'dynmode')
     dyn.text = dm
-    outconfig = dm + config.split("/")[-1]
+    decision = alg.find("decisionalgorithm")
+    decision.text = dec
+    tl = ET.SubElement(alg, "timelimit")
+    tl.text = timeout
+    ea = ET.SubElement(alg, "expansionalgorithm")
+    ea.text = exp
+    num_int = ET.SubElement(alg, "maxnumofintervalspermove")
+    num_int.text = ni
+    if (uw != "NA"):
+        iuw = ET.SubElement(alg, "isunitwaitrepresentation")
+        iuw.text = "true"
+    u_w = ET.SubElement(alg, "unitwaitduration")
+    u_w.text = uw
+    identity = "_".join([config.split("/")[-1].replace(".xml", ""), task.split("/")[-1].replace(".xml", ""), lookahead, learning, dm, dec, exp, uw, ni])
+    os.mkdir("outfiles_test/" + identity)
+    outconfig = "outfiles_test/" + identity + "/" + config.split("/")[-1]
     tree.write(outconfig)
     obs = task.replace(".xml", "_obs.xml")
-    outfile = "outfiles/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace("xml", "") + lookahead + learning + dm + ".xml"
+    outfile = "outfiles_test/" + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
     command = [program, task, config, outconfig, obs, outfile]
-    try:
-        subprocess.run(command, timeout = timeout)
-        res = parse_output(outfile)
-    except:
-        print(" ".join(command))
-        res = (float("inf"),timeout, 0)
-    return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[2], res[0], res[1]))
+    print(command)
+    subprocess.run(command)
+    #try:
+    #    subprocess.run(command)
+    #    #res = parse_output(outfile)
+    #except:
+    #    print(" ".join(command))
+        #res = (float("inf"),timeout, 0)
+    #return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[2], res[0], res[1]))
 
 c = 0
 exp_results = []
@@ -65,14 +92,19 @@ for cfg in target_folder:
         for task in tasks:
             for learning in learnings:
                 for dm in dynmode:
-                    print(lookahead, task, learning, dynmode)
-                    exp_results.append(pool.apply_async(run_exp, (config, task, lookahead, learning, dm)))
+                    for dec in decision:
+                        for exp in expansion:
+                            for uw in unitwait:
+                                for ni in numinterval:
+                                    print(lookahead, task, dec, exp, learning, dynmode, uw, ni)
+                                    exp_results.append(pool.apply_async(run_exp, (config, task, lookahead, learning, dm, dec, exp, uw, ni)))
         break
     break
 outres = []
 for res in exp_results:
     outres.append(res.get())
 
-results = pd.concat(outres, axis = 1).T
-results["solved"] = results["solution length"] != 0
-results.to_csv("even-even-more-results.csv")
+client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + hostname)
+#results = pd.concat(outres, axis = 1).T
+#results["solved"] = results["solution length"] != 0
+#results.to_csv("even-even-more-results.csv")
