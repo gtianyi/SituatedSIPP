@@ -264,15 +264,16 @@
 		</grid>
 	</map>
 	<algorithm>
-		<allowanyangle>false</allowanyangle>
-		<metrictype>euclid</metrictype>
-		<breakingties>g-max</breakingties>
-		<weight>1</weight>
+	<allowanyangle>false</allowanyangle>
+	<metrictype>euclid</metrictype>
+	<breakingties>g-max</breakingties>
+	<weight>1</weight>
         <algtype>4</algtype>
-        <fixedlookahead>2</fixedlookahead>
+        <fixedlookahead>40</fixedlookahead>
         <decisionalgorithm>miniminbackup</decisionalgorithm>
         <learningalgorithm>dijkstralearning</learningalgorithm>
-	<timelimit>1.0</timelimit>
+	<timelimit>120.0</timelimit>
+	<steplimit>31300</steplimit>
 	</algorithm>
 	<options>
 		<loglevel>1</loglevel>

@@ -104,6 +104,7 @@ void XmlLogger::writeToLogSummary(const SearchResult &sresult)
     element->SetAttribute(CNS_TAG_ATTR_FATE, sresult.agentFate.c_str());
     element->SetAttribute(CNS_TAG_ATTR_TIMING, sresult.timingInformation.c_str());
     element->SetAttribute(CNS_TAG_ATTR_TOTALEXPANSIONS, std::to_string(sresult.expansions).c_str());
+    element->SetAttribute(CNS_TAG_ATTR_STEPS, std::to_string(sresult.steps).c_str());
     element->SetAttribute(CNS_TAG_ATTR_AGENTSSOLVED, ((std::to_string(sresult.agentsSolved) + " (" + std::to_string(float(sresult.agentsSolved*100)/sresult.agents)+"%)")).c_str());
     element->SetAttribute(CNS_TAG_ATTR_FLOWTIME, float(sresult.flowtime));
     element->SetAttribute(CNS_TAG_ATTR_MAKESPAN, float(sresult.makespan));

@@ -159,7 +159,8 @@ bool Situated_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     DEBUG_MSG("lookahead limit " << config->fixedlookahead);
     hppath.push_back(curNode);
     lppath.push_back(curNode);
-    while (iterationCounter++ < 10000) {
+    //while (iterationCounter++ < 10000) {
+    while (true){
         // DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
         DEBUG_MSG("iteration id " << iterationCounter);
         DEBUG_MSG("search root i, j, g: " << curNode.i << " " << curNode.j

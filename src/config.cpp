@@ -7,6 +7,7 @@ Config::Config()
     allowanyangle = CN_DEFAULT_ALLOWANYANGLE;
     startsafeinterval = CN_DEFAULT_STARTSAFEINTERVAL;
     timelimit = CN_DEFAULT_TIMELIMIT;
+    steplimit = CN_DEFAULT_STEPLIMIT;
     initialprioritization = CN_DEFAULT_INITIALPRIORITIZATION;
     rescheduling = CN_DEFAULT_RESCHEDULING;
     planforturns = CN_DEFAULT_PLANFORTURNS;
@@ -118,6 +119,21 @@ bool Config::getConfig(const char* fileName)
         value = element->GetText();
         stream<<value;
         stream>>timelimit;
+        stream.clear();
+        stream.str("");
+    }
+
+    element = algorithm->FirstChildElement(CNS_TAG_STEPLIMIT);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_STEPLIMIT<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to "<<CNS_DEFAULT_STEPLIMIT<<"."<<std::endl;
+        steplimit = CN_DEFAULT_STEPLIMIT;
+    }
+    else
+    {
+        value = element->GetText();
+        stream<<value;
+        stream>>steplimit;
         stream.clear();
         stream.str("");
     }

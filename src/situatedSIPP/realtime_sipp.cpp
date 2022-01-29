@@ -52,6 +52,7 @@ SearchResult rtsr2sr(const RTSearchResult& rtsr)
     sr.agentsSolved = rtsr.agentsSolved;
     sr.tries        = rtsr.tries;
     sr.expansions = rtsr.expansions;
+    sr.steps = rtsr.steps;
     sr.timingInformation = rtsr.timingInformation;
     sr.pathInfo.clear();
     for (auto path_info : rtsr.pathInfo) {
@@ -240,13 +241,14 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     // int             close_id(0);
     std::list<RTNode> reexpanded_list;
     // real-time search loop
-    int iterationCounter(0);
+    //int iterationCounter(0);
     DEBUG_MSG("lookahead limit " << config->fixedlookahead);
     hppath.push_back(curNode);
     lppath.push_back(curNode);
-    while (iterationCounter++ < 10000) {
+    //while (iterationCounter++ < 10000) {
+    while (true){
         // DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
-        DEBUG_MSG("iteration id " << iterationCounter);
+        //DEBUG_MSG("iteration id " << iterationCounter);
         DEBUG_MSG("search root i, j, g: " << curNode.i << " " << curNode.j
                                           << " " << curNode.g());
 
@@ -279,7 +281,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         }
         DEBUG_MSG_RED(config->timelimit);
         DEBUG_MSG_RED(timer.elapsed_s());
-        if (timer.elapsed_s() > config->timelimit){
+        if ((timer.elapsed_s() > config->timelimit) || (sresult.steps > config->steplimit)){
             DEBUG_MSG("CPU Time limit reached");
             sresult.agentFate = "timed out";
             break;
@@ -321,7 +323,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         timer.stop_decision();
         // 2) re-root the search tree to the best successor node
         curNode = bestTLA;
-
+        ++(sresult.steps);
         curNode.Parent = nullptr;
         open.clear();
         addOpen(curNode);

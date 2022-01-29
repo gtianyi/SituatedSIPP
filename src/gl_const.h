@@ -21,6 +21,8 @@
 #define CNS_DEFAULT_LOGLVL                  CNS_LOGLVL_NORM
 #define CN_DEFAULT_TIMELIMIT                CN_INFINITY
 #define CNS_DEFAULT_TIMELIMIT               "'infinity' (no limit)"
+#define CN_DEFAULT_STEPLIMIT                100000000000
+#define CNS_DEFAULT_STEPLIMIT              "100,000,000,000 steps"
 #define CN_DEFAULT_CONNECTEDNESS            5
 #define CN_DEFAULT_ALLOWANYANGLE            true
 #define CNS_DEFAULT_ALLOWANYANGLE           "true"
@@ -98,6 +100,7 @@
     #define CNS_TAG_RESCHEDULING            "rescheduling"
     #define CNS_TAG_STARTSAFEINTERVAL       "startsafeinterval"
     #define CNS_TAG_TIMELIMIT               "timelimit"
+    #define CNS_TAG_STEPLIMIT               "steplimit"
     #define CNS_TAG_PLANFORTURNS            "planforturns"
     #define CNS_TAG_ADDITIONALWAIT          "waitbeforemove"
     #define CNS_TAG_INFLATEINTERVALS        "inflatecollisionintervals"
@@ -175,6 +178,7 @@
     #define CNS_TAG_ATTR_FATE           "agentfate"
     #define CNS_TAG_ATTR_TIMING         "timingcsv"
     #define CNS_TAG_ATTR_TOTALEXPANSIONS "totalexpansions"
+    #define CNS_TAG_ATTR_STEPS          "steps"
     #define CNS_TAG_ATTR_AGENTSSOLVED   "agentssolved"
     #define CNS_TAG_ATTR_PATHSFOUND     "pathsfound"
     #define CNS_TAG_ATTR_PATHFOUND      "pathfound"

@@ -24,13 +24,20 @@ target_folder = {
     "../instances/singleagent-icaps2020/den520d/": "den520d.xml"
     }
 
+steplim = {
+    "../instances/singleagent-icaps2020/empty64x64/": "12800",
+    "../instances/singleagent-icaps2020/warehouse/": "12800",
+    "../instances/singleagent-icaps2020/rooms/":   "12800",
+    "../instances/singleagent-icaps2020/den520d/": "31300"
+    }
+
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["10", "100", "1000"]
+lookaheads = ["20", "100", "400"]
 learnings = ["nolearning","dijkstralearning", "plrtalearning"]
-expansion = ["fhat", "astar"]
+expansion = ["astar"]
 decision = ["miniminbackup"]
-unitwait = ["NA", "0.1", "1"]
-numinterval = ["1", "3", "100"]
+unitwait = ["0.1", "1"]
+numinterval = ["100"]
 dynmode = ["0", "1"]
 def parse_output(filepath):
     tree = ET.parse(filepath)

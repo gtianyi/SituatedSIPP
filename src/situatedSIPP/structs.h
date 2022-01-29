@@ -310,6 +310,7 @@ struct RTSearchResult
     int agentsSolved;
     int tries;
     unsigned long expansions;
+    unsigned long steps;
     std::string timingInformation;
     std::vector<RTResultPathInfo> pathInfo;
 
@@ -323,6 +324,7 @@ struct RTSearchResult
         makespan = 0;
         agents = 0;
         expansions = 0;
+        steps = 0;
         timingInformation = "";
     }
 

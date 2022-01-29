@@ -18,6 +18,7 @@ public:
     bool allowanyangle;
     bool planforturns;
     double timelimit;
+    unsigned long steplimit;
     int rescheduling;
     double inflatecollisionintervals;
     int initialprioritization;
