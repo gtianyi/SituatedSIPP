@@ -15,7 +15,7 @@ slack_client.chat_postMessage(channel='experiments', text="Devin just started ru
 
 program = "../../build_release/bin/ssipp"
 
-timeout = str(10*60)
+timeout = str(10*60) # just to be safe
 
 target_folder = {
     "../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
@@ -50,7 +50,7 @@ def parse_output(filepath):
     except:
         return float("inf"),float("inf"), 0
     
-def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni):    
+def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):    
     tree = ET.parse(config)
     root = tree.getroot()
     alg = root.find("algorithm")
@@ -64,6 +64,8 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni):
     decision.text = dec
     tl = ET.SubElement(alg, "timelimit")
     tl.text = timeout
+    sl = ET.SubElement(alg, "steplimit")
+    sl.text = steplimit
     ea = ET.SubElement(alg, "expansionalgorithm")
     ea.text = exp
     num_int = ET.SubElement(alg, "maxnumofintervalspermove")
@@ -94,6 +96,7 @@ c = 0
 exp_results = []
 pool = Pool(1)
 for cfg in target_folder:
+    steplimit = steplim[cfg]
     if sys.argv[2] not in cfg:
         continue
     config = cfg + target_folder[cfg]
@@ -107,7 +110,7 @@ for cfg in target_folder:
                             for uw in unitwait:
                                 for ni in numinterval:
                                     print(lookahead, task, dec, exp, learning, dynmode, uw, ni)
-                                    exp_results.append(pool.apply_async(run_exp, (config, task, lookahead, learning, dm, dec, exp, uw, ni)))
+                                    exp_results.append(pool.apply_async(run_exp, (config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit)))
         break
     break
 outres = []
