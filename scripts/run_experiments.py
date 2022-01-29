@@ -1,3 +1,4 @@
+import sys
 import xml.etree.ElementTree as ET
 from glob import glob
 import subprocess
@@ -10,11 +11,11 @@ import socket
 
 hostname = socket.gethostname()
 slack_client = slack.WebClient(token=sys.argv[1])
-client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + hostname + " est: 24 hours")
+slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + hostname + " est: 24 hours")
 
 program = "../../build_release/bin/ssipp"
 
-timeout = str(1)
+timeout = str(10*60)
 
 target_folder = {
     "../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
@@ -84,8 +85,10 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni):
 
 c = 0
 exp_results = []
-pool = Pool(4)
+pool = Pool(1)
 for cfg in target_folder:
+    if sys.argv[2] not in cfg:
+        continue
     config = cfg + target_folder[cfg]
     tasks = glob(cfg+ "/*task.xml")
     for lookahead in lookaheads:
@@ -104,7 +107,7 @@ outres = []
 for res in exp_results:
     outres.append(res.get())
 
-client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + hostname)
+slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + hostname)
 #results = pd.concat(outres, axis = 1).T
 #results["solved"] = results["solution length"] != 0
 #results.to_csv("even-even-more-results.csv")
