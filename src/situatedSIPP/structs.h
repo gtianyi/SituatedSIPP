@@ -22,28 +22,28 @@ class RTTimer{
       si_timer.stop();
     }
     void inline resume_expansion(){
-      expansion_timer.resume();
+      //expansion_timer.resume();
     }
     void inline stop_expansion(){
-      expansion_timer.stop();
+     // expansion_timer.stop();
     }
     void inline resume_learning(){
-      learning_timer.resume();
+      //learning_timer.resume();
     }
     void inline stop_learning(){
-      learning_timer.stop();
+     // learning_timer.stop();
     }
     void inline resume_decision(){
-      decision_timer.resume();
+      //decision_timer.resume();
     }
     void inline stop_decision(){
-      decision_timer.stop();
+      //decision_timer.stop();
     }
     void inline resume_si(){
-      si_timer.resume();
+      //si_timer.resume();
     }
     void inline stop_si(){
-      si_timer.stop();
+      //si_timer.stop();
     }
 
     double elapsed_s()  const{

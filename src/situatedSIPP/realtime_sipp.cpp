@@ -580,8 +580,12 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
                                  getHValue(newNode.i, newNode.j));
             newNode.debug();
             if (angleNode.g() <= angleNode.interval.end) {
+                timer.stop_expansion();
+                timer.resume_si();
                 intervals =
                   constraints->findIntervals(newNode, EAT, close, map);
+                timer.stop_si();
+                timer.resume_expansion();
                 unsigned long num_of_intervals =
                   std::min(config->maxNumOfIntervalsPerMove, intervals.size());
                 for (unsigned int k = 0; k < num_of_intervals; k++) {
@@ -672,8 +676,12 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
               getHValue(newNodeWithWait.i, newNodeWithWait.j));
 
             if (angleNode.g() <= angleNode.interval.end) {
+                timer.stop_expansion();
+                timer.resume_si();
                 intervals =
                   constraints->findIntervals(newNode, EAT, close, map);
+                timer.stop_si();
+                timer.resume_expansion();
                 if (intervals.size() > 0) {
                     newNode.interval = intervals[0];
                     newNode.Parent   = parent;
@@ -689,8 +697,12 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
             }
 
             if (angleNodeWithWait.g() <= angleNodeWithWait.interval.end) {
+                timer.stop_expansion();
+                timer.resume_si();
                 intervals =
                   constraints->findIntervals(newNodeWithWait, EAT, close, map);
+                timer.stop_si();
+                timer.resume_expansion();
                 if (intervals.size() > 0) {
                     newNodeWithWait.interval = intervals[0];
                     newNodeWithWait.Parent   = parent;
