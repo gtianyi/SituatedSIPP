@@ -8,10 +8,22 @@ from multiprocessing import Pool
 import shutil
 import slack
 import socket
+from fabric import Connection
+from threading import Thread
 
-hostname = socket.gethostname()
-slack_client = slack.WebClient(token=sys.argv[1])
-slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + hostname + " est: 24 hours")
+ai_servers = [
+    "ai1.cs.unh.edu",
+    "ai2.cs.unh.edu",
+    "ai3.cs.unh.edu",
+    "ai4.cs.unh.edu",
+    #"ai8.cs.unh.edu",
+    #"ai11.cs.unh.edu",
+    "ai12.cs.unh.edu",
+    "ai13.cs.unh.edu",
+    "ai14.cs.unh.edu",
+    "ai15.cs.unh.edu",
+]
+using_servers = ", ".join(map(lambda x: x.split(".")[0], ai_servers))
 
 program = "../../build_release/bin/ssipp"
 
@@ -31,14 +43,8 @@ steplim = {
     "../instances/singleagent-icaps2020/den520d/": "31300"
     }
 
-results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["20", "100", "400"]
-learnings = ["nolearning","dijkstralearning", "plrtalearning"]
-expansion = ["astar"]
-decision = ["miniminbackup"]
-unitwait = ["0.1", "1"]
-numinterval = ["100"]
-dynmode = ["0", "1"]
+
+
 def parse_output(filepath):
     tree = ET.parse(filepath)
     root = tree.getroot()
@@ -82,8 +88,9 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     obs = task.replace(".xml", "_obs.xml")
     outfile = "outfiles_test/" + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
     command = [program, task, config, outconfig, obs, outfile]
-    print(command)
-    subprocess.run(command)
+    return command
+    #print(command)
+    #subprocess.run(command)
     #try:
     #    subprocess.run(command)
     #    #res = parse_output(outfile)
@@ -92,9 +99,27 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
         #res = (float("inf"),timeout, 0)
     #return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[2], res[0], res[1]))
 
-c = 0
-exp_results = []
-pool = Pool(1)
+def run_commands(commands, server):
+    with slack.WebClient(token=sys.argv[1]) as slack_client:
+        slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
+    connection = Connection(server)
+    for command in commands:
+        connection.run(command, hide = "both")
+        break
+    with slack.WebClient(token=sys.argv[1]) as slack_client:
+        slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
+
+
+results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
+lookaheads = ["40", "80", "320", "1280"]
+learnings = ["nolearning","dijkstralearning", "plrtalearning"]
+expansion = ["astar"]
+decision = ["miniminbackup"]
+unitwait = ["0.1", "1"]
+numinterval = ["100"]
+dynmode = ["0"]
+
+commands = []
 for cfg in target_folder:
     steplimit = steplim[cfg]
     if sys.argv[2] not in cfg:
@@ -109,15 +134,19 @@ for cfg in target_folder:
                         for exp in expansion:
                             for uw in unitwait:
                                 for ni in numinterval:
-                                    print(lookahead, task, dec, exp, learning, dynmode, uw, ni)
-                                    exp_results.append(pool.apply_async(run_exp, (config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit)))
-        break
-    break
-outres = []
-for res in exp_results:
-    outres.append(res.get())
+                                    commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
 
-slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + hostname)
+threads = []
+for i in range(len(using_servers)):
+    c = []
+    for j in range(i, len(commands), len(using_servers)):
+        c.append(commands[j])
+    threads.append(Thread(target = run_commands, args = (c, using_servers[i])))
+    threads[-1].start()
+
+for i in range(len(threads)):
+    threads[i].join()
+
 #results = pd.concat(outres, axis = 1).T
 #results["solved"] = results["solution length"] != 0
 #results.to_csv("even-even-more-results.csv")
