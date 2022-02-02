@@ -25,7 +25,7 @@ ai_servers = [
     #"ai15.cs.unh.edu",
 ]
 using_servers = ", ".join(map(lambda x: x.split(".")[0], ai_servers))
-
+working_dir = "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/scripts"
 program = "../../build_release/bin/ssipp"
 
 timeout = str(10*60) # just to be safe
@@ -95,6 +95,7 @@ def run_commands(commands, server, bar, lock):
     slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
 
     connection = Connection(server)
+    connection.run("cd " + working_dir)
     for command in commands:
         connection.run(" ".join(command), hide = "both")
         lock.acquire()
