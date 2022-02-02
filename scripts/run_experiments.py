@@ -96,7 +96,7 @@ def run_commands(commands, server, bar, lock):
 
     connection = Connection(server)
     for command in commands:
-        connection.run(command, hide = "both")
+        connection.run(" ".join(command), hide = "both")
         lock.acquire()
         bar.update(bar.value + 1)
         lock.release()
