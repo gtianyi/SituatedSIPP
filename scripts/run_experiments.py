@@ -117,7 +117,7 @@ for cfg in target_folder:
     steplimit = steplim[cfg]
     config = cfg + target_folder[cfg]
     n_tasks += len(glob(cfg+ "/*task.xml"))
-total = n_tasks * len(lookaheads) * len(dynmode) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
+total = n_tasks * len(lookaheads) * len(dynmode) * len(learnings) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
 commands = []
 
 with progressbar.ProgressBar(max_value=total) as bar:
