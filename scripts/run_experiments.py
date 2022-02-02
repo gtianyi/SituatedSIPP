@@ -26,7 +26,7 @@ ai_servers = [
 ]
 using_servers = ", ".join(map(lambda x: x.split(".")[0], ai_servers))
 working_dir = "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/scripts"
-program = "../../build_release/bin/ssipp"
+program = "/home/aifs2/devin/Documents/SituatdSIPP/build_release/bin/ssipp"
 
 timeout = str(10*60) # just to be safe
 
@@ -34,17 +34,17 @@ output_folder = sys.argv[2]
 
 
 target_folder = {
-    "../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
-    "../instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
-    "../instances/singleagent-icaps2020/rooms/": "rooms.xml",
-    "../instances/singleagent-icaps2020/den520d/": "den520d.xml"
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/": "rooms.xml",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "den520d.xml"
     }
 
 steplim = {
-    "../instances/singleagent-icaps2020/empty64x64/": "12800",
-    "../instances/singleagent-icaps2020/warehouse/": "12800",
-    "../instances/singleagent-icaps2020/rooms/":   "12800",
-    "../instances/singleagent-icaps2020/den520d/": "31300"
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "12800",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "12800",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/":   "12800",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "31300"
     }
     
 def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):    
@@ -95,7 +95,6 @@ def run_commands(commands, server, bar, lock):
     slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
 
     connection = Connection(server)
-    connection.run("cd " + working_dir)
     for command in commands:
         connection.run(" ".join(command), hide = "both")
         lock.acquire()
