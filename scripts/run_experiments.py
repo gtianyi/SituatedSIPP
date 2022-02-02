@@ -100,7 +100,6 @@ def run_commands(commands, server, bar, lock):
         lock.acquire()
         bar.update(bar.value + 1)
         lock.release()
-        break
 
     slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
 
