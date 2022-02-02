@@ -14,20 +14,22 @@ from threading import Thread
 ai_servers = [
     "ai1.cs.unh.edu",
     "ai2.cs.unh.edu",
-    "ai3.cs.unh.edu",
-    "ai4.cs.unh.edu",
+    #"ai3.cs.unh.edu",
+    #"ai4.cs.unh.edu",
     #"ai8.cs.unh.edu",
     #"ai11.cs.unh.edu",
-    "ai12.cs.unh.edu",
-    "ai13.cs.unh.edu",
-    "ai14.cs.unh.edu",
-    "ai15.cs.unh.edu",
+    #"ai12.cs.unh.edu",
+    #"ai13.cs.unh.edu",
+    #"ai14.cs.unh.edu",
+    #"ai15.cs.unh.edu",
 ]
 using_servers = ", ".join(map(lambda x: x.split(".")[0], ai_servers))
 
 program = "../../build_release/bin/ssipp"
 
 timeout = str(10*60) # just to be safe
+
+output_folder = sys.argv[2]
 
 target_folder = {
     "../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
@@ -42,19 +44,6 @@ steplim = {
     "../instances/singleagent-icaps2020/rooms/":   "12800",
     "../instances/singleagent-icaps2020/den520d/": "31300"
     }
-
-
-
-def parse_output(filepath):
-    tree = ET.parse(filepath)
-    root = tree.getroot()
-    try:
-        log = root.find("log")
-        agent = log.find("agent")
-        path = agent.find("path")
-        return float(path.attrib["duration"]),float(path.attrib["runtime"]), len(path)
-    except:
-        return float("inf"),float("inf"), 0
     
 def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):    
     tree = ET.parse(config)
@@ -82,11 +71,11 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     u_w = ET.SubElement(alg, "unitwaitduration")
     u_w.text = uw
     identity = "_".join([config.split("/")[-1].replace(".xml", ""), task.split("/")[-1].replace(".xml", ""), lookahead, learning, dm, dec, exp, uw, ni])
-    os.mkdir("outfiles_test/" + identity)
-    outconfig = "outfiles_test/" + identity + "/" + config.split("/")[-1]
+    os.mkdir(output_folder + identity)
+    outconfig = output_folder + identity + "/" + config.split("/")[-1]
     tree.write(outconfig)
     obs = task.replace(".xml", "_obs.xml")
-    outfile = "outfiles_test/" + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
+    outfile = output_folder + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
     command = [program, task, config, outconfig, obs, outfile]
     return command
     #print(command)
@@ -102,10 +91,12 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
 def run_commands(commands, server):
     with slack.WebClient(token=sys.argv[1]) as slack_client:
         slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
+
     connection = Connection(server)
     for command in commands:
         connection.run(command, hide = "both")
         break
+
     with slack.WebClient(token=sys.argv[1]) as slack_client:
         slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
 
@@ -122,8 +113,6 @@ dynmode = ["0"]
 commands = []
 for cfg in target_folder:
     steplimit = steplim[cfg]
-    if sys.argv[2] not in cfg:
-        continue
     config = cfg + target_folder[cfg]
     tasks = glob(cfg+ "/*task.xml")
     for lookahead in lookaheads:
