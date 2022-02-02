@@ -15,14 +15,14 @@ import progressbar
 ai_servers = [
     "ai1.cs.unh.edu",
     "ai2.cs.unh.edu",
-    #"ai3.cs.unh.edu",
-    #"ai4.cs.unh.edu",
+    "ai3.cs.unh.edu",
+    "ai4.cs.unh.edu",
     #"ai8.cs.unh.edu",
     #"ai11.cs.unh.edu",
     #"ai12.cs.unh.edu",
     #"ai13.cs.unh.edu",
-    #"ai14.cs.unh.edu",
-    #"ai15.cs.unh.edu",
+    "ai14.cs.unh.edu",
+    "ai15.cs.unh.edu",
 ]
 using_servers = ", ".join(map(lambda x: x.split(".")[0], ai_servers))
 working_dir = "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/scripts"
@@ -73,9 +73,9 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     u_w = ET.SubElement(alg, "unitwaitduration")
     u_w.text = uw
     identity = "_".join([config.split("/")[-1].replace(".xml", ""), task.split("/")[-1].replace(".xml", ""), lookahead, learning, dm, dec, exp, uw, ni])
-    #os.mkdir(output_folder + identity)
+    os.mkdir(output_folder + identity)
     outconfig = output_folder + identity + "/" + config.split("/")[-1]
-    #tree.write(outconfig)
+    tree.write(outconfig)
     obs = task.replace(".xml", "_obs.xml")
     outfile = output_folder + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
     command = [program, task, config, outconfig, obs, outfile]
