@@ -73,9 +73,9 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     u_w = ET.SubElement(alg, "unitwaitduration")
     u_w.text = uw
     identity = "_".join([config.split("/")[-1].replace(".xml", ""), task.split("/")[-1].replace(".xml", ""), lookahead, learning, dm, dec, exp, uw, ni])
-    os.mkdir(output_folder + identity)
+    #os.mkdir(output_folder + identity)
     outconfig = output_folder + identity + "/" + config.split("/")[-1]
-    tree.write(outconfig)
+    #tree.write(outconfig)
     obs = task.replace(".xml", "_obs.xml")
     outfile = output_folder + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
     command = [program, task, config, outconfig, obs, outfile]
@@ -143,14 +143,14 @@ print("Running experiements.")
 with progressbar.ProgressBar(max_value=total) as bar:
     with Lock() as lock:
         threads = []
-        for i in range(len(using_servers)):
+        for i in range(len(ai_servers)):
             c = []
-            for j in range(i, len(commands), len(using_servers)):
+            for j in range(i, len(commands), len(ai_servers)):
                 c.append(commands[j])
-            threads.append(Thread(target = run_commands, args = (c, using_servers[i], bar, lock)))
+            threads.append(Thread(target = run_commands, args = (c, ai_servers[i], bar, lock)))
             threads[-1].start()
         for i in range(len(threads)):
-            print(using_servers[i] + " has completed!")
+            print(ai_servers[i] + " has completed!")
             threads[i].join()
 
 #results = pd.concat(outres, axis = 1).T
