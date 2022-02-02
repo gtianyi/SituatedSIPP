@@ -10,6 +10,7 @@ import slack
 import socket
 from fabric import Connection
 from threading import Thread
+import progressbar
 
 ai_servers = [
     "ai1.cs.unh.edu",
@@ -30,6 +31,7 @@ program = "../../build_release/bin/ssipp"
 timeout = str(10*60) # just to be safe
 
 output_folder = sys.argv[2]
+
 
 target_folder = {
     "../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
@@ -109,22 +111,26 @@ decision = ["miniminbackup"]
 unitwait = ["0.1", "1"]
 numinterval = ["100"]
 dynmode = ["0"]
-
+print("Generating experiement files and folders.")
+total = len(target_folder) * len(lookaheads) * len(dynmode) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
 commands = []
-for cfg in target_folder:
-    steplimit = steplim[cfg]
-    config = cfg + target_folder[cfg]
-    tasks = glob(cfg+ "/*task.xml")
-    for lookahead in lookaheads:
-        for task in tasks:
-            for learning in learnings:
-                for dm in dynmode:
-                    for dec in decision:
-                        for exp in expansion:
-                            for uw in unitwait:
-                                for ni in numinterval:
-                                    commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
-
+with progressbar.ProgressBar(max_value=total) as bar:
+    bar.update(0)
+    for cfg in target_folder:
+        steplimit = steplim[cfg]
+        config = cfg + target_folder[cfg]
+        tasks = glob(cfg+ "/*task.xml")
+        for lookahead in lookaheads:
+            for task in tasks:
+                for learning in learnings:
+                    for dm in dynmode:
+                        for dec in decision:
+                            for exp in expansion:
+                                for uw in unitwait:
+                                    for ni in numinterval:
+                                        commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
+                                        bar.update(len(commands))
+print("Starting experiements.")
 threads = []
 for i in range(len(using_servers)):
     c = []
@@ -134,6 +140,7 @@ for i in range(len(using_servers)):
     threads[-1].start()
 
 for i in range(len(threads)):
+    print(using_servers[i] + " has completed!")
     threads[i].join()
 
 #results = pd.concat(outres, axis = 1).T
