@@ -9,7 +9,7 @@ import shutil
 import slack
 import socket
 from fabric import Connection
-from threading import Thread
+from threading import Thread, Lock
 import progressbar
 
 ai_servers = [
@@ -90,13 +90,16 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
         #res = (float("inf"),timeout, 0)
     #return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[2], res[0], res[1]))
 
-def run_commands(commands, server):
+def run_commands(commands, server, bar, lock):
     with slack.WebClient(token=sys.argv[1]) as slack_client:
         slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
 
     connection = Connection(server)
     for command in commands:
         connection.run(command, hide = "both")
+        lock.acquire()
+        bar.update(bar.value + 1)
+        lock.release()
         break
 
     with slack.WebClient(token=sys.argv[1]) as slack_client:
@@ -136,18 +139,19 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                     for ni in numinterval:
                                         commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
                                         bar.update(len(commands))
-print("Starting experiements.")
-threads = []
-for i in range(len(using_servers)):
-    c = []
-    for j in range(i, len(commands), len(using_servers)):
-        c.append(commands[j])
-    threads.append(Thread(target = run_commands, args = (c, using_servers[i])))
-    threads[-1].start()
-
-for i in range(len(threads)):
-    print(using_servers[i] + " has completed!")
-    threads[i].join()
+print("Running experiements.")
+with progressbar.ProgressBar(max_value=total) as bar:
+    with Lock() as lock:
+        threads = []
+        for i in range(len(using_servers)):
+            c = []
+            for j in range(i, len(commands), len(using_servers)):
+                c.append(commands[j])
+            threads.append(Thread(target = run_commands, args = (c, using_servers[i], bar, lock)))
+            threads[-1].start()
+        for i in range(len(threads)):
+            print(using_servers[i] + " has completed!")
+            threads[i].join()
 
 #results = pd.concat(outres, axis = 1).T
 #results["solved"] = results["solution length"] != 0
