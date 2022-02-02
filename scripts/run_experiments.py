@@ -91,8 +91,8 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     #return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[2], res[0], res[1]))
 
 def run_commands(commands, server, bar, lock):
-    with slack.WebClient(token=sys.argv[1]) as slack_client:
-        slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
+    slack_client = slack.WebClient(token=sys.argv[1])
+    slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
 
     connection = Connection(server)
     for command in commands:
@@ -102,8 +102,7 @@ def run_commands(commands, server, bar, lock):
         lock.release()
         break
 
-    with slack.WebClient(token=sys.argv[1]) as slack_client:
-        slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
+    slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
