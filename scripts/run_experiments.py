@@ -112,8 +112,14 @@ unitwait = ["0.1", "1"]
 numinterval = ["100"]
 dynmode = ["0"]
 print("Generating experiement files and folders.")
+n_tasks = 0
+for cfg in target_folder:
+    steplimit = steplim[cfg]
+    config = cfg + target_folder[cfg]
+    n_tasks += len(glob(cfg+ "/*task.xml"))
 total = len(target_folder) * len(lookaheads) * len(dynmode) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
 commands = []
+
 with progressbar.ProgressBar(max_value=total) as bar:
     bar.update(0)
     for cfg in target_folder:
