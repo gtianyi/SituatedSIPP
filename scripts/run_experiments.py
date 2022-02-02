@@ -148,8 +148,8 @@ with progressbar.ProgressBar(max_value=total) as bar:
         threads.append(Thread(target = run_commands, args = (c, ai_servers[i], bar, lock)))
         threads[-1].start()
     for i in range(len(threads)):
-        print(ai_servers[i] + " has completed!")
         threads[i].join()
+        print(ai_servers[i] + " has completed!")
 
 #results = pd.concat(outres, axis = 1).T
 #results["solved"] = results["solution length"] != 0
