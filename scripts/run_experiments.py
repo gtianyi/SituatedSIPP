@@ -70,8 +70,11 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     if (uw != "NA"):
         iuw = ET.SubElement(alg, "isunitwaitrepresentation")
         iuw.text = "true"
-    u_w = ET.SubElement(alg, "unitwaitduration")
-    u_w.text = uw
+        u_w = ET.SubElement(alg, "unitwaitduration")
+        u_w.text = uw
+    else:
+        iuw = ET.SubElement(alg, "isunitwaitrepresentation")
+        iuw.text = "false"
     identity = "_".join([config.split("/")[-1].replace(".xml", ""), task.split("/")[-1].replace(".xml", ""), lookahead, learning, dm, dec, exp, uw, ni])
     os.mkdir(output_folder + identity)
     outconfig = output_folder + identity + "/" + config.split("/")[-1]
