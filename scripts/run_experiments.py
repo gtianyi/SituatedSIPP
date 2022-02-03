@@ -65,6 +65,8 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     sl.text = steplimit
     ea = ET.SubElement(alg, "expansionalgorithm")
     ea.text = exp
+    ea = ET.SubElement(alg, "issituated")
+    ea.text = "true"
     num_int = ET.SubElement(alg, "maxnumofintervalspermove")
     num_int.text = ni
     if (uw != "NA"):

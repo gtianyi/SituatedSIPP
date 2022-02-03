@@ -37,6 +37,7 @@ public:
     std::string expansionalgorithm;
     std::string decisionalgorithm;
     int dynmode;
+    bool issituated;
     unsigned long maxNumOfIntervalsPerMove;
     double unitWaitDuration;
     bool isUnitWaitRepresentation;

@@ -13,8 +13,7 @@ public:
 
         int curExpansion(0);
         // expansion phase
-        while (!searchClassPtr->stopCriterion(curNode, goalNode) &&
-               curExpansion < searchClassPtr->config->fixedlookahead) {
+        while (!searchClassPtr->stopCriterion(curNode, goalNode) && curExpansion < searchClassPtr->lookaheadBudget) {
             curExpansion++;
             curNode = searchClassPtr->findMin();
             DEBUG_MSG("  current expansion "

@@ -1,6 +1,7 @@
 #include "realtime_sipp.h"
 #include "../debug.h"
 #include "structs.h"
+#include <math.h> 
 
 Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
@@ -37,6 +38,8 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     RTNode::set_expansion_order(config->expansionalgorithm);
     RTNode::set_dynmode(config->dynmode);
     DEBUG_MSG_RED("Point 6");
+
+    lookaheadBudget = config->fixedlookahead;
 }
 
 SearchResult rtsr2sr(const RTSearchResult& rtsr)
@@ -208,6 +211,7 @@ std::string RTNode::expansionOrderStr = "Not Set";
 
 bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 {
+    double prior_g = 0.0;
 
 #ifdef __linux__
     timeval begin, end;
@@ -242,7 +246,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     std::list<RTNode> reexpanded_list;
     // real-time search loop
     //int iterationCounter(0);
-    DEBUG_MSG("lookahead limit " << config->fixedlookahead);
     hppath.push_back(curNode);
     lppath.push_back(curNode);
     //while (iterationCounter++ < 10000) {
@@ -254,6 +257,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 
         // Tianyi note: this goal test might be too much simplified, check
         // AA_SIPP::stpCriterion
+        prior_g = curNode.g();
         
         if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
             DEBUG_MSG("goal reached!");
@@ -293,6 +297,30 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         timer.resume_expansion();
         expansionModulePtr->runSearch(curNode, goalNode, map, close, reexpanded,
                                       reexpanded_list, this);
+        if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
+            DEBUG_MSG("goal reached!");
+            gettimeofday(&end, nullptr);
+            resultPath.runtime =
+              (end.tv_sec - begin.tv_sec) +
+              static_cast<double>(end.tv_usec - begin.tv_usec) / 1000000;
+
+            resultPath.sections        = hppath;
+            resultPath.pathfound       = true;
+            resultPath.expanded        = close.size();
+            resultPath.generated       = open.size() + close.size();
+            resultPath.path            = lppath;
+            resultPath.iterationPath   = onlinePlanSections;
+            resultPath.pathlength      = curNode.g();
+            resultPath.reopened        = constraints->reopened; //;
+            resultPath.reexpanded      = reexpanded;
+            resultPath.reexpanded_list = reexpanded_list;
+            sresult.pathfound          = true;
+            sresult.flowtime += curNode.g();
+            sresult.makespan = std::max(sresult.makespan, curNode.g());
+            sresult.pathInfo[numOfCurAgent] = resultPath;
+            sresult.agentsSolved++;
+            break;
+        }
         timer.stop_expansion();
         gettimeofday(&endOfRealtimeCycle, nullptr);
         if (open.empty()) {
@@ -321,6 +349,12 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
           curNode, beginOfRealtimeCycle, endOfRealtimeCycle, curagent.goal_i,
           curagent.goal_j, hppath, lppath, this);
         timer.stop_decision();
+        if (config->issituated){
+            lookaheadBudget = (int)std::max(1.0, std::floor((bestTLA.g() - prior_g)*config->fixedlookahead));
+         
+        }
+        DEBUG_MSG_NO_LINE_BREAK_RED("LOOKAHEAD BUDGET: ");
+        DEBUG_MSG_RED(lookaheadBudget);
         // 2) re-root the search tree to the best successor node
         curNode = bestTLA;
         ++(sresult.steps);
@@ -491,16 +525,6 @@ RTNode Realtime_SIPP::findMin()
 
 bool Realtime_SIPP::stopCriterion(const RTNode& curNode, RTNode& goalNode)
 {
-    if (open.empty()) {
-        // std::cout << "OPEN list is empty! ";
-        if (curNode.interval.end == CN_INFINITY){
-            sresult.agentFate = "trapped";
-        }
-        else{
-            sresult.agentFate = "died";
-        }
-        return true;
-    }
     if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j &&
         curNode.interval.end == CN_INFINITY) {
         if (!config->planforturns ||
@@ -519,6 +543,16 @@ bool Realtime_SIPP::stopCriterion(const RTNode& curNode, RTNode& goalNode)
     if (goalNode.F() - CN_EPSILON < curNode.F() ||
         (goalNode.g() < CN_INFINITY &&
          fabs(goalNode.g() - goalNode.interval.begin) < CN_EPSILON)) {
+        return true;
+    }
+    if (open.empty()) {
+        // std::cout << "OPEN list is empty! ";
+        if (curNode.interval.end == CN_INFINITY){
+            sresult.agentFate = "trapped";
+        }
+        else{
+            sresult.agentFate = "died";
+        }
         return true;
     }
     return false;

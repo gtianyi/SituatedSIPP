@@ -14,6 +14,7 @@ Config::Config()
     additionalwait = CN_DEFAULT_ADDITIONALWAIT;
     fixedlookahead = CNS_DEFAULT_FIXEDLOOKAHEADLIMIT;
     additionalwait = CNS_DEFAULT_UNITWAITDURATION;
+    issituated = CNS_DEFAULT_SITUATED;
 }
 
 bool Config::getConfig(const char* fileName)
@@ -324,6 +325,26 @@ bool Config::getConfig(const char* fileName)
         stream>>dynmode;
         stream.clear();
         stream.str("");
+    }
+
+    element = algorithm->FirstChildElement(CNS_TAG_SITUATED);
+    if (!element)
+    {
+        std::cout << "Warning! No '"<<CNS_TAG_SITUATED<<"' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. Its value is set to '"<<CNS_DEFAULT_SITUATED<<"'."<<std::endl;
+        issituated = CNS_DEFAULT_SITUATED;
+    }
+    else
+    {
+        value = element->GetText();
+        if(value == "true" || value == "1")
+            issituated = true;
+        else if(value == "false" || value == "0")
+            issituated = false;
+        else
+        {
+            std::cout << "Warning! Wrong '"<<CNS_TAG_SITUATED<<"' value. It's set to '"<<CNS_DEFAULT_SITUATED<<"'."<<std::endl;
+            issituated = CNS_DEFAULT_SITUATED;
+        }
     }
 
     element = algorithm->FirstChildElement(CNS_TAG_LEARNINGALGORITHM);

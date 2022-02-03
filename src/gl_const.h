@@ -43,6 +43,7 @@
 #define CNS_DEFAULT_MAXNUMOFINTEVALS        CN_INFINITY
 #define CNS_DEFAULT_UNITWAITDURATION        1
 #define CNS_DEFAULT_IS_UNITWAITREPRESENTATION "false"
+#define CNS_DEFAULT_SITUATED                false
 
 
 #define CN_HEADING_WHATEVER                 -1
@@ -134,7 +135,7 @@
     #define CNS_TAG_MAXNUMOFINTEVALS        "maxnumofintervalspermove"
     #define CNS_TAG_UNITWAITDURATION        "unitwaitduration"
     #define CNS_TAG_IS_UNITWAITREPRESENTATION "isunitwaitrepresentation"
-
+    #define CNS_TAG_SITUATED                "issituated"
 /*
  * End of XML files tags -------------------------------------------------------
  */
