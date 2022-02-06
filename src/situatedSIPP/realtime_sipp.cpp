@@ -360,6 +360,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         ++(sresult.steps);
         curNode.Parent = nullptr;
         open.clear();
+        curNode.prune_past();
         addOpen(curNode);
         DEBUG_MSG("open size " << open.size());
         // curExpansion = 0;

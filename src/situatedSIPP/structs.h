@@ -159,6 +159,16 @@ public:
     this->set_dynamic_h(0.0);
     this->set_static_h(inf);
   }
+  void prune_past() const{
+    for (auto it = _dynamic_h.cbegin(); it != _dynamic_h.cend();){
+      if (it->first.g() < g()){
+        it = _dynamic_h.erase(it);
+      }
+      else{
+        ++it;
+      }
+    }
+  }
 
   bool operator< (const RTNode& rhs) const {
       if(expansionOrderStr == "astar"){
