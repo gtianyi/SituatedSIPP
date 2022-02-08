@@ -19,8 +19,8 @@ ai_servers = [
     "ai4.cs.unh.edu",
     #"ai8.cs.unh.edu",
     #"ai11.cs.unh.edu",
-    #"ai12.cs.unh.edu",
-    #"ai13.cs.unh.edu",
+    "ai12.cs.unh.edu",
+    "ai13.cs.unh.edu",
     "ai14.cs.unh.edu",
     "ai15.cs.unh.edu",
 ]
@@ -34,9 +34,9 @@ output_folder = sys.argv[2]
 
 
 target_folder = {
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/": "rooms.xml",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "den520d.xml"
     }
 
@@ -114,8 +114,8 @@ lookaheads = ["40", "80", "320", "1280"]
 learnings = ["nolearning","dijkstralearning", "plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
-unitwait = ["0.1", "1"]
-numinterval = ["100"]
+unitwait = ["NA"]
+numinterval = ["1", "4", "16"]
 dynmode = ["0"]
 print("Generating experiement files and folders.")
 n_tasks = 0
