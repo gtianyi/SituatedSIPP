@@ -12,7 +12,8 @@ set( SOURCE_FILES
      situatedSIPP/learningAlgorithms/DijkstraLearning.cpp
      situatedSIPP/learningAlgorithms/PlrtaLearning.cpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.cpp
-     constraints.cpp )
+     constraints.cpp
+     tracy/TracyClient.cpp )
 
 set( HEADER_FILES
      tinyxml2.h
