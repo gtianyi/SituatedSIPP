@@ -34,10 +34,10 @@ output_folder = sys.argv[2]
 
 
 target_folder = {
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
+    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/": "rooms.xml",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "den520d.xml"
+    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
+    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "den520d.xml"
     }
 
 steplim = {
@@ -110,12 +110,12 @@ def run_commands(commands, server, bar, lock):
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["40", "80", "320", "1280"]
-learnings = ["nolearning","dijkstralearning", "plrtalearning"]
+lookaheads = [ "32"]
+learnings = ["plrtalearning", "dijkstralearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
 unitwait = ["NA"]
-numinterval = ["1", "4", "16"]
+numinterval = ["1"]
 dynmode = ["0"]
 print("Generating experiement files and folders.")
 n_tasks = 0

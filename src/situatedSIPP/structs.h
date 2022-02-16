@@ -157,7 +157,7 @@ public:
     this->set_static_g(inf);
     this->set_dynamic_g(0.0);
     this->set_dynamic_h(0.0);
-    this->set_static_h(inf);
+    this->set_static_h(0.0);
   }
   void prune_past() const{
     for (auto it = _dynamic_h.cbegin(); it != _dynamic_h.cend();){

@@ -29,7 +29,7 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
         for (const RTNode& closen : close){
             RTNode copy_of_closen = RTNode(closen); 
             closen.debug();
-            copy_of_closen.set_static_h(std::numeric_limits<double>::infinity());
+            //copy_of_closen.set_static_h(std::numeric_limits<double>::infinity());
             copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
         }
         // step 2
