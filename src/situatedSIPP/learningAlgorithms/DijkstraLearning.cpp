@@ -29,7 +29,7 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         for (const RTNode& closen : close){
           closen.debug();
           RTNode copy_of_closen = RTNode(closen); 
-          copy_of_closen.set_static_h(0.0);
+          //copy_of_closen.set_static_h(0.0);
           copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
         }
         // step 2
@@ -55,20 +55,21 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
           if (cit != close.end()){
             close.erase(cit);
           }
-          if (n->Parent != nullptr){
-            cit = close.find(*(n->Parent));
+          auto prange = n->get_parents();
+          for (auto parent = prange.first; parent != prange.second; parent++){
+            cit = close.find(parent->second);
             if (cit != close.end()){
-             c =  cost(*n, *(n->Parent)) + n->h();
-             if (n->Parent->h() > c){
-               p = std::pair<double, RTNode *>(n->Parent->h(), n->Parent); // parent prior to updating h
-               n->Parent->set_dynamic_h(c);  // update h in record
+             c =  cost(*n, parent->second) + n->h();
+             if (parent->second.h() > c){
+               p = std::pair<double, RTNode *>(parent->second.h(), &(parent->second)); // parent prior to updating h
+               parent->second.set_dynamic_h(c - parent->second.static_h());  // update h in record
                oit = open_sorted_by_h.find(p);
                if(oit == open_sorted_by_h.end()){
-                 open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
+                 open_sorted_by_h.emplace(parent->second.h(), &(parent->second));
                }
                else{
                  open_sorted_by_h.erase(oit);
-                 open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
+                 open_sorted_by_h.emplace(parent->second.h(), &(parent->second));
                }
              }
             }

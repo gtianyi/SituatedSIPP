@@ -235,7 +235,6 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
                 online_plan_paths->LinkEndChild(partPath);
                 itOnlineIterationPath++;
                 partnumber++;
-                DEBUG_MSG_RED("");
 
             }
         }

@@ -4,6 +4,7 @@
 #include "../searchresult.h"
 #include "../config.h"
 #include <unordered_map>
+#include <set>
 #include <boost/timer/timer.hpp>
 #define PLACES 10
 #define NANO 0.000000001
@@ -74,6 +75,7 @@ class RTNode{
 private:
   static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_h;
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
+  static std::unordered_multimap<RTNode, RTNode, boost::hash<RTNode>> parents;
   static int dynmode; // 0 location, parent, g; 1 location, interval end
   static std::string expansionOrderStr;
 
@@ -150,14 +152,12 @@ public:
     this->set_static_g(0.0);
     this->set_dynamic_g(0.0);
     this->set_dynamic_h(0.0);
-    this->set_static_h(0.0);
   }
   void set_inf(){
     double inf = std::numeric_limits<double>::infinity();
     this->set_static_g(inf);
     this->set_dynamic_g(0.0);
     this->set_dynamic_h(0.0);
-    this->set_static_h(0.0);
   }
   void prune_past() const{
     for (auto it = _dynamic_h.cbegin(); it != _dynamic_h.cend();){
@@ -169,6 +169,8 @@ public:
       }
     }
   }
+
+ 
 
   bool operator< (const RTNode& rhs) const {
       if(expansionOrderStr == "astar"){
@@ -197,6 +199,26 @@ public:
 
   void static set_dynmode(int dm){
     RTNode::dynmode = dm;
+  }
+
+
+  void set_parent(RTNode* parent){
+    Parent = parent;
+    if(parent){
+      auto prange = get_parents();
+      for (auto prior_parents = prange.first; prior_parents != prange.second; prior_parents++){
+        if (prior_parents->second == *parent){
+          return;
+        }
+      }
+      parents.emplace(*this, *parent);
+    }
+  }
+
+ struct std::pair<
+  std::__detail::_Node_iterator<std::pair<const RTNode, RTNode>, false, true>,
+  std::__detail::_Node_iterator<std::pair<const RTNode, RTNode>, false, true>>  get_parents() const{
+    return parents.equal_range(*this);
   }
 
   void static set_expansion_order(const std::string& expansionAlgorithmStr){

@@ -53,8 +53,6 @@ void Mission::createSearch()
         delete m_pSearch;
         delete m_pLogger;
     }
-    DEBUG_MSG_RED("ALGTYPE");
-    DEBUG_MSG_RED(m_config.algtype);
     if (m_config.algtype == 1) {
         m_config.use_focal     = false;
         m_config.use_likhachev = true;
@@ -83,7 +81,6 @@ void Mission::createSearch()
         delete m_pSearch;
         m_pSearch = new Realtime_SIPP(m_config);
     }
-    DEBUG_MSG_RED("Created.");
     //else if (m_config.algtype == 5) {
     //    delete m_pSearch;
     //    m_pSearch = new Situated_SIPP(m_config);

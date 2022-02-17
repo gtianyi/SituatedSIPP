@@ -6,11 +6,11 @@
 		<rescheduling>random</rescheduling>
 		<startsafeinterval>3</startsafeinterval>
 		<prioritization>fifo</prioritization>
-		<steplimit>1</steplimit>
+		<steplimit>100</steplimit>
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
 		<algtype>4</algtype>
-		<fixedlookahead>1</fixedlookahead>
+		<fixedlookahead>4</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
 		<learningalgorithm>nolearning</learningalgorithm>

@@ -11,8 +11,6 @@
 
 SearchResult rtsr2sr(const RTSearchResult& rtsr);
 
-
-
 class Realtime_SIPP : public AA_SIPP
 {
 public:
@@ -70,6 +68,7 @@ private:
                        std::shared_ptr<ExpansionAlgorithm<Realtime_SIPP>>>
       map_configStringToExpansionModule{
         {"astar", std::make_shared<Astar<Realtime_SIPP>>()}};
+    void compute_static_h(const Map& map);
     nlohmann::json hjson; //json for history of h
     void debug_h(const RTNode& curNode, const Map& map);
     void debug_h_to_file(const std::string & filename);
