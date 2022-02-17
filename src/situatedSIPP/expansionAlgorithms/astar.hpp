@@ -53,11 +53,9 @@ public:
                     if (add) {
                         searchClassPtr->addOpen(s);
                     }
-                    if (curNode.optimal == true) {
+                    if (curNode.optimal) {
                         s.optimal = true;
-                        s.set_static_h(
-                          searchClassPtr->config->h_weight *
-                          (s.g() + searchClassPtr->getHValue(s.i, s.j)));
+                        //s.set_static_h(searchClassPtr->config->h_weight * (s.g() + searchClassPtr->getHValue(s.i, s.j)));
                         searchClassPtr->addOpen(s);
                     }
                 } else {

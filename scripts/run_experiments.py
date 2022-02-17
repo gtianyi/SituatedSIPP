@@ -19,8 +19,8 @@ ai_servers = [
     "ai4.cs.unh.edu",
     #"ai8.cs.unh.edu",
     #"ai11.cs.unh.edu",
-    "ai12.cs.unh.edu",
-    "ai13.cs.unh.edu",
+    #"ai12.cs.unh.edu",
+    #"ai13.cs.unh.edu",
     "ai14.cs.unh.edu",
     "ai15.cs.unh.edu",
 ]

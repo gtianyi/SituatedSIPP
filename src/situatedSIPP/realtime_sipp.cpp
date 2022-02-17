@@ -3,6 +3,10 @@
 #include "structs.h"
 #include <math.h> 
 
+#include <cstddef>
+#include <string>
+#include <fstream>
+
 Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
@@ -38,7 +42,6 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
     RTNode::set_expansion_order(config->expansionalgorithm);
     RTNode::set_dynmode(config->dynmode);
     DEBUG_MSG_RED("Point 6");
-
     lookaheadBudget = config->fixedlookahead;
 }
 
@@ -234,7 +237,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     RTNode goalNode(curagent.goal_i, curagent.goal_j, -1);
     goalNode.set_inf();
     // curNode.F           = getHValue(curNode.i, curNode.j);
-    curNode.set_static_h(curNode.static_h());
+    //curNode.set_static_h(curNode.static_h());
 
     curNode.interval    = constraints->getSafeInterval(curNode.i, curNode.j, 0);
     curNode.interval_id = curNode.interval.id;
@@ -258,7 +261,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // Tianyi note: this goal test might be too much simplified, check
         // AA_SIPP::stpCriterion
         prior_g = curNode.g();
-        
+        debug_h(curNode, map);
         if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
             DEBUG_MSG("goal reached!");
             gettimeofday(&end, nullptr);
@@ -382,7 +385,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         resultPath.pathlength           = 0;
         sresult.pathInfo[numOfCurAgent] = resultPath;
     }
-
+    debug_h_to_file("debug_h.json");
     return resultPath.pathfound;
 }
 
@@ -418,26 +421,21 @@ void Realtime_SIPP::recordToOnlinePath(const RTNode&  rootNode,
         sections.push_back(add);
     }
     DEBUG_MSG_RED("Recording to op:");
+    /*
+    // Something is broken here, not clear the purpose of this
     for (unsigned int i = 1; i < sections.size(); i++) {
-        DEBUG_MSG_RED(i);
-        sections[i].debug();
-        sections[i - 1].debug();
-
-        if ((sections[i].g() - (sections[i - 1].g() +
-                                getCost(sections[i].i, sections[i].j,
-                                        sections[i - 1].i, sections[i - 1].j) /
-                                  curagent.mspeed)) > CN_EPSILON) {
+        double wait_duration = (sections[i].g() - (sections[i - 1].g() + getCost(sections[i].i, sections[i].j, sections[i - 1].i, sections[i - 1].j))) / curagent.mspeed;
+        if (wait_duration > CN_EPSILON) {
+            // need to insert a wait
             RTNode add = sections[i - 1];
             add.Parent = sections[i].Parent;
-            add.set_static_g(sections[i].static_g() -
-                             getCost(sections[i].i, sections[i].j,
-                                     sections[i - 1].i, sections[i - 1].j) /
-                               curagent.mspeed);
+            add.set_dynamic_g();
             add.heading = sections[i].heading;
             sections.emplace(sections.begin() + i, add);
             i++;
         }
     }
+    */ 
     if (config->planforturns && curagent.goal_heading >= 0) {
         sections.pop_back();
     }
@@ -611,8 +609,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
             newNode.set_dynamic_g(angleNode.dynamic_g());
             newNode.Parent  = &angleNode;
             newNode.optimal = curNode.optimal;
-            newNode.set_static_h(config->h_weight *
-                                 getHValue(newNode.i, newNode.j));
+            //newNode.set_static_h(config->h_weight * getHValue(newNode.i, newNode.j));
             newNode.debug();
             if (angleNode.g() <= angleNode.interval.end) {
                 timer.stop_expansion();
@@ -698,17 +695,14 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
             newNode.set_dynamic_g(angleNode.dynamic_g());
             newNode.Parent  = &angleNode;
             newNode.optimal = curNode.optimal;
-            newNode.set_static_h(config->h_weight *
-                                 getHValue(newNode.i, newNode.j));
+            //newNode.set_static_h(config->h_weight * getHValue(newNode.i, newNode.j));
             // newNode.debug();
             newNodeWithWait.set_static_g(angleNodeWithWait.static_g() +
                                          m.g() / curagent.mspeed);
             newNodeWithWait.set_dynamic_g(angleNodeWithWait.dynamic_g());
             newNodeWithWait.Parent  = &angleNodeWithWait;
             newNodeWithWait.optimal = curNode.optimal;
-            newNodeWithWait.set_static_h(
-              config->h_weight *
-              getHValue(newNodeWithWait.i, newNodeWithWait.j));
+            //newNodeWithWait.set_static_h(config->h_weight * getHValue(newNodeWithWait.i, newNodeWithWait.j));
 
             if (angleNode.g() <= angleNode.interval.end) {
                 timer.stop_expansion();
@@ -910,7 +904,7 @@ std::vector<conflict> Realtime_SIPP::CheckConflicts(const Task& task)
                 part += dist - steps;
             }
             double stepi = double(di) / dist;
-            double stepj = double(dj) / dist;
+            //double stepj = double(dj) / dist;
             double curg  = double(k) * 0.1;
             double curi =
               check.i + (curg - check.g()) * di / (cur.g() - check.g());
@@ -928,13 +922,8 @@ std::vector<conflict> Realtime_SIPP::CheckConflicts(const Task& task)
                     break;
                 }
                 curi += stepi;
-                curj += stepj;
-                curg += 0.1;
-                conf.i = curi;
-                conf.j = curj;
-                conf.g = curg;
-                positions[i].push_back(conf);
-                k++;
+    std::vector<RTNode>                   hppath;
+    RTSearchResult                       sresult;
             }
         }
         if (double(k - 1) * 0.1 < sresult.pathInfo[i].sections.back().g()) {
@@ -1003,3 +992,39 @@ void Realtime_SIPP::update_focal(double cost)
                      focal_heuristic.get_value(it->i, it->j, curagent.id_num)));
     }
 }
+#ifdef DEBUG
+    void Realtime_SIPP::debug_h(const RTNode& curNode, const Map& map){
+        std::vector<double> static_h;
+        std::vector<double> dynamic_h;
+        unsigned int vec_size = map.width*map.height;
+        static_h.resize(vec_size);
+        dynamic_h.resize(vec_size);
+        for (int width = 0; width < map.width; width++){
+            for (int height = 0; height < map.height; height++){
+                size_t ind = width + map.width*height;
+                RTNode node = RTNode(width, height);
+                static_h[ind] = node.static_h();
+                dynamic_h[ind] = node.dynamic_h();
+            } 
+        }    
+        hjson[std::to_string(curNode.g()) + ":static_h"] = static_h; 
+        hjson[std::to_string(curNode.g()) + ":dynamic_h"] = dynamic_h;
+    }
+
+    void Realtime_SIPP::debug_h_to_file(const std::string & filename){
+        std::ofstream o(filename);
+        o << std::setw(4) << hjson << std::endl;
+    }
+#else
+    void Realtime_SIPP::debug_h(const RTNode& curNode, const Map& map){
+        while(false){
+            (void)(curNode);
+            (void)(map);
+        }
+    }
+    void Realtime_SIPP::debug_h_to_file(const std::string & filename){
+        while(false){
+            (void)(filename);
+        };
+    }
+#endif

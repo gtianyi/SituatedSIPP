@@ -34,6 +34,7 @@ set( HEADER_FILES
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.hpp
      situatedSIPP/learningAlgorithms/PlrtaLearning.hpp
      structs.h
+     json.hpp
      constraints.h )
 
 add_executable(ssipp ${SOURCE_FILES} ${HEADER_FILES} )

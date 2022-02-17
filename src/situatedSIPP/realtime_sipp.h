@@ -7,6 +7,7 @@
 #include "learningAlgorithms/noLearning.hpp"
 #include "structs.h"
 #include <boost/functional/hash.hpp>
+#include "../json.hpp"
 
 SearchResult rtsr2sr(const RTSearchResult& rtsr);
 
@@ -44,6 +45,7 @@ public:
     std::list<RTNode>                     lppath;
     std::vector<RTNode>                   hppath;
     RTSearchResult                       sresult;
+    
 
 private:
     RTTimer timer;
@@ -68,4 +70,7 @@ private:
                        std::shared_ptr<ExpansionAlgorithm<Realtime_SIPP>>>
       map_configStringToExpansionModule{
         {"astar", std::make_shared<Astar<Realtime_SIPP>>()}};
+    nlohmann::json hjson; //json for history of h
+    void debug_h(const RTNode& curNode, const Map& map);
+    void debug_h_to_file(const std::string & filename);
 };
