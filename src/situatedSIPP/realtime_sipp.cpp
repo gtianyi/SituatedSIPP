@@ -334,6 +334,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         timer.resume_learning();
         learningModulePtr->learn(open, close);
         timer.stop_learning();
+
+        RTNode::clear_parents();
         // decision-making phase
         // 1) commit the the toplevel action that would lead to the best search
         // frontier node
@@ -585,14 +587,11 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
             timer.resume_expansion();
             newNode.heading = calcHeading(curNode, newNode);
             angleNode = curNode; // the same state, but with extended g-value
-            angleNode.debug();
-            m.debug();
 
             angleNode.set_static_g(
               angleNode.static_g() +
               getRCost(angleNode.heading, newNode.heading) +
               config->additionalwait);
-            angleNode.debug();
             newNode.set_static_g(angleNode.static_g() +
                                  m.g() / curagent.mspeed);
             newNode.set_dynamic_g(angleNode.dynamic_g());
@@ -600,7 +599,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
             newNode.optimal = curNode.optimal;
             //newNode.set_static_h(config->h_weight * getHValue(newNode.i, newNode.j));
             newNode.debug();
-            if (angleNode.g() <= angleNode.interval.end) {
+            if (angleNode.g() <= angleNode.interval.end) { //something seems off
                 timer.stop_expansion();
                 timer.resume_si();
                 intervals =

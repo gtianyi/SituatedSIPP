@@ -202,8 +202,10 @@ public:
   }
 
 
-  void set_parent(RTNode* parent){
-    Parent = parent;
+  void set_parent(RTNode* parent, bool best = true){
+    if (best){
+      Parent = parent;
+    }
     if(parent){
       auto prange = get_parents();
       for (auto prior_parents = prange.first; prior_parents != prange.second; prior_parents++){
@@ -213,6 +215,10 @@ public:
       }
       parents.emplace(*this, *parent);
     }
+  }
+
+  inline static void clear_parents(){
+    parents.clear();
   }
 
  struct std::pair<

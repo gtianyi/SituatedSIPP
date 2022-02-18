@@ -74,10 +74,12 @@
 		<metrictype>euclid</metrictype>
 		<breakingties>g-max</breakingties>
 		<weight>1</weight>
-        <algtype>4</algtype>
-        <fixedlookahead>20</fixedlookahead>
-        <decisionalgorithm>f</decisionalgorithm>
+	<algtype>4</algtype>
+        <fixedlookahead>40</fixedlookahead>
+        <decisionalgorithm>miniminbackup</decisionalgorithm>
         <learningalgorithm>dijkstralearning</learningalgorithm>
+	<timelimit>120.0</timelimit>
+	<steplimit>12800</steplimit>
 	</algorithm>
 	<options>
 		<loglevel>1</loglevel>
