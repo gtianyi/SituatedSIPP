@@ -50,8 +50,6 @@ class RTTimer{
     double elapsed_s()  const{
       //cpu time elapsed in seconds
       double total_time(0);
-      DEBUG_MSG_NO_LINE_BREAK_RED("ELAPSED LONG: ");
-      DEBUG_MSG_RED(expansion_timer.elapsed().user);
       total_time += NANO * static_cast<double>(expansion_timer.elapsed().user);
       total_time += NANO * static_cast<double>(learning_timer.elapsed().user);
       total_time += NANO * static_cast<double>(decision_timer.elapsed().user);
@@ -151,13 +149,13 @@ public:
   void set_zero(){
     this->set_static_g(0.0);
     this->set_dynamic_g(0.0);
-    this->set_dynamic_h(0.0);
+    //this->set_dynamic_h(0.0);
   }
   void set_inf(){
     double inf = std::numeric_limits<double>::infinity();
     this->set_static_g(inf);
     this->set_dynamic_g(0.0);
-    this->set_dynamic_h(0.0);
+    //this->set_dynamic_h(0.0);
   }
   void prune_past() const{
     for (auto it = _dynamic_h.cbegin(); it != _dynamic_h.cend();){

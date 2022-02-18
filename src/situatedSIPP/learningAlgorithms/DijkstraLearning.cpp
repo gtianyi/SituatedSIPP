@@ -25,29 +25,22 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         }
 
         // step 1
-        DEBUG_MSG_RED("Closed List Contents");
         for (const RTNode& closen : close){
-          closen.debug();
           RTNode copy_of_closen = RTNode(closen); 
           //copy_of_closen.set_static_h(0.0);
           copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
         }
         // step 2
-        DEBUG_MSG_RED("Open List Contents");
         for (const RTNode& n: open){
-          n.debug();
           open_sorted_by_h.emplace(n.h(), &n);
         }
         // step 3
         while (!close.empty() && !open_sorted_by_h.empty()){// need the open check?
-          DEBUG_MSG_RED("Closed List Contents");
-          for (const RTNode& closen : close){
-            closen.debug();
-          }
           DEBUG_MSG_RED("Open List Contents");
           for (const std::pair<double, const RTNode *>& element: open_sorted_by_h){
+            if (element.second->h() != element.second->static_h()){
             element.second->debug();
-          }
+          }}
           oit = open_sorted_by_h.begin();
           n = oit->second;
           open_sorted_by_h.erase(oit);
@@ -61,6 +54,8 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
             if (cit != close.end()){
              c =  cost(*n, parent->second) + n->h();
              if (parent->second.h() > c){
+               DEBUG_MSG_RED("Learning: ");
+               parent->second.debug();
                p = std::pair<double, RTNode *>(parent->second.h(), &(parent->second)); // parent prior to updating h
                parent->second.set_dynamic_h(c - parent->second.static_h());  // update h in record
                oit = open_sorted_by_h.find(p);
@@ -71,9 +66,15 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
                  open_sorted_by_h.erase(oit);
                  open_sorted_by_h.emplace(parent->second.h(), &(parent->second));
                }
+                parent->second.debug();
+                DEBUG_MSG_NO_LINE_BREAK("static h");
+                DEBUG_MSG_RED(parent->second.dynamic_h());
+                DEBUG_MSG_RED(parent->second.static_h());
+
              }
             }
           }
         }
+
         //closed.clear();
     };

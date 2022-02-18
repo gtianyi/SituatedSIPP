@@ -13,11 +13,7 @@ public:
 
         // Tianyi note: this goal test might be too much simplified, check
         // AA_SIPP::stpCriterion
-        DEBUG_MSG_RED("Pre findmin");
         auto bestFrontierNode = searchClassPtr->findMin();
-        
-        DEBUG_MSG("goal i, j: " << goal_i << " " << goal_j);
-
         if (curNode.i == goal_i && curNode.j == goal_j) {
             bestFrontierNode = curNode;
         }

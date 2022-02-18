@@ -249,15 +249,21 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     while (true){
         // DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
         //DEBUG_MSG("iteration id " << iterationCounter);
-        DEBUG_MSG("search root i, j, g: " << curNode.i << " " << curNode.j
-                                          << " " << curNode.g());
+        DEBUG_MSG_NO_LINE_BREAK_RED("HPPATH size: ");
+        DEBUG_MSG_RED(hppath.size());
 
         // Tianyi note: this goal test might be too much simplified, check
         // AA_SIPP::stpCriterion
         prior_g = curNode.g();
         debug_h(curNode, map);
         if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
-            DEBUG_MSG("goal reached!");
+            DEBUG_MSG("goal reached yay!");
+            if (curNode.Parent){
+                hppath.push_back(*curNode.Parent);
+                lppath.push_back(*curNode.Parent);
+            }
+            //hppath.push_back(curNode);
+            //lppath.push_back(curNode);      
             gettimeofday(&end, nullptr);
             resultPath.runtime =
               (end.tv_sec - begin.tv_sec) +
@@ -292,7 +298,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         timer.resume_expansion();
         expansionModulePtr->runSearch(curNode, goalNode, map, close, reexpanded,
                                       reexpanded_list, this);
-        if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
+        if (false && curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
+            continue;
             DEBUG_MSG("goal reached!");
             gettimeofday(&end, nullptr);
             resultPath.runtime =
@@ -986,10 +993,10 @@ void Realtime_SIPP::update_focal(double cost)
 }
 
 void Realtime_SIPP::compute_static_h(const Map& map){
-    for (int width = 0; width < map.width; width++){
-        for (int height = 0; height < map.height; height++){
-            RTNode node = RTNode(width, height);
-            node.set_static_h(getHValue(width, height));      
+    for (int column = 0; column < map.width; column++){
+        for (int row = 0; row < map.height; row++){
+            RTNode node = RTNode(row, column);
+            node.set_static_h(getHValue(row, column));      
         }
     }
 }
@@ -1001,7 +1008,7 @@ void Realtime_SIPP::compute_static_h(const Map& map){
         for (int width = 0; width < map.width; width++){
             for (int height = 0; height < map.height; height++){
                 size_t ind = width + map.width*height;
-                RTNode node = RTNode(width, height);
+                RTNode node = RTNode(height, width);
                 static_h[ind] = node.static_h();
             } 
         }    
