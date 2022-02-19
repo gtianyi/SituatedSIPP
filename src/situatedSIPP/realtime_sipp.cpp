@@ -249,8 +249,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     while (true){
         // DEBUG_MSG_NO_LINE_BREAK( "iteration id " << iterationCounter);
         //DEBUG_MSG("iteration id " << iterationCounter);
-        DEBUG_MSG_NO_LINE_BREAK_RED("HPPATH size: ");
-        DEBUG_MSG_RED(hppath.size());
 
         // Tianyi note: this goal test might be too much simplified, check
         // AA_SIPP::stpCriterion
@@ -293,7 +291,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         }
 
         timeval beginOfRealtimeCycle, endOfRealtimeCycle;
-        DEBUG_MSG_RED("Expanding");
         gettimeofday(&beginOfRealtimeCycle, NULL);
         timer.resume_expansion();
         expansionModulePtr->runSearch(curNode, goalNode, map, close, reexpanded,
@@ -337,7 +334,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         }
         // learning phase
         // update the heuristic in closed list
-        DEBUG_MSG_RED("LEARNING");
         timer.resume_learning();
         learningModulePtr->learn(open, close);
         timer.stop_learning();
@@ -347,7 +343,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // 1) commit the the toplevel action that would lead to the best search
         // frontier node
         //
-        DEBUG_MSG_RED("Deciding");
         timer.resume_decision();
         auto bestTLA = decisionModulePtr->backupAndRecordPartialPlan(
           curNode, beginOfRealtimeCycle, endOfRealtimeCycle, curagent.goal_i,
@@ -418,7 +413,6 @@ void Realtime_SIPP::recordToOnlinePath(const RTNode&  rootNode,
           getRCost(sections.back().heading, curagent.goal_heading));
         sections.push_back(add);
     }
-    DEBUG_MSG_RED("Recording to op:");
     /*
     // Something is broken here, not clear the purpose of this
     for (unsigned int i = 1; i < sections.size(); i++) {
@@ -605,7 +599,6 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
             newNode.set_parent(&angleNode);
             newNode.optimal = curNode.optimal;
             //newNode.set_static_h(config->h_weight * getHValue(newNode.i, newNode.j));
-            newNode.debug();
             if (angleNode.g() <= angleNode.interval.end) { //something seems off
                 timer.stop_expansion();
                 timer.resume_si();

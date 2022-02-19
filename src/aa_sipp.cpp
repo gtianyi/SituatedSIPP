@@ -194,8 +194,6 @@ Node AA_SIPP::findMin()
     }
     auto min = *pointer;
     open.get<2>().erase(pointer);
-    DEBUG_MSG_RED("Open Size");
-    DEBUG_MSG_RED(open.size());
     if ((open.size() > 0) && (open.get<0>().begin()->F > cost + CN_EPSILON))
         update_focal(cost);
     return min;
@@ -203,8 +201,7 @@ Node AA_SIPP::findMin()
 
 void AA_SIPP::addOpen(Node& newNode)
 {
-    DEBUG_MSG_RED("adding:");
-    newNode.debug();
+
     auto range     = open.get<1>().equal_range(boost::make_tuple<int, int, int>(
       newNode.i, newNode.j, newNode.interval_id));
     auto it        = range.first;
@@ -222,8 +219,6 @@ void AA_SIPP::addOpen(Node& newNode)
             dominated = true;
         } else if ((newNode.g + getRCost(it->heading, newNode.heading) -
                     it->g) < CN_EPSILON) {
-            DEBUG_MSG_NO_LINE_BREAK_RED("Dominates: ");
-            it->debug();
             open.get<1>().erase(it);
             range = open.get<1>().equal_range(boost::make_tuple<int, int, int>(
               newNode.i, newNode.j, newNode.interval_id));
@@ -233,8 +228,7 @@ void AA_SIPP::addOpen(Node& newNode)
         }
         it++;
     }
-    DEBUG_MSG_NO_LINE_BREAK_RED("Dominated: ");
-    DEBUG_MSG_RED(dominated);
+
     if (!dominated) {
         open.insert(newNode);
         if (config->use_focal) {
@@ -498,7 +492,6 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
 #endif
     close.clear();
     open.clear();
-    DEBUG_MSG_RED("Reach findPath");
     constraints->use_likhachev = config->use_likhachev;
     ResultPathInfo resultPath;
     constraints->resetSafeIntervals(map.width, map.height);
@@ -561,7 +554,7 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
             } else {
                 addOpen(s);
             }
-            debug_open(open);
+            //debug_open(open);
         }
     }
     if (goalNode.g < CN_INFINITY) {

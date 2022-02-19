@@ -46,37 +46,48 @@ steplim = {
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/":   "12800",
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "31300"
     }
+
+def find_or_create(tree, targ):
+    x = tree.find(targ)
+    if x:
+        return x
+    return ET.SubElement(tree, targ)
+
     
 def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):    
     tree = ET.parse(config)
     root = tree.getroot()
     alg = root.find("algorithm")
-    learning_algorithm = alg.find("learningalgorithm")
+    aa = find_or_create(alg, "allowanyangle")
+    aa.text = "false"
+    conn = find_or_create(alg, "connectedness")
+    conn.text = "3"
+    learning_algorithm = find_or_create(alg, "learningalgorithm")
     learning_algorithm.text = learning
-    look = alg.find("fixedlookahead")
+    look = alg.find_or_create(alg, "fixedlookahead")
     look.text = lookahead
-    dyn = ET.SubElement(alg, 'dynmode')
+    dyn = find_or_create(alg, 'dynmode')
     dyn.text = dm
-    decision = alg.find("decisionalgorithm")
+    decision = find_or_create(alg, "decisionalgorithm")
     decision.text = dec
     #tl = ET.SubElement(alg, "timelimit")
-    tl = alg.find("timelimit")
+    tl = find_or_create(alg, "timelimit")
     tl.text = timeout
-    sl = ET.SubElement(alg, "steplimit")
+    sl = find_or_create(alg, "steplimit")
     sl.text = steplimit
-    ea = ET.SubElement(alg, "expansionalgorithm")
+    ea = find_or_create(alg, "expansionalgorithm")
     ea.text = exp
-    ea = ET.SubElement(alg, "issituated")
+    ea = find_or_create(alg, "issituated")
     ea.text = "true"
-    num_int = ET.SubElement(alg, "maxnumofintervalspermove")
+    num_int = find_or_create(alg, "maxnumofintervalspermove")
     num_int.text = ni
     if (uw != "NA"):
-        iuw = ET.SubElement(alg, "isunitwaitrepresentation")
+        iuw = find_or_create(alg, "isunitwaitrepresentation")
         iuw.text = "true"
-        u_w = ET.SubElement(alg, "unitwaitduration")
+        u_w = find_or_create(alg, "unitwaitduration")
         u_w.text = uw
     else:
-        iuw = ET.SubElement(alg, "isunitwaitrepresentation")
+        iuw = find_or_create(alg, "isunitwaitrepresentation")
         iuw.text = "false"
     identity = "_".join([config.split("/")[-1].replace(".xml", ""), task.split("/")[-1].replace(".xml", ""), lookahead, learning, dm, dec, exp, uw, ni])
     os.mkdir(output_folder + identity)

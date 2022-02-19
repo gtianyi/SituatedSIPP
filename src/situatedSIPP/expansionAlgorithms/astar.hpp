@@ -16,9 +16,6 @@ public:
         while (!searchClassPtr->stopCriterion(curNode, goalNode) && curExpansion < searchClassPtr->lookaheadBudget) {
             curExpansion++;
             curNode = searchClassPtr->findMin();
-            DEBUG_MSG("  current expansion "
-                      << curExpansion << " expandNode i, j, g: " << curNode.i
-                      << " " << curNode.j << " " << curNode.g());
             auto range = close.equal_range(curNode.i * map.width + curNode.j);
             for (auto it = range.first; it != range.second; it++) {
                 if (it->second.interval_id ==
@@ -59,8 +56,7 @@ public:
                         searchClassPtr->addOpen(s);
                     }
                 } else {
-                    DEBUG_MSG("    valid successor node " << s.i << " " << s.j
-                                                          << " " << s.g());
+                    
                     searchClassPtr->addOpen(s);
                     //DEBUG_MSG("    open size " << open.size());
                 }

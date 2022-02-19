@@ -75,11 +75,13 @@
 		<breakingties>g-max</breakingties>
 		<weight>1</weight>
 	<algtype>4</algtype>
-        <fixedlookahead>40</fixedlookahead>
+        <fixedlookahead>32</fixedlookahead>
         <decisionalgorithm>miniminbackup</decisionalgorithm>
         <learningalgorithm>dijkstralearning</learningalgorithm>
-	<timelimit>120.0</timelimit>
 	<steplimit>12800</steplimit>
+	<issituated>true</issituated>
+	<isunitwaitrepresentation>false</isunitwaitrepresentation>
+	<maxnumofintervalspermove>1</maxnumofintervalspermove>
 	</algorithm>
 	<options>
 		<loglevel>1</loglevel>

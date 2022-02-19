@@ -10,10 +10,10 @@
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
 		<algtype>4</algtype>
-		<fixedlookahead>10</fixedlookahead>
+		<fixedlookahead>2</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
-		<learningalgorithm>nolearning</learningalgorithm>
+		<learningalgorithm>plrtalearning</learningalgorithm>
 	</algorithm>
 	<options>
 		<loglevel>2</loglevel>

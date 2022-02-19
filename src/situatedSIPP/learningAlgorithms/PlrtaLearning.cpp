@@ -25,29 +25,17 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
 
 
         // step 1
-        DEBUG_MSG_RED("Closed List Contents");
         for (const RTNode& closen : close){
             RTNode copy_of_closen = RTNode(closen); 
-            closen.debug();
             //copy_of_closen.set_static_h(std::numeric_limits<double>::infinity());
             copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
         }
         // step 2
-        DEBUG_MSG_RED("Open List Contents");
         for (const RTNode& n: open){
-          n.debug();
           open_sorted_by_h.emplace(n.h(), &n);
         }
         // step 3
         while (!close.empty() && !open_sorted_by_h.empty()){// need the open check?
-          DEBUG_MSG_RED("Closed List Contents");
-          for (const RTNode& closen : close){
-            closen.debug();
-          }
-          DEBUG_MSG_RED("Open List Contents");
-          for (const std::pair<double, const RTNode *>& element: open_sorted_by_h){
-            element.second->debug();
-          }
           oit = open_sorted_by_h.begin();
           n = oit->second;
           open_sorted_by_h.erase(oit);
@@ -59,8 +47,6 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
             cit = close.find(*(n->Parent));
             if (cit != close.end()){
               bool changed = false;
-              DEBUG_MSG_RED("Cost");
-              DEBUG_MSG_RED(cost(*n, *(n->Parent)));
               c =  cost(*n, *(n->Parent)) + n->static_h();
               if (n->Parent->static_h() > c){
                 p = std::pair<double, RTNode *>(n->Parent->h(), n->Parent); // parent prior to updating h
@@ -83,10 +69,6 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
                   }
                 }
               }   
-          DEBUG_MSG_RED("Learning Parent");
-          n->Parent->debug();
-          DEBUG_MSG_RED("Learning Child");
-          n->debug();
           }
         }
         //closed.clear();
