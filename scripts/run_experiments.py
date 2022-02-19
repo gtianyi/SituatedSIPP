@@ -64,7 +64,7 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     conn.text = "3"
     learning_algorithm = find_or_create(alg, "learningalgorithm")
     learning_algorithm.text = learning
-    look = alg.find_or_create(alg, "fixedlookahead")
+    look = find_or_create(alg, "fixedlookahead")
     look.text = lookahead
     dyn = find_or_create(alg, 'dynmode')
     dyn.text = dm
