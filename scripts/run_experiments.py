@@ -59,7 +59,8 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
     dyn.text = dm
     decision = alg.find("decisionalgorithm")
     decision.text = dec
-    tl = ET.SubElement(alg, "timelimit")
+    #tl = ET.SubElement(alg, "timelimit")
+    tl = alg.find("timelimit")
     tl.text = timeout
     sl = ET.SubElement(alg, "steplimit")
     sl.text = steplimit
@@ -110,11 +111,11 @@ def run_commands(commands, server, bar, lock):
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = [ "32"]
-learnings = ["plrtalearning", "dijkstralearning"]
+lookaheads = ["4", "8", "16", "32", "64", "128"]
+learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
-unitwait = ["NA"]
+unitwait = ["0.1", "0.5"]
 numinterval = ["1"]
 dynmode = ["0"]
 print("Generating experiement files and folders.")
