@@ -65,7 +65,7 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
               changed = true;
               }
             c = n->dynamic_g() + n->dynamic_h() - parent.dynamic_g();
-            if (c < get_dynamic_h(parent)){
+            if ( (c < get_dynamic_h(parent))){
                 set_dynamic_h(parent, c);
                 changed = true;
               }
