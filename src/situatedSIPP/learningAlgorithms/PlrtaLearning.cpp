@@ -25,17 +25,20 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
 
 
         // step 1
+        //DEBUG_MSG("CLOSED");
         for (const RTNode& closen : close){
-            RTNode copy_of_closen = RTNode(closen); 
-            //copy_of_closen.set_static_h(std::numeric_limits<double>::infinity());
-            copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
+            //closen.debug();
+            set_static_h(closen.i, closen.j, std::numeric_limits<double>::infinity(), false);
+            set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
         }
         // step 2
+        //DEBUG_MSG("OPEN");
         for (const RTNode& n: open){
+          //n.debug();
           open_sorted_by_h.emplace(n.h(), &n);
         }
         // step 3
-        while (!close.empty() && !open_sorted_by_h.empty()){// need the open check?
+        while (!open_sorted_by_h.empty()){// need the open check?
           oit = open_sorted_by_h.begin();
           n = oit->second;
           open_sorted_by_h.erase(oit);
@@ -43,33 +46,44 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
           if (cit != close.end()){
             close.erase(cit);
           }
-          if (n->Parent != nullptr){
-            cit = close.find(*(n->Parent));
-            if (cit != close.end()){
-              bool changed = false;
-              c =  cost(*n, *(n->Parent)) + n->static_h();
-              if (n->Parent->static_h() > c){
-                p = std::pair<double, RTNode *>(n->Parent->h(), n->Parent); // parent prior to updating h
-                n->Parent->set_static_h(c);  // update h in record
+          auto prange = n->get_parents();
+          for (auto parentage = prange.first; parentage != prange.second; parentage++){
+            auto parent = parentage->second;
+            //cit = close.find(parentage->second); 
+            //cit->debug();
+            bool changed = false;
+            c =  cost(*n, parent) + n->static_h();
+            /*
+            DEBUG_MSG("calculation:");
+            DEBUG_MSG(c);
+            DEBUG_MSG(get_static_h(parent));
+            */
+            if (get_static_h(parent) > c){
+              set_static_h(parent.i, parent.j, c);  // update h in record
+              //DEBUG_MSG(parent.static_h());
+              //DEBUG_MSG(" ");
+
+              changed = true;
+              }
+            c = n->dynamic_g() + n->dynamic_h() - parent.dynamic_g();
+            if (c < get_dynamic_h(parent)){
+                set_dynamic_h(parent, c);
                 changed = true;
+              }
+            if (changed){
+              p = std::pair<double, RTNode *>(parent.h(), &parent); // parent prior to updating h
+              oit = open_sorted_by_h.find(p);
+              if(oit == open_sorted_by_h.end()){
+                open_sorted_by_h.emplace(parent.h(), &parent);
                 }
-              c = n->dynamic_g() + n->dynamic_h() - n->Parent->dynamic_g();
-              if (c < n->Parent->dynamic_h()){
-                  n->Parent->set_dynamic_h(c);
-                  changed = true;
+              else{
+                open_sorted_by_h.erase(oit);
+                open_sorted_by_h.emplace(parent.h(), &parent);
                 }
-              if (changed){
-                oit = open_sorted_by_h.find(p);
-                if(oit == open_sorted_by_h.end()){
-                  open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
-                  }
-                else{
-                  open_sorted_by_h.erase(oit);
-                  open_sorted_by_h.emplace(n->Parent->h(), n->Parent);
-                  }
-                }
-              }   
+              }
+              
           }
         }
+        new_static_h.clear();
         //closed.clear();
     };

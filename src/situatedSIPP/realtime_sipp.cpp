@@ -254,6 +254,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // AA_SIPP::stpCriterion
         prior_g = curNode.g();
         debug_h(curNode, map);
+        curNode.debug();
         if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
             DEBUG_MSG("goal reached yay!");
             if (curNode.Parent){
@@ -334,6 +335,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         }
         // learning phase
         // update the heuristic in closed list
+        //RTNode::debug_parents();
         timer.resume_learning();
         learningModulePtr->learn(open, close);
         timer.stop_learning();

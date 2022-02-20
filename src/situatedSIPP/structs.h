@@ -133,10 +133,10 @@ public:
   double dynamic_g() const{
       return d_g;
   }
-  void set_static_h(double val){
+  void set_static_h(double val) const{
     _static_h[static_key()] = val;
   }
-  void set_dynamic_h(double val){
+  void set_dynamic_h(double val) const{
     _dynamic_h[*this] = val;
   }
   void set_static_g(double val){
@@ -190,9 +190,9 @@ public:
   bool operator==(const RTNode& other) const{
         return (i == other.i) &&
                (j == other.j) &&
-               (Parent == other.Parent) &&
-               (s_g == other.static_g()) &&
-               (d_g == other.dynamic_g());
+               //(s_g == other.static_g()) &&
+               //(d_g == other.dynamic_g());
+               (g() == other.g());
   }
 
   void static set_dynmode(int dm){
@@ -214,6 +214,17 @@ public:
       parents.emplace(*this, *parent);
     }
   }
+  
+  static void debug_parents(){
+    DEBUG_MSG_RED("Dumping Parentage");
+    for (auto p: parents){
+      DEBUG_MSG_RED("Parent.");
+      p.second.debug();
+      DEBUG_MSG_RED("Child.");
+      p.first.debug();
+    }
+    DEBUG_MSG_RED("");
+  }
 
   inline static void clear_parents(){
     parents.clear();
@@ -234,13 +245,13 @@ public:
       if (RTNode::dynmode == 0){
         boost::hash_combine(seed, i);
         boost::hash_combine(seed, j);
-        boost::hash_combine(seed, Parent);
+        //boost::hash_combine(seed, Parent);
         boost::hash_combine(seed, s_g + d_g);
       }
       else if (RTNode::dynmode == 1){
         boost::hash_combine(seed, i);
         boost::hash_combine(seed, j);
-        boost::hash_combine(seed, interval.begin);
+        //boost::hash_combine(seed, interval.begin);
       }
       return seed;
   }
