@@ -75,6 +75,7 @@ private:
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
   static std::unordered_multimap<RTNode, RTNode, boost::hash<RTNode>> parents;
   static int dynmode; // 0 location, parent, g; 1 location, interval end
+  static bool isUnitWaitRepresentation;
   static std::string expansionOrderStr;
 
   bool compareNodesF(const RTNode& n1,
@@ -158,16 +159,36 @@ public:
     //this->set_dynamic_h(0.0);
   }
   void prune_past() const{
-    for (auto it = _dynamic_h.cbegin(); it != _dynamic_h.cend();){
-      if (it->first.g() < g()){
-        it = _dynamic_h.erase(it);
+    if (isUnitWaitRepresentation){
+      for (auto it = _dynamic_h.cbegin(); it != _dynamic_h.cend();){
+        if (it->first.g() < g()){
+          it = _dynamic_h.erase(it);
+        }
+        else{
+          ++it;
+        }
       }
-      else{
-        ++it;
+    }
+    else{
+      for (auto it = _dynamic_h.cbegin(); it != _dynamic_h.cend();){
+        if (it->first.interval.end < g()){
+          it = _dynamic_h.erase(it);
+        }
+        else{
+          ++it;
+        }
       }
     }
   }
-
+  
+  static void dump_dh(){
+        DEBUG_MSG("DUMPING DH");
+        for (auto it: _dynamic_h){
+            it.first.debug();
+            DEBUG_MSG(it.second);
+            DEBUG_MSG("");
+        }
+    }
  
 
   bool operator< (const RTNode& rhs) const {
@@ -188,17 +209,30 @@ public:
   }
 
   bool operator==(const RTNode& other) const{
-        return (i == other.i) &&
-               (j == other.j) &&
-               //(s_g == other.static_g()) &&
-               //(d_g == other.dynamic_g());
-               (g() == other.g());
+        bool res = (i == other.i) && (j == other.j);
+        if (RTNode::isUnitWaitRepresentation){
+          return res && (g() == other.g());
+        }
+       
+        return res && (interval.end == other.interval.end);
+  }
+
+  /*
+  std::pair<int, std::pair<int, std::pair<double, double>>> dynamic_key() const{
+    
+  }
+  */
+  bool static getisUnitWaitRepresentation(){
+    return isUnitWaitRepresentation;
   }
 
   void static set_dynmode(int dm){
     RTNode::dynmode = dm;
   }
 
+  void static set_isUnitWaitRepresentation(bool uwr){
+    RTNode::isUnitWaitRepresentation = uwr;
+  }
 
   void set_parent(RTNode* parent, bool best = true){
     if (best){
@@ -242,19 +276,14 @@ public:
 
   std::size_t hash() const{
       std::size_t seed = 0;
-      if (RTNode::dynmode == 0){
-        boost::hash_combine(seed, i);
-        boost::hash_combine(seed, j);
-        //boost::hash_combine(seed, Parent);
+      boost::hash_combine(seed, i);
+      boost::hash_combine(seed, j);
+      if (RTNode::isUnitWaitRepresentation){
         boost::hash_combine(seed, s_g + d_g);
-      }
-      else if (RTNode::dynmode == 1){
-        boost::hash_combine(seed, i);
-        boost::hash_combine(seed, j);
-        //boost::hash_combine(seed, interval.begin);
       }
       return seed;
   }
+  
   void debug() const{
         DEBUG_MSG_NO_LINE_BREAK_RED(i);
         DEBUG_MSG_NO_LINE_BREAK_RED(" ");

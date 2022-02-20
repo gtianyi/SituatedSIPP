@@ -12,57 +12,61 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         // reference code https://github.com/gtianyi/rationalRealtimeSearch/blob/master/cpp/learningAlgorithms/Dijkstra.h
         // keep track of heuristic values somewhere.
         std::unordered_set<RTNode>::iterator cit;
-        const RTNode * n = nullptr;
         double c = NAN;
-        std::set<std::pair<double, const RTNode *>>::iterator oit;
-        std::set<std::pair<double, const RTNode *>,
-                 std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
-        std::pair<double, const RTNode *> p;
+        std::multimap<double, const RTNode&> open_sorted_by_h;
+        std::pair<double, RTNode> p;
         std::unordered_set<RTNode, boost::hash<RTNode>> close;
-
         for (const std::pair<int, RTNode> element: closed){
           close.insert(element.second);
         }
-
         // step 1
         for (const RTNode& closen : close){
-          RTNode copy_of_closen = RTNode(closen); 
-          //copy_of_closen.set_static_h(0.0);
-          copy_of_closen.set_dynamic_h(std::numeric_limits<double>::infinity());
+          set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
         }
         // step 2
         for (const RTNode& n: open){
-          open_sorted_by_h.emplace(n.h(), &n);
+          open_sorted_by_h.emplace(n.h(), n);
         }
         // step 3
+
         while (!close.empty() && !open_sorted_by_h.empty()){// need the open check?
-          oit = open_sorted_by_h.begin();
-          n = oit->second;
+          auto oit = open_sorted_by_h.begin();
+          const RTNode& n = oit->second;
+          //DEBUG_MSG("child");
+          //n.debug();
           open_sorted_by_h.erase(oit);
-          cit = close.find(*n);  // erase if in closed
+          cit = close.find(n);  // erase if in closed
           if (cit != close.end()){
             close.erase(cit);
           }
-          auto prange = n->get_parents();
-          for (auto parent = prange.first; parent != prange.second; parent++){
-            cit = close.find(parent->second);
-            if (cit != close.end()){
-             c =  cost(*n, parent->second) + n->h();
-             if (parent->second.h() > c){
-               p = std::pair<double, RTNode *>(parent->second.h(), &(parent->second)); // parent prior to updating h
-               parent->second.set_dynamic_h(c - parent->second.static_h());  // update h in record
-               oit = open_sorted_by_h.find(p);
-               if(oit == open_sorted_by_h.end()){
-                 open_sorted_by_h.emplace(parent->second.h(), &(parent->second));
-               }
-               else{
-                 open_sorted_by_h.erase(oit);
-                 open_sorted_by_h.emplace(parent->second.h(), &(parent->second));
-               }
-             }
+          //DEBUG_MSG("parents");
+          auto prange = n.get_parents();
+          for (auto parentage = prange.first; parentage != prange.second; parentage++){
+            auto parent = parentage->second;
+            //parent.debug();
+            c =  cost(n, parent) + n.h();
+            if ((close.find(parent) != close.end()) && (parent.static_h() + get_dynamic_h(parent) > c)){
+              //p = std::pair<double, RTNode>(parent.h(), parent); // parent prior to updating h
+              auto orange = open_sorted_by_h.equal_range(parent.h());
+              for (oit = orange.first; oit != orange.second; oit++){
+                if (oit->second == parent){
+                  oit = open_sorted_by_h.erase(oit);
+                  break;
+                }
+              }
+              set_dynamic_h(parent, c - parent.static_h());
+              open_sorted_by_h.emplace(parent.h(), parent);
             }
+            /*
+            DEBUG_MSG("OPEN_SORTED_BY_H:");
+              for (auto n: open_sorted_by_h){
+                DEBUG_MSG(n.first);
+                n.second.debug();
+              }
+            */
           }
         }
-
+        //dump_ndh();
+        new_dynamic_h.clear();
         //closed.clear();
     };

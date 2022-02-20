@@ -15,8 +15,7 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
         const RTNode * n = nullptr;
         double c = NAN;
         std::set<std::pair<double, const RTNode *>>::iterator oit;
-        std::set<std::pair<double, const RTNode *>,
-        std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
+        std::set<std::pair<double, const RTNode *>,std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
         std::pair<double, const RTNode *> p;
         std::unordered_set<RTNode, boost::hash<RTNode>> close;
         for (const std::pair<int, RTNode> element: closed){
@@ -85,5 +84,6 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
           }
         }
         new_static_h.clear();
+        new_dynamic_h.clear();
         //closed.clear();
     };

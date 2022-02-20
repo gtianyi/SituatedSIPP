@@ -22,7 +22,11 @@ public:
     }
 
     void set_static_h(int i, int j, double value, bool commit = true){
-        auto key = std::pair<int, int>(i, j); 
+        auto key = std::pair<int, int>(i, j);
+        auto loc = new_static_h.find(key);
+        if (loc != new_static_h.end()){
+            new_static_h.erase(loc);
+        } 
         new_static_h.emplace(key, value);
         if (commit){
             RTNode n = RTNode(i, j);
@@ -39,6 +43,10 @@ public:
     }
 
     void set_dynamic_h(const RTNode& n, double value, bool commit = true){
+        auto loc = new_dynamic_h.find(n);
+        if (loc != new_dynamic_h.end()){
+            new_dynamic_h.erase(loc);
+        }
         new_dynamic_h.emplace(n, value);
         if (commit){
             n.set_dynamic_h(value);

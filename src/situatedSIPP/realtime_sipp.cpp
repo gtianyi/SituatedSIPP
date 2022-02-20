@@ -35,6 +35,7 @@ Realtime_SIPP::Realtime_SIPP(const Config& config_)
       map_configStringToExpansionModule[config->expansionalgorithm];
     RTNode::set_expansion_order(config->expansionalgorithm);
     RTNode::set_dynmode(config->dynmode);
+    RTNode::set_isUnitWaitRepresentation(config->isUnitWaitRepresentation);
     lookaheadBudget = config->fixedlookahead;
 }
 
@@ -203,6 +204,8 @@ std::unordered_map<std::pair<int, int>, double,
 std::unordered_map<RTNode, double, boost::hash<RTNode>> RTNode::_dynamic_h;
 std::unordered_multimap<RTNode, RTNode, boost::hash<RTNode>> RTNode::parents;
 int                                                     RTNode::dynmode = 0;
+bool                                                     RTNode::isUnitWaitRepresentation = false;
+
 std::string RTNode::expansionOrderStr = "Not Set";
 
 bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
@@ -255,6 +258,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         prior_g = curNode.g();
         debug_h(curNode, map);
         curNode.debug();
+        DEBUG_MSG(RTNode::getisUnitWaitRepresentation());
         if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
             DEBUG_MSG("goal reached yay!");
             if (curNode.Parent){
