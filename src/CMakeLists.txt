@@ -13,6 +13,7 @@ set( SOURCE_FILES
      situatedSIPP/learningAlgorithms/PlrtaLearning.cpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.cpp
      constraints.cpp
+     situatedSIPP/subintervals.cpp
      tracy/TracyClient.cpp )
 
 set( HEADER_FILES
@@ -33,6 +34,7 @@ set( HEADER_FILES
      situatedSIPP/learningAlgorithms/DijkstraLearning.hpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.hpp
      situatedSIPP/learningAlgorithms/PlrtaLearning.hpp
+     situatedSIPP/subintervals.hpp
      structs.h
      json.hpp
      constraints.h )
