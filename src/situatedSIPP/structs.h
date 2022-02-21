@@ -74,8 +74,7 @@ private:
   static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_h;
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
   static std::unordered_multimap<RTNode, RTNode, boost::hash<RTNode>> parents;
-  static int dynmode; // 0 location, parent, g; 1 location, interval end
-  static bool isUnitWaitRepresentation;
+  static int dynmode; // 0 location, g; 1 location, interval end, 2
   static std::string expansionOrderStr;
 
   bool compareNodesF(const RTNode& n1,
@@ -159,7 +158,7 @@ public:
     //this->set_dynamic_h(0.0);
   }
   void prune_past() const{
-    if (isUnitWaitRepresentation){
+    if (dynmode == 0){
       for (auto it = _dynamic_h.cbegin(); it != _dynamic_h.cend();){
         if (it->first.g() < g()){
           it = _dynamic_h.erase(it);
@@ -210,7 +209,7 @@ public:
 
   bool operator==(const RTNode& other) const{
         bool res = (i == other.i) && (j == other.j);
-        if (RTNode::isUnitWaitRepresentation){
+        if (dynmode == 0){
           return res && (g() == other.g());
         }
        
@@ -222,17 +221,12 @@ public:
     
   }
   */
-  bool static getisUnitWaitRepresentation(){
-    return isUnitWaitRepresentation;
-  }
 
   void static set_dynmode(int dm){
     RTNode::dynmode = dm;
   }
 
-  void static set_isUnitWaitRepresentation(bool uwr){
-    RTNode::isUnitWaitRepresentation = uwr;
-  }
+ 
 
   void set_parent(RTNode* parent, bool best = true){
     if (best){
@@ -278,7 +272,7 @@ public:
       std::size_t seed = 0;
       boost::hash_combine(seed, i);
       boost::hash_combine(seed, j);
-      if (RTNode::isUnitWaitRepresentation){
+      if (dynmode == 0){
         boost::hash_combine(seed, s_g + d_g);
       }
       return seed;
