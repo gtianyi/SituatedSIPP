@@ -103,8 +103,10 @@ public:
   RTNode(int _i=-1, int _j=-1, double initial_static_g = 0.0, double initial_dynamic_g = 0.0, int h_id=0):i(_i),j(_j),s_g(initial_static_g),d_g(initial_dynamic_g),Parent(nullptr),heading_id(h_id){
       optimal = false;
       if (dynmode == 2){
-        _subinterval_dynamic_h[*this] = SetOfSubIntervals(interval.begin, interval.end);
-        _subinterval_dynamic_h[*this].add(interval.begin, interval.end, std::numeric_limits<double>::infinity(), 0.0);
+        if (_subinterval_dynamic_h.find(*this) == _subinterval_dynamic_h.end()){
+          _subinterval_dynamic_h[*this] = SetOfSubIntervals(interval.begin, interval.end);
+        }
+        //_subinterval_dynamic_h[*this].add(interval.begin, interval.end, std::numeric_limits<double>::infinity(), 0.0);
       }
   }
   ~RTNode(){ 
@@ -149,6 +151,15 @@ public:
   void set_static_h(double val) const{
     _static_h[static_key()] = val;
   }
+
+  void prep_dijkstra() const{
+    if (_subinterval_dynamic_h[*this].subintervals.empty()){
+      set_dynamic_h(0.0);
+    }
+  }
+  void debug_si() const{
+    _subinterval_dynamic_h[*this].debug();
+  }
   void set_dynamic_h(double h) const{
     if (dynmode == 2){
       _subinterval_dynamic_h[*this].add(interval.begin, interval.end, h, 0.0);
@@ -158,12 +169,18 @@ public:
 
   void clear_dynamic_h() const{
     _subinterval_dynamic_h[*this].subintervals.clear();
-    _subinterval_dynamic_h[*this].add(interval.begin, interval.end, std::numeric_limits<double>::infinity(), 0.0);
+    //_subinterval_dynamic_h[*this].add(interval.begin, interval.end, std::numeric_limits<double>::infinity(), 0.0);
   }
 
-  void add_dynamic_h(const RTNode& child, double offset){
+  void add_dynamic_h(const RTNode& child, double offset, double dh){
+    std::vector<double> toadd;
     for (const auto& subinterval: _subinterval_dynamic_h[child].subintervals){
-      _subinterval_dynamic_h[*this].add(subinterval.beginning, subinterval.ending, subinterval.h, offset);
+      toadd.emplace_back(subinterval.beginning);
+      toadd.emplace_back(subinterval.ending);
+      toadd.emplace_back(dh);
+    }
+    for (int i = 0; i<toadd.size(); i += 3){
+      _subinterval_dynamic_h[*this].add(toadd[i], toadd[i+1], toadd[i+2], offset);
     }
   }
 

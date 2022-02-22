@@ -11,11 +11,12 @@
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
 		<algtype>4</algtype>
-		<fixedlookahead>1</fixedlookahead>
+		<fixedlookahead>2</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
 		<learningalgorithm>dijkstralearning</learningalgorithm>
-		<isunitwaitrepresentation>true</isunitwaitrepresentation>
+		<isunitwaitrepresentation>false</isunitwaitrepresentation>
+		<dynmode>2</dynmode>
 	</algorithm>
 	<options>
 		<loglevel>2</loglevel>

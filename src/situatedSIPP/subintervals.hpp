@@ -13,6 +13,7 @@ struct SubInterval{
         return (beginning == si.beginning) && (ending == si.ending) && (h == si.h);
     }
     double ht(double t) const;
+    void debug() const;
 };
 
 class SetOfSubIntervals{
@@ -24,4 +25,5 @@ class SetOfSubIntervals{
         void add(double start, double end, double h, double shift);
         double ht(double t) const;
         void prune_expired(double t);
+        void debug() const;
 };
