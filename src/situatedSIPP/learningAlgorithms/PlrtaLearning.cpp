@@ -18,6 +18,8 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
         std::set<std::pair<double, const RTNode *>,std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
         std::pair<double, const RTNode *> p;
         std::unordered_set<RTNode, boost::hash<RTNode>> close;
+        std::unordered_set<RTNode, boost::hash<RTNode>> touched;
+
         for (const std::pair<int, RTNode> element: closed){
           close.insert(element.second);
         }
@@ -26,9 +28,12 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
         // step 1
         //DEBUG_MSG("CLOSED");
         for (const RTNode& closen : close){
-            //closen.debug();
-            set_static_h(closen.i, closen.j, std::numeric_limits<double>::infinity(), false);
-            set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
+          //closen.debug();
+          set_static_h(closen.i, closen.j, std::numeric_limits<double>::infinity(), false);
+          if (RTNode::get_dynmode() == 2){
+            closen.clear_dynamic_h();
+          }
+          set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
         }
         // step 2
         //DEBUG_MSG("OPEN");
@@ -44,6 +49,9 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
           cit = close.find(*n);  // erase if in closed
           if (cit != close.end()){
             close.erase(cit);
+          }
+          if (RTNode::get_dynmode() == 2){ 
+            n->prep_dijkstra();
           }
           auto prange = n->get_parents();
           for (auto parentage = prange.first; parentage != prange.second; parentage++){
@@ -65,22 +73,27 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
               changed = true;
               }
             c = n->dynamic_g() + n->dynamic_h() - parent.dynamic_g();
-            if ( (c < get_dynamic_h(parent))){
+            if ((c < get_dynamic_h(parent))){
+              if (RTNode::get_dynmode() == 2){
+                parent.add_dynamic_h(*n, cost(*n, parent), c);
+                changed = touched.emplace(parent).second;
+              }
+              else{
                 set_dynamic_h(parent, c);
                 changed = true;
               }
-            if (changed){
-              p = std::pair<double, RTNode *>(parent.h(), &parent); // parent prior to updating h
-              oit = open_sorted_by_h.find(p);
-              if(oit == open_sorted_by_h.end()){
-                open_sorted_by_h.emplace(parent.h(), &parent);
+              if (changed){
+                p = std::pair<double, RTNode *>(parent.h(), &parent); // parent prior to updating h
+                oit = open_sorted_by_h.find(p);
+                if(oit == open_sorted_by_h.end()){
+                  open_sorted_by_h.emplace(parent.h(), &parent);
+                  }
+                else{
+                  open_sorted_by_h.erase(oit);
+                  open_sorted_by_h.emplace(parent.h(), &parent);
+                  }
                 }
-              else{
-                open_sorted_by_h.erase(oit);
-                open_sorted_by_h.emplace(parent.h(), &parent);
-                }
-              }
-              
+            }
           }
         }
         new_static_h.clear();

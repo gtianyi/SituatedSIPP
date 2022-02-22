@@ -25,11 +25,9 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         for (const RTNode& closen : close){
           if (RTNode::get_dynmode() == 2){
             closen.clear_dynamic_h();
-            set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
           }
-          else{
-            set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
-          }
+          set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
+          
         }
         // step 2
         DEBUG_MSG("OPEN");
@@ -50,7 +48,9 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
             close.erase(cit);
           }
           //DEBUG_MSG("parents");
-          n.prep_dijkstra();
+          if (RTNode::get_dynmode() == 2){ 
+            n.prep_dijkstra();
+          }
           auto prange = n.get_parents();
           for (auto parentage = prange.first; parentage != prange.second; parentage++){
             auto parent = parentage->second;
@@ -65,15 +65,11 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
             c =  cost(n, parent) + n.h();
             if ((close.find(parent) != close.end()) && (parent.static_h() + get_dynamic_h(parent) > c)){
               if (RTNode::get_dynmode() == 2){
-                DEBUG_MSG("Learning:");
-                n.debug();
-                n.debug_si();
                 parent.add_dynamic_h(n, cost(n, parent), c - parent.static_h());
                 if (touched.emplace(parent).second){
                   open_sorted_by_h.emplace(parent.h(), parent);  
                 }
-                parent.debug();
-                parent.debug_si();
+
               }
               else{
                   //p = std::pair<double, RTNode>(parent.h(), parent); // parent prior to updating h
