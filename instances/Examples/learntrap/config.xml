@@ -6,15 +6,15 @@
 		<rescheduling>random</rescheduling>
 		<startsafeinterval>3</startsafeinterval>
 		<prioritization>fifo</prioritization>
-		<steplimit>100</steplimit>
+		<steplimit>10000</steplimit>
 		<issituated>true</issituated>
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
 		<algtype>4</algtype>
-		<fixedlookahead>2</fixedlookahead>
+		<fixedlookahead>480</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
-		<learningalgorithm>plrtalearning</learningalgorithm>
+		<learningalgorithm>dijkstralearning</learningalgorithm>
 		<isunitwaitrepresentation>false</isunitwaitrepresentation>
 		<dynmode>2</dynmode>
 	</algorithm>

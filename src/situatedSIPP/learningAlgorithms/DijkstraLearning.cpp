@@ -16,7 +16,7 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         std::multimap<double, const RTNode&> open_sorted_by_h;
         std::pair<double, RTNode> p;
         std::unordered_set<RTNode, boost::hash<RTNode>> close;
-        std::unordered_set<RTNode, boost::hash<RTNode>> touched;
+        std::unordered_map<RTNode, std::unordered_set<RTNode,boost::hash<RTNode>>, boost::hash<RTNode>> touched;
         for (const std::pair<int, RTNode> element: closed){
           close.insert(element.second);
         }
@@ -66,7 +66,7 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
             if ((close.find(parent) != close.end()) && (parent.static_h() + get_dynamic_h(parent) > c)){
               if (RTNode::get_dynmode() == 2){
                 parent.add_dynamic_h(n, cost(n, parent), c - parent.static_h());
-                if (touched.emplace(parent).second){
+                if (touched[n].emplace(parent).second){
                   open_sorted_by_h.emplace(parent.h(), parent);  
                 }
 

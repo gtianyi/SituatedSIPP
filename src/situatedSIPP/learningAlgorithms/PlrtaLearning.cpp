@@ -18,7 +18,7 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
         std::set<std::pair<double, const RTNode *>,std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
         std::pair<double, const RTNode *> p;
         std::unordered_set<RTNode, boost::hash<RTNode>> close;
-        std::unordered_set<RTNode, boost::hash<RTNode>> touched;
+        std::unordered_map<RTNode, std::unordered_set<RTNode,boost::hash<RTNode>>, boost::hash<RTNode>> touched;
 
         for (const std::pair<int, RTNode> element: closed){
           close.insert(element.second);
@@ -76,7 +76,7 @@ void PlrtaLearning::learn(RTOPEN_container& open, std::unordered_multimap<int, R
             if ((c < get_dynamic_h(parent))){
               if (RTNode::get_dynmode() == 2){
                 parent.add_dynamic_h(*n, cost(*n, parent), c);
-                changed = touched.emplace(parent).second;
+                changed = touched[*n].emplace(parent).second;
               }
               else{
                 set_dynamic_h(parent, c);
