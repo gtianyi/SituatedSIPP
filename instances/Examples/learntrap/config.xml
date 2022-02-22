@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<root>
+	<algorithm>
+		<allowanyangle>false</allowanyangle>
+		<connectedness>3</connectedness>
+		<rescheduling>random</rescheduling>
+		<startsafeinterval>3</startsafeinterval>
+		<prioritization>fifo</prioritization>
+		<steplimit>100</steplimit>
+		<issituated>true</issituated>
+		<planforturns>false</planforturns>
+		<waitbeforemove>0</waitbeforemove>
+		<algtype>4</algtype>
+		<fixedlookahead>1</fixedlookahead>
+		<expansionalgorithm>astar</expansionalgorithm>
+		<decisionalgorithm>miniminbackup</decisionalgorithm>
+		<learningalgorithm>dijkstralearning</learningalgorithm>
+		<isunitwaitrepresentation>true</isunitwaitrepresentation>
+	</algorithm>
+	<options>
+		<loglevel>2</loglevel>
+		<logpath />
+        <logfilename>tianyilog.xml</logfilename>
+	</options>
+</root>
