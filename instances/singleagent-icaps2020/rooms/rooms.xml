@@ -69,19 +69,7 @@
 			<row>1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 </row>
 		</grid>
 	</map>
-    <algorithm>
-		<allowanyangle>false</allowanyangle>
-		<metrictype>euclid</metrictype>
-		<breakingties>g-max</breakingties>
-		<weight>1</weight>
-	<algtype>4</algtype>
-        <fixedlookahead>32</fixedlookahead>
-        <decisionalgorithm>miniminbackup</decisionalgorithm>
-        <learningalgorithm>dijkstralearning</learningalgorithm>
-	<steplimit>12800</steplimit>
-	<issituated>true</issituated>
-	<isunitwaitrepresentation>false</isunitwaitrepresentation>
-	<maxnumofintervalspermove>1</maxnumofintervalspermove>
+    	<algorithm>
 	</algorithm>
 	<options>
 		<loglevel>1</loglevel>
