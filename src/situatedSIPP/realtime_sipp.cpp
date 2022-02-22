@@ -1,6 +1,7 @@
 #include "realtime_sipp.h"
 #include "../debug.h"
 #include "structs.h"
+#include "subintervals.hpp"
 #include <math.h> 
 
 #include <cstddef>
@@ -201,6 +202,7 @@ std::unordered_map<std::pair<int, int>, double,
                    boost::hash<std::pair<int, int>>>
                                                         RTNode::_static_h;
 std::unordered_map<RTNode, double, boost::hash<RTNode>> RTNode::_dynamic_h;
+std::unordered_map<RTNode, SetOfSubIntervals, boost::hash<RTNode>> RTNode::_subinterval_dynamic_h;
 std::unordered_multimap<RTNode, RTNode, boost::hash<RTNode>> RTNode::parents;
 int                                                     RTNode::dynmode = 0;
 
@@ -233,8 +235,8 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
     goalNode.set_inf();
     // curNode.F           = getHValue(curNode.i, curNode.j);
     //curNode.set_static_h(curNode.static_h());
-
-    curNode.interval    = constraints->getSafeInterval(curNode.i, curNode.j, 0);
+    curNode.set_interval(constraints->getSafeInterval(curNode.i, curNode.j, 0));
+    //curNode.interval    = constraints->getSafeInterval(curNode.i, curNode.j, 0);
     curNode.interval_id = curNode.interval.id;
     curNode.heading     = curagent.start_heading;
     curNode.optimal     = true;
@@ -612,7 +614,8 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
                 unsigned long num_of_intervals =
                   std::min(config->maxNumOfIntervalsPerMove, intervals.size());
                 for (unsigned int k = 0; k < num_of_intervals; k++) {
-                    newNode.interval = intervals[k];
+                    newNode.set_interval(intervals[k]);
+                    //newNode.interval = intervals[k];
                     newNode.set_parent(parent);
                     newNode.set_static_g(newNode.Parent->static_g() +
                                          getCost(newNode.Parent->i,
@@ -703,7 +706,8 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
                 timer.stop_si();
                 timer.resume_expansion();
                 if (intervals.size() > 0) {
-                    newNode.interval = intervals[0];
+                    newNode.set_interval(intervals[0]);
+                    //newNode.interval = intervals[0];
                     newNode.set_parent(parent);
                     newNode.set_static_g(newNode.Parent->static_g() +
                                          getCost(newNode.Parent->i,
@@ -724,7 +728,8 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
                 timer.stop_si();
                 timer.resume_expansion();
                 if (intervals.size() > 0) {
-                    newNodeWithWait.interval = intervals[0];
+                    newNodeWithWait.set_interval(intervals[0]);
+                    //newNodeWithWait.interval = intervals[0];
                     newNodeWithWait.set_parent(parent);
                     newNodeWithWait.set_static_g(newNodeWithWait.Parent->static_g() +
                                          getCost(newNodeWithWait.Parent->i,

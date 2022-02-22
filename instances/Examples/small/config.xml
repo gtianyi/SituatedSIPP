@@ -13,7 +13,8 @@
 		<fixedlookahead>3</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
-		<learningalgorithm>plrtalearning</learningalgorithm>
+		<learningalgorithm>dijkstralearning</learningalgorithm>
+		<dynmode>2</dynmode>
 	</algorithm>
 	<options>
 		<loglevel>2</loglevel>

@@ -10,7 +10,7 @@ private:
   double curagent_speed;
 public:
   void setAgentSpeed(double speed);
-  auto cost(const RTNode& n1, const RTNode& n2) -> double;
+  double cost(const RTNode& n1, const RTNode& n2) const;
   virtual void learn(RTOPEN_container& open,
                        std::unordered_multimap<int, RTNode>& close) = 0;
 };

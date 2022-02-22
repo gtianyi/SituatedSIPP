@@ -21,7 +21,12 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
         }
         // step 1
         for (const RTNode& closen : close){
-          set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
+          if (RTNode::get_dynmode() == 2){
+            closen.clear_dynamic_h();
+          }
+          else{
+            set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
+          }
         }
         // step 2
         for (const RTNode& n: open){
@@ -44,19 +49,27 @@ void DijkstraLearning::learn(RTOPEN_container& open, std::unordered_multimap<int
           for (auto parentage = prange.first; parentage != prange.second; parentage++){
             auto parent = parentage->second;
             //parent.debug();
-            c =  cost(n, parent) + n.h();
-            if ((close.find(parent) != close.end()) && (parent.static_h() + get_dynamic_h(parent) > c)){
-              //p = std::pair<double, RTNode>(parent.h(), parent); // parent prior to updating h
-              auto orange = open_sorted_by_h.equal_range(parent.h());
+            auto orange = open_sorted_by_h.equal_range(parent.h());
               for (oit = orange.first; oit != orange.second; oit++){
                 if (oit->second == parent){
                   oit = open_sorted_by_h.erase(oit);
                   break;
                 }
               }
-              set_dynamic_h(parent, c - parent.static_h());
+            if (RTNode::get_dynmode() == 2){
+              parent.add_dynamic_h(n, cost(n, parent));
               open_sorted_by_h.emplace(parent.h(), parent);
             }
+            else{
+              c =  cost(n, parent) + n.h();
+              if ((close.find(parent) != close.end()) && (parent.static_h() + get_dynamic_h(parent) > c)){
+                //p = std::pair<double, RTNode>(parent.h(), parent); // parent prior to updating h
+                set_dynamic_h(parent, c - parent.static_h());
+                open_sorted_by_h.emplace(parent.h(), parent);
+              }
+            }
+            
+
             /*
             DEBUG_MSG("OPEN_SORTED_BY_H:");
               for (auto n: open_sorted_by_h){

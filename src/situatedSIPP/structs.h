@@ -3,6 +3,8 @@
 #include "../structs.h"
 #include "../searchresult.h"
 #include "../config.h"
+//#include "learningAlgorithms/learningAlgorithmBase.hpp"
+#include "subintervals.hpp"
 #include <unordered_map>
 #include <set>
 #include <boost/timer/timer.hpp>
@@ -73,6 +75,7 @@ class RTNode{
 private:
   static std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> _static_h;
   static std::unordered_map<RTNode, double, boost::hash<RTNode>> _dynamic_h;
+  static std::unordered_map<RTNode, SetOfSubIntervals, boost::hash<RTNode>> _subinterval_dynamic_h;
   static std::unordered_multimap<RTNode, RTNode, boost::hash<RTNode>> parents;
   static int dynmode; // 0 location, g; 1 location, interval end, 2
   static std::string expansionOrderStr;
@@ -99,6 +102,10 @@ public:
 
   RTNode(int _i=-1, int _j=-1, double initial_static_g = 0.0, double initial_dynamic_g = 0.0, int h_id=0):i(_i),j(_j),s_g(initial_static_g),d_g(initial_dynamic_g),Parent(nullptr),heading_id(h_id){
       optimal = false;
+      if (dynmode == 2){
+        _subinterval_dynamic_h[*this] = SetOfSubIntervals(interval.begin, interval.end);
+        _subinterval_dynamic_h[*this].add(interval.begin, interval.end, std::numeric_limits<double>::infinity(), 0.0);
+      }
   }
   ~RTNode(){ 
       Parent = nullptr; 
@@ -108,6 +115,9 @@ public:
   //[[depreciated]] double g;
   inline double F() const{
       return g() + h();
+  }
+  static int get_dynmode(){
+    return dynmode;
   }
   Node toNode() const{
     return Node(i, j, heading_id, g(), F());
@@ -125,7 +135,10 @@ public:
     return _static_h[static_key()];
   }
   double dynamic_h() const{
-     return _dynamic_h[*this];
+    if (dynmode == 2){
+      return _subinterval_dynamic_h[*this].ht(g());
+    }
+    return _dynamic_h[*this];
   }
   double static_g() const{
     return s_g;
@@ -136,9 +149,24 @@ public:
   void set_static_h(double val) const{
     _static_h[static_key()] = val;
   }
-  void set_dynamic_h(double val) const{
-    _dynamic_h[*this] = val;
+  void set_dynamic_h(double h) const{
+    if (dynmode == 2){
+      _subinterval_dynamic_h[*this].add(interval.begin, interval.end, h, 0.0);
+    }
+    _dynamic_h[*this] = h;
   }
+
+  void clear_dynamic_h() const{
+    _subinterval_dynamic_h[*this].subintervals.clear();
+    _subinterval_dynamic_h[*this].add(interval.begin, interval.end, std::numeric_limits<double>::infinity(), 0.0);
+  }
+
+  void add_dynamic_h(const RTNode& child, double offset){
+    for (const auto& subinterval: _subinterval_dynamic_h[child].subintervals){
+      _subinterval_dynamic_h[*this].add(subinterval.beginning, subinterval.ending, subinterval.h, offset);
+    }
+  }
+
   void set_static_g(double val){
     s_g = val;
   }
@@ -177,6 +205,14 @@ public:
           ++it;
         }
       }
+    }
+  }
+
+  void set_interval(SafeInterval i){
+    interval    = i;
+    if (dynmode == 2){
+      _subinterval_dynamic_h[*this].beginning = i.begin;
+      _subinterval_dynamic_h[*this].ending = i.end;
     }
   }
   

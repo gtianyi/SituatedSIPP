@@ -12,16 +12,32 @@ double SubInterval::ht(double t) const{
 }
 
 void SetOfSubIntervals::add(double start, double end, double h, double shift){
-    subintervals.emplace_back(std::max(beginning, (start - shift)), std::min(ending, (end - shift)), h);
+    double s = std::max(beginning, (start - shift));
+    double e = std::min(ending, (end - shift));
+    if(s <= e){
+        subintervals.emplace_back(s, e, h);
+    }
+}
+
+void SetOfSubIntervals::prune_expired(double t){
+    std::vector<SubInterval> new_subints;
+    for (auto si: subintervals){
+        if (si.ending >= t){
+            new_subints.emplace_back(si);
+        }
+    }
+    subintervals = new_subints;
 }
 
 double SetOfSubIntervals::ht(double t) const{
     double retval = INFINITY;
-    for (auto si: subintervals){
-        double sih = si.ht(t);
-        if (sih < retval){
-            retval = sih;
+    if ((t >= beginning) && (t <= ending)){
+        for (auto si: subintervals){
+            double sih = si.ht(t);
+            if (sih < retval){
+                retval = sih;
+            }
         }
     }
-    return retval
+    return retval;
 }
