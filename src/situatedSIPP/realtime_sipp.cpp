@@ -615,14 +615,26 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
                   std::min(config->maxNumOfIntervalsPerMove, intervals.size());
                 for (unsigned int k = 0; k < num_of_intervals; k++) {
                     newNode.set_interval(intervals[k]);
-                    //newNode.interval = intervals[k];
                     newNode.set_parent(parent);
                     newNode.set_static_g(newNode.Parent->static_g() +
                                          getCost(newNode.Parent->i,
                                                  newNode.Parent->j, newNode.i,
                                                  newNode.j) /
                                            curagent.mspeed);
-                    newNode.set_dynamic_g(EAT[k] - newNode.static_g());
+
+                    if (RTNode::get_dynmode() == 2){
+                        newNode.debug();
+                        DEBUG_MSG(EAT[k]);
+                        double g = newNode.get_si_dynamic_h(EAT[k]).second;
+                        DEBUG_MSG(g);
+                        newNode.set_dynamic_g(g - newNode.static_g());
+                        newNode.debug();
+                        DEBUG_MSG("");
+                    }
+                    else{
+                        newNode.set_dynamic_g(EAT[k] - newNode.static_g());
+                    }
+
                     newNode.interval_id = newNode.interval.id;
                     successors.push_front(newNode);
                 }

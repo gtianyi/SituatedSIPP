@@ -26,7 +26,7 @@ class SetOfSubIntervals{
         SetOfSubIntervals(double _start = 0.0, double _end = std::numeric_limits<double>::infinity()) : beginning(_start), ending(_end){};
         void add(double start, double end, double h, double shift, const RTNode* node);
         double ht(double t) const;
-        std::pair<double, const RTNode*> htn(double t) const;
+        std::pair<double, double> htn(double t) const;
         void prune_expired(double t);
         void debug() const;
 };

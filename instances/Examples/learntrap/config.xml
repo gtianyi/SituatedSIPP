@@ -14,9 +14,9 @@
 		<fixedlookahead>2</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
-		<learningalgorithm>dijkstralearning</learningalgorithm>
+		<learningalgorithm>plrtalearning</learningalgorithm>
 		<isunitwaitrepresentation>false</isunitwaitrepresentation>
-		<dynmode>1</dynmode>
+		<dynmode>2</dynmode>
 	</algorithm>
 	<options>
 		<loglevel>2</loglevel>

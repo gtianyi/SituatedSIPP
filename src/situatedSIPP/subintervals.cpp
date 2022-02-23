@@ -2,6 +2,9 @@
 #include <cmath>
 #include <algorithm> 
 #include "../debug.h"
+#ifdef DEBUG
+    #include <assert.h>
+#endif
 
 double SubInterval::ht(double t) const{
     if (t > ending){
@@ -43,6 +46,9 @@ void SetOfSubIntervals::prune_expired(double t){
 
 double SetOfSubIntervals::ht(double t) const{
     double retval = INFINITY;
+    #ifdef DEBUG
+        assert (subintervals.size() == nodes.size());
+    #endif
     if ((t >= beginning) && (t <= ending)){
         if (subintervals.empty()){
             return 0.0;
@@ -57,12 +63,12 @@ double SetOfSubIntervals::ht(double t) const{
     return retval;
 }
 
-std::pair<double, const RTNode *> SetOfSubIntervals::htn(double t) const{
-    auto retval = std::pair<double, const RTNode *>(INFINITY, nullptr);
+std::pair<double, double> SetOfSubIntervals::htn(double t) const{
+    auto retval = std::pair<double, double>(INFINITY, NAN);
     if ((t >= beginning) && (t <= ending)){
         if (subintervals.empty()){
             retval.first = 0.0;
-            retval.second = nullptr;
+            retval.second = t;
             return retval;
         }
         for (int i = 0; i < subintervals.size(); i++){
@@ -70,7 +76,7 @@ std::pair<double, const RTNode *> SetOfSubIntervals::htn(double t) const{
             double sih = si.ht(t);
             if (sih < retval.first){
                 retval.first = sih;
-                retval.second = nodes[i];
+                retval.second = std::max(t, si.beginning);
             }
         }
     }

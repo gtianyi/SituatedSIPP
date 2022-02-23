@@ -167,8 +167,13 @@ public:
     _dynamic_h[*this] = h;
   }
 
+  std::pair<double, double> get_si_dynamic_h(double t) const{
+    return _subinterval_dynamic_h[*this].htn(t);
+  }
+
   void clear_dynamic_h() const{
     _subinterval_dynamic_h[*this].subintervals.clear();
+    _subinterval_dynamic_h[*this].nodes.clear();
     //_subinterval_dynamic_h[*this].add(interval.begin, interval.end, std::numeric_limits<double>::infinity(), 0.0);
   }
 
