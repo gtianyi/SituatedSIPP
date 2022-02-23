@@ -22,11 +22,12 @@ void SubInterval::debug() const{
 }
 
 
-void SetOfSubIntervals::add(double start, double end, double h, double shift){
+void SetOfSubIntervals::add(double start, double end, double h, double shift, const RTNode* node){
     double s = std::max(beginning, (start - shift));
     double e = std::min(ending, (end - shift));
     if((s <= e) && (subintervals.empty() || ((h < ht(s)) || (h < ht(e))))){
         subintervals.emplace_back(s, e, h);
+        nodes.emplace_back(node);
     }
 }
 
@@ -50,6 +51,26 @@ double SetOfSubIntervals::ht(double t) const{
             double sih = si.ht(t);
             if (sih < retval){
                 retval = sih;
+            }
+        }
+    }
+    return retval;
+}
+
+std::pair<double, const RTNode *> SetOfSubIntervals::htn(double t) const{
+    auto retval = std::pair<double, const RTNode *>(INFINITY, nullptr);
+    if ((t >= beginning) && (t <= ending)){
+        if (subintervals.empty()){
+            retval.first = 0.0;
+            retval.second = nullptr;
+            return retval;
+        }
+        for (int i = 0; i < subintervals.size(); i++){
+            auto si = subintervals[i];
+            double sih = si.ht(t);
+            if (sih < retval.first){
+                retval.first = sih;
+                retval.second = nodes[i];
             }
         }
     }

@@ -37,7 +37,6 @@ public:
         searchClassPtr->recordToOnlinePath(*parentPtr, bestFrontierNode, begin, end);
         hppath.push_back(cur);
         lppath.push_back(cur);
-
         return cur;
     }
 };

@@ -162,7 +162,7 @@ public:
   }
   void set_dynamic_h(double h) const{
     if (dynmode == 2){
-      _subinterval_dynamic_h[*this].add(interval.begin, interval.end, h, 0.0);
+      _subinterval_dynamic_h[*this].add(interval.begin, interval.end, h, 0.0, nullptr);
     }
     _dynamic_h[*this] = h;
   }
@@ -180,7 +180,7 @@ public:
       toadd.emplace_back(dh);
     }
     for (int i = 0; i<toadd.size(); i += 3){
-      _subinterval_dynamic_h[*this].add(toadd[i], toadd[i+1], toadd[i+2], offset);
+      _subinterval_dynamic_h[*this].add(toadd[i], toadd[i+1], toadd[i+2], offset, &child);
     }
   }
 

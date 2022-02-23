@@ -12,10 +12,7 @@ void PlrtaLearning::learn_graph(RTOPEN_container& open, std::unordered_multimap<
   }
 
   for (const RTNode& closen : close){
-    set_static_h(closen.i, closen.j, std::numeric_limits<double>::infinity(), false);
-    if (RTNode::get_dynmode() == 2){
-      closen.clear_dynamic_h();
-    }
+    set_static_h(closen.i, closen.j, std::numeric_limits<double>::infinity(), false);//
     set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
   }
   for (const RTNode& n: open){
@@ -41,8 +38,8 @@ void PlrtaLearning::learn_graph(RTOPEN_container& open, std::unordered_multimap<
           break;
         }
       }
-      bool changed = false;
-      double c =  cost(n, parent) + n.static_h();
+      bool changed = false; //
+      double c =  cost(n, parent) + n.static_h(); //
       if (get_static_h(parent) > c){
         set_static_h(parent.i, parent.j, c); 
         changed = true;
@@ -71,8 +68,7 @@ void PlrtaLearning::learn_subintervals(RTOPEN_container& open, std::unordered_mu
     close.insert(element.second);
   }
   for (const RTNode& closen : close){
-    //closen.debug();
-    set_static_h(closen.i, closen.j, std::numeric_limits<double>::infinity(), false);
+    set_static_h(closen.i, closen.j, std::numeric_limits<double>::infinity(), false);//
     closen.clear_dynamic_h();
     set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
   }
