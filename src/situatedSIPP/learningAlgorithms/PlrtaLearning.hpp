@@ -9,9 +9,12 @@ class PlrtaLearning : public LearningAlgorithm{
 private:
     std::unordered_map<std::pair<int, int>, double, boost::hash<std::pair<int, int>>> new_static_h;
     std::unordered_map<RTNode, double, boost::hash<RTNode>> new_dynamic_h;
+    void learn_graph(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& close);
+    void learn_subintervals(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& close);
 public:
     void learn(RTOPEN_container& open,
                        std::unordered_multimap<int, RTNode>& close) override;
+                       
     double get_static_h(const RTNode& n) const{
         auto key = std::pair<int, int>(n.i, n.j); 
         auto loc = new_static_h.find(key);
