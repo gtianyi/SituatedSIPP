@@ -5,24 +5,22 @@
 
 void DijkstraLearning::learn_graph(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& closed){
   std::unordered_set<RTNode>::iterator cit;
-  double c = NAN;
   std::multimap<double, const RTNode&> open_sorted_by_h;
-  std::pair<double, RTNode> p;
   std::unordered_multiset<RTNode, boost::hash<RTNode>> close;
+
   for (const std::pair<int, RTNode> element: closed){
     close.insert(element.second);
   }
-  // step 1
+
   for (const RTNode& closen : close){
     set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
   }
-  // step 2
+
   for (const RTNode& n: open){
     open_sorted_by_h.emplace(n.h(), n);
   }
-  // step 3
 
-  while (!close.empty() && !open_sorted_by_h.empty()){
+  while (!open_sorted_by_h.empty()){
     auto oit = open_sorted_by_h.begin();
     const RTNode& n = oit->second;
     open_sorted_by_h.erase(oit);
@@ -39,13 +37,15 @@ void DijkstraLearning::learn_graph(RTOPEN_container& open, std::unordered_multim
       auto orange = open_sorted_by_h.equal_range(parent.h());
       for (oit = orange.first; oit != orange.second; oit++){
         if ((oit->second == parent) && (oit->second.g() == parent.g())){
-          oit = open_sorted_by_h.erase(oit);
           break;
         }
       }
-      c =  cost(n, parent) + n.h();
+      double c =  cost(n, parent) + n.h();
       if ((close.find(parent) != close.end()) && (parent.static_h() + get_dynamic_h(parent) > c)){
         set_dynamic_h(parent, c - parent.static_h());
+        if (oit != orange.second){
+          oit = open_sorted_by_h.erase(oit);
+        }
         open_sorted_by_h.emplace(parent.h(), parent);
       }
     }
@@ -54,10 +54,9 @@ void DijkstraLearning::learn_graph(RTOPEN_container& open, std::unordered_multim
 
 void DijkstraLearning::learn_subintervals(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& closed){
   std::unordered_set<RTNode>::iterator cit;
-  double c = NAN;
   std::multimap<double, const RTNode&> open_sorted_by_h;
-  std::pair<double, RTNode> p;
   std::unordered_multiset<RTNode, boost::hash<RTNode>> close;
+
   for (const std::pair<int, RTNode> element: closed){
     close.insert(element.second);
   }
@@ -68,7 +67,7 @@ void DijkstraLearning::learn_subintervals(RTOPEN_container& open, std::unordered
   for (const RTNode& n: open){
     open_sorted_by_h.emplace(n.h(), n);
   }
-  while (!close.empty() && !open_sorted_by_h.empty()){
+  while (!open_sorted_by_h.empty()){
     auto oit = open_sorted_by_h.begin();
     const RTNode& n = oit->second;
     open_sorted_by_h.erase(oit);
@@ -85,13 +84,15 @@ void DijkstraLearning::learn_subintervals(RTOPEN_container& open, std::unordered
       auto orange = open_sorted_by_h.equal_range(parent.h());
       for (oit = orange.first; oit != orange.second; oit++){
         if (oit->second == parent){
-          oit = open_sorted_by_h.erase(oit);
           break;
         }
       }
-      c =  cost(n, parent) + n.h();
-      if ((close.find(parent) != close.end()) && (parent.static_h() + get_dynamic_h(parent) > c)){
+      double c =  cost(n, parent) + n.h();
+      if (true || parent.static_h() + get_dynamic_h(parent) > c){
           parent.add_dynamic_h(n, cost(n, parent), c - parent.static_h());
+          if (oit != orange.second){
+           oit = open_sorted_by_h.erase(oit);
+          } 
           open_sorted_by_h.emplace(parent.h(), parent);  
       }
     }

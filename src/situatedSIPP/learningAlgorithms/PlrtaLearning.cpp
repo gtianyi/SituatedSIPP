@@ -4,11 +4,7 @@
 
 void PlrtaLearning::learn_graph(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& closed){
   std::unordered_multiset<RTNode>::iterator cit;
-  const RTNode * n = nullptr;
-  double c = NAN;
-  std::multiset<std::pair<double, const RTNode *>>::iterator oit;
-  std::multiset<std::pair<double, const RTNode *>,std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
-  std::pair<double, const RTNode *> p;
+  std::multimap<double, const RTNode&> open_sorted_by_h;
   std::unordered_multiset<RTNode, boost::hash<RTNode>> close;
 
   for (const std::pair<int, RTNode> element: closed){
@@ -23,43 +19,44 @@ void PlrtaLearning::learn_graph(RTOPEN_container& open, std::unordered_multimap<
     set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
   }
   for (const RTNode& n: open){
-    open_sorted_by_h.emplace(n.h(), &n);
+    open_sorted_by_h.emplace(n.h(), n);
   }
   while (!open_sorted_by_h.empty()){// need the open check?
-    oit = open_sorted_by_h.begin();
-    n = oit->second;
+    auto oit = open_sorted_by_h.begin();
+    const RTNode& n = oit->second;
     open_sorted_by_h.erase(oit);
-    auto crange = close.equal_range(*n);  // erase if in closed
+    auto crange = close.equal_range(n);  // erase if in closed
     for (cit = crange.first; cit != crange.second; cit++){
-      if ((n->Parent == cit->Parent) && (n->g() == cit->g())){
+      if ((n.Parent == cit->Parent) && (n.g() == cit->g())){
         close.erase(cit);
         break;
       }
     }
-    auto prange = n->get_parents();
+    auto prange = n.get_parents();
     for (auto parentage = prange.first; parentage != prange.second; parentage++){
       auto parent = parentage->second;
+      auto orange = open_sorted_by_h.equal_range(parent.h());
+      for (oit = orange.first; oit != orange.second; oit++){
+        if ((oit->second == parent) && (oit->second.g() == parent.g())){
+          break;
+        }
+      }
       bool changed = false;
-      c =  cost(*n, parent) + n->static_h();
+      double c =  cost(n, parent) + n.static_h();
       if (get_static_h(parent) > c){
         set_static_h(parent.i, parent.j, c); 
         changed = true;
       }
-      c = n->dynamic_g() + n->dynamic_h() - parent.dynamic_g();
+      c = n.dynamic_g() + n.dynamic_h() - parent.dynamic_g();
       if ((c < get_dynamic_h(parent))){
         set_dynamic_h(parent, c);
         changed = true;
       }
       if (changed){
-        p = std::pair<double, RTNode *>(parent.h(), &parent); // parent prior to updating h
-        oit = open_sorted_by_h.find(p);
-        if(oit == open_sorted_by_h.end()){
-          open_sorted_by_h.emplace(parent.h(), &parent);
-        }
-        else{
+        if(oit != open_sorted_by_h.end()){
           open_sorted_by_h.erase(oit);
-          open_sorted_by_h.emplace(parent.h(), &parent);
         }
+        open_sorted_by_h.emplace(parent.h(), parent);
       }
     }
   }
@@ -67,11 +64,7 @@ void PlrtaLearning::learn_graph(RTOPEN_container& open, std::unordered_multimap<
 
 void PlrtaLearning::learn_subintervals(RTOPEN_container& open, std::unordered_multimap<int, RTNode>& closed){
   std::unordered_multiset<RTNode>::iterator cit;
-  const RTNode * n = nullptr;
-  double c = NAN;
-  std::multiset<std::pair<double, const RTNode *>>::iterator oit;
-  std::multiset<std::pair<double, const RTNode *>,std::less<std::pair<double, const RTNode *>>> open_sorted_by_h;
-  std::pair<double, const RTNode *> p;
+  std::multimap<double, const RTNode&> open_sorted_by_h;
   std::unordered_multiset<RTNode, boost::hash<RTNode>> close;
 
   for (const std::pair<int, RTNode> element: closed){
@@ -84,35 +77,39 @@ void PlrtaLearning::learn_subintervals(RTOPEN_container& open, std::unordered_mu
     set_dynamic_h(closen, std::numeric_limits<double>::infinity(), false);
   }
   for (const RTNode& n: open){
-    open_sorted_by_h.emplace(n.h(), &n);
+    open_sorted_by_h.emplace(n.h(), n);
   }
   while (!open_sorted_by_h.empty()){
-    oit = open_sorted_by_h.begin();
-    n = oit->second;
+    auto oit = open_sorted_by_h.begin();
+    const RTNode& n = oit->second;
     open_sorted_by_h.erase(oit);
-    cit = close.find(*n); 
-    if (cit != close.end()){
-      close.erase(cit);
+    auto crange = close.equal_range(n);  // erase if in closed
+    for (cit = crange.first; cit != crange.second; cit++){
+      if ((n.Parent == cit->Parent) && (n.g() == cit->g())){
+        close.erase(cit);
+        break;
+      }
     }
-    n->prep_dijkstra();
-    if (n->Parent != nullptr){  
-      auto parent = *(n->Parent);
-      c =  cost(*n, parent) + n->static_h();
+    n.prep_dijkstra();
+    if (n.Parent != nullptr){  
+      auto parent = *(n.Parent);
+      auto orange = open_sorted_by_h.equal_range(parent.h());
+      for (oit = orange.first; oit != orange.second; oit++){
+        if (oit->second == parent){
+          break;
+        }
+      }
+      double c =  cost(n, parent) + n.static_h();
       if (get_static_h(parent) > c){
         set_static_h(parent.i, parent.j, c);
       }
-      c = n->dynamic_g() + n->dynamic_h() - parent.dynamic_g();
-      if ((c < get_dynamic_h(parent))){
-        parent.add_dynamic_h(*n, cost(*n, parent), c);
-        p = std::pair<double, RTNode *>(parent.h(), &parent); // parent prior to updating h
-        oit = open_sorted_by_h.find(p);
-        if(oit == open_sorted_by_h.end()){
-          open_sorted_by_h.emplace(parent.h(), &parent);
-        }
-        else{
+      c = n.dynamic_g() + n.dynamic_h() - parent.dynamic_g();
+      if (true || (c < get_dynamic_h(parent))){
+        parent.add_dynamic_h(n, cost(n, parent), c);
+        if(oit != open_sorted_by_h.end()){
           open_sorted_by_h.erase(oit);
-          open_sorted_by_h.emplace(parent.h(), &parent);
         }
+        open_sorted_by_h.emplace(parent.h(), parent);
       }
     }
   }
