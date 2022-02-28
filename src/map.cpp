@@ -172,11 +172,12 @@ std::vector<Node> Map::getValidMoves(int i, int j, int k, double size) const
    return v_moves;
 }
 
-std::vector<RTNode> Map::getValidRTMoves(int i, int j, int k, double size) const{
-   std::vector<Node> n_node_moves = getValidMoves(i, j, k, size);
-   std::vector<RTNode> v_moves = {};
-   for(const Node& n: n_node_moves){
-       v_moves.emplace_back(n.i, n.j, n.g, 0.0, n.heading_id);
-   }
-   return v_moves;
+std::vector<RTNode> Map::getValidRTMoves(int i, int j, int k, const Agent& curagent) const{
+    double size = curagent.size;
+    std::vector<Node> n_node_moves = getValidMoves(i, j, k, size);
+    std::vector<RTNode> v_moves = {};
+    for(const Node& n: n_node_moves){
+        v_moves.emplace_back(n.i, n.j, n.g/curagent.mspeed, 0.0, n.heading_id);
+    }
+    return v_moves;
 }

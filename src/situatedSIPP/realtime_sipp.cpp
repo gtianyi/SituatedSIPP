@@ -564,91 +564,53 @@ double Realtime_SIPP::calcHeading(const RTNode& node, const RTNode& son)
     return heading;
 }
 
-std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode curNode,
-                                                const Map&   map)
-{
-    if (config->isUnitWaitRepresentation) {
-        return findSuccessorsUsingUnitWaitRepresentation(curNode, map);
-    }
-
-    RTNode                    newNode;
-    RTNode                    angleNode;
+std::list<RTNode> Realtime_SIPP::findSuccessors(RTNode * curNode, const Map&   map){
     std::list<RTNode>         successors;
     std::vector<double>       EAT;
     std::vector<SafeInterval> intervals;
-    // double                    h_value;
-    auto parent = &(close.find(curNode.i * map.width + curNode.j)->second);
-    std::vector<RTNode> moves = map.getValidRTMoves(
-      curNode.i, curNode.j, config->connectedness, curagent.size);
-    for (auto m : moves) {
-        if (lineofsight.checkTraversability(curNode.i + m.i, curNode.j + m.j,
-                                            map)) {
-            newNode.i          = curNode.i + m.i;
-            newNode.j          = curNode.j + m.j;
-            newNode.heading_id = m.heading_id;
-            timer.stop_expansion();
-            timer.resume_si();
-            constraints->updateCellSafeIntervals({newNode.i, newNode.j});
-            timer.stop_si();
-            timer.resume_expansion();
-            newNode.heading = calcHeading(curNode, newNode);
-            angleNode = curNode; // the same state, but with extended g-value
-
-            angleNode.set_static_g(
-              angleNode.static_g() +
-              getRCost(angleNode.heading, newNode.heading) +
-              config->additionalwait);
-            newNode.set_static_g(angleNode.static_g() +
-                                 m.g() / curagent.mspeed);
-            newNode.set_dynamic_g(angleNode.dynamic_g());
-            newNode.set_parent(&angleNode);
-            newNode.optimal = curNode.optimal;
-            //newNode.set_static_h(config->h_weight * getHValue(newNode.i, newNode.j));
-            if (angleNode.g() <= angleNode.interval.end) { //something seems off
-                timer.stop_expansion();
-                timer.resume_si();
-                intervals =
-                  constraints->findIntervals(newNode, EAT, close, map);
-                timer.stop_si();
-                timer.resume_expansion();
-                unsigned long num_of_intervals =
-                  std::min(config->maxNumOfIntervalsPerMove, intervals.size());
-                for (unsigned int k = 0; k < num_of_intervals; k++) {
-                    newNode.set_interval(intervals[k]);
-                    newNode.set_parent(parent);
-                    newNode.set_static_g(newNode.Parent->static_g() +
-                                         getCost(newNode.Parent->i,
-                                                 newNode.Parent->j, newNode.i,
-                                                 newNode.j) /
-                                           curagent.mspeed);
-
-                    if (RTNode::get_dynmode() == 2){
-                        newNode.debug();
-                        DEBUG_MSG(EAT[k]);
-                        double g = newNode.get_si_dynamic_h(EAT[k]).second;
-                        DEBUG_MSG(g);
-                        newNode.set_dynamic_g(g - newNode.static_g());
-                        newNode.debug();
-                        DEBUG_MSG("");
-                    }
-                    else{
-                        newNode.set_dynamic_g(EAT[k] - newNode.static_g());
-                    }
-
-                    newNode.interval_id = newNode.interval.id;
-                    successors.push_front(newNode);
+    std::vector<RTNode> moves = map.getValidRTMoves(curNode->i, curNode->j, config->connectedness , curagent);
+    for (const auto& m : moves) {
+        auto movechild = *curNode + m; 
+        constraints->updateCellSafeIntervals({movechild.i, movechild.j});
+        if (lineofsight.checkTraversability(movechild.i, movechild.j, map)) {
+            if (config->isUnitWaitRepresentation){
+                // check no wait
+                movechild.optimal = curNode->optimal;
+                movechild.heading = curNode->heading;
+                movechild.set_parent(curNode);
+                intervals = constraints->findIntervals(movechild, EAT, close, map);   
+                
+                if (!intervals.empty()){
+                    movechild.set_interval(intervals[0]);
+                    movechild.interval_id = movechild.interval.id;
+                    successors.push_front(movechild);
                 }
-            }
-            if (config->allowanyangle) {
-                std::cerr << "Please disable allowanyangle in cofig\n";
-                exit(1);
+                // check wait then move
+                RTNode wait = *curNode + RTNode(curNode->i, curNode->j, 0.0, config->unitWaitDuration, m.heading_id);
+                wait.optimal = curNode->optimal;
+                wait.heading = curNode->heading;
+                wait.set_parent(curNode);
+                wait.set_interval(curNode->interval);
+                wait.interval_id = wait.interval.id;
+                if (wait.g() <= curNode->interval.end){// wait is safe
+                    auto wmchild = wait + m;
+                    wmchild.optimal = wait.optimal;
+                    wmchild.heading = wait.heading;
+                    wmchild.set_parent(&wait);
+                    intervals = constraints->findIntervals(wmchild, EAT, close, map);
+                    if (!intervals.empty()){
+                        wmchild.set_interval(intervals[0]);
+                        wmchild.interval_id = movechild.interval.id;
+                        close.insert({wait.i * map.width + wait.j, wait});
+                        successors.push_front(wmchild);
+                    }
+                }
             }
         }
     }
-
     return successors;
 }
-
+/*
 std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
   const RTNode curNode, const Map& map)
 {
@@ -663,6 +625,12 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
     auto parent = &(close.find(curNode.i * map.width + curNode.j)->second);
     std::vector<RTNode> moves = map.getValidRTMoves(
       curNode.i, curNode.j, config->connectedness, curagent.size);
+    DEBUG_MSG("Moves:");
+    for (auto m: moves){
+        m.debug();
+    }
+    
+    DEBUG_MSG("END MOVES");
     for (auto m : moves) {
         if (lineofsight.checkTraversability(curNode.i + m.i, curNode.j + m.j,
                                             map)) {
@@ -763,7 +731,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessorsUsingUnitWaitRepresentation(
 
     return successors;
 }
-
+*/
 void Realtime_SIPP::makePrimaryPath(RTNode curNode)
 {
     hppath.clear();

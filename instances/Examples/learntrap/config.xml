@@ -15,8 +15,9 @@
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
 		<learningalgorithm>plrtalearning</learningalgorithm>
-		<isunitwaitrepresentation>false</isunitwaitrepresentation>
-		<dynmode>2</dynmode>
+		<isunitwaitrepresentation>true</isunitwaitrepresentation>
+		<unitwaitduration>0.5</unitwaitduration>
+		<dynmode>0</dynmode>
 	</algorithm>
 	<options>
 		<loglevel>2</loglevel>

@@ -124,6 +124,11 @@ public:
   Node toNode() const{
     return Node(i, j, heading_id, g(), F());
   }
+
+  friend RTNode operator+(const RTNode& lhs, const RTNode& rhs){
+    return RTNode(lhs.i + rhs.i, lhs.j + rhs.j, lhs.static_g() + rhs.static_g(), lhs.dynamic_g() + rhs.dynamic_g(), lhs.heading_id); 
+  }
+
   inline double g() const{
     return static_g() + dynamic_g();
   }

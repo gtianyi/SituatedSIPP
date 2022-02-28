@@ -27,7 +27,7 @@ public:
     bool CellIsObstacle(int i, int j) const;
     int  getValue(int i, int j) const;
     std::vector<Node> getValidMoves(int i, int j, int k, double size) const;
-    std::vector<RTNode> getValidRTMoves(int i, int j, int k, double size) const;
+    std::vector<RTNode> getValidRTMoves(int i, int j, int k, const Agent& curagent) const;
 };
 
 #endif
