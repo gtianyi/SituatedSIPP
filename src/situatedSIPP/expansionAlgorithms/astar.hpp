@@ -34,7 +34,7 @@ public:
             // curNode.close_id = close_id;
             // close_id++;
             close.insert({curNode.i * map.width + curNode.j, curNode});
-            for (RTNode s : searchClassPtr->findSuccessors(curNode, map)) {
+            for (RTNode s : searchClassPtr->findSuccessors(curNode, map)){
                 if (searchClassPtr->config->use_likhachev) {
                     range    = close.equal_range(s.i * map.width + s.j);
                     bool add = true;

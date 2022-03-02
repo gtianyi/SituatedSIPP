@@ -593,19 +593,17 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
     std::vector<SafeInterval> intervals;
     auto * curNode = find_on_closed(curnode, map);
     std::vector<RTNode> moves = map.getValidRTMoves(curNode->i, curNode->j, config->connectedness , curagent);
-
-
     for (const auto& m : moves) {
         auto * movechild = place_on_closed(*curNode + m, map); 
         constraints->updateCellSafeIntervals({movechild->i, movechild->j});
-        if (lineofsight.checkTraversability(movechild->i, movechild->j, map)) {
+        movechild->optimal = curNode->optimal;
+        movechild->heading = curNode->heading;
+        movechild->set_parent(curNode);
+        constraints->updateCellSafeIntervals({movechild->i, movechild->j});
+        if (lineofsight.checkTraversability(movechild->i, movechild->j, map)){
             if (config->isUnitWaitRepresentation){
                 // check no wait
-                movechild->optimal = curNode->optimal;
-                movechild->heading = curNode->heading;
-                movechild->set_parent(curNode);
-                constraints->updateCellSafeIntervals({movechild->i, movechild->j});
-                intervals = constraints->findIntervals(*movechild, EAT, close, map);   
+                intervals = constraints->findIntervals(*movechild, EAT, close, map);
                 if (!intervals.empty()){
                     movechild->set_interval(intervals[0]);
                     movechild->interval_id = movechild->interval.id;
@@ -633,6 +631,51 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                     }
                 }
             }
+            else if(config->dynmode == 2){//subintervals
+
+            }
+            else{   // regular intervals
+                auto potential_intervals = constraints->getSafeIntervals(*movechild);
+                int i = 0;
+                int expanded = 0;
+                while((i < potential_intervals.size()) && (expanded < config->maxNumOfIntervalsPerMove)){
+                    if (movechild->g() <= potential_intervals[i].end){
+                        double wait_duration = potential_intervals[i].begin - movechild->g();
+                        if (wait_duration < 0.0){
+                            intervals = constraints->findIntervals(*movechild, EAT, close, map);
+                            if (!intervals.empty()){
+                                movechild->set_interval(intervals[0]);
+                                movechild->interval_id = movechild->interval.id;
+                                successors.push_front(*movechild);
+                            }
+                        }
+                        else{
+                            auto * wait = place_on_closed(*curNode + RTNode(0, 0, 0.0, wait_duration, m.heading_id), map);
+                            wait->optimal = curNode->optimal;
+                            wait->heading = curNode->heading;
+                            wait->set_parent(curNode);
+                            wait->set_interval(curNode->interval);
+                            wait->interval_id = wait->interval.id;
+                            if (wait->g() <= curNode->interval.end){// wait is safe
+                                auto * wmchild = place_on_closed(*wait + m, map);
+                                wmchild->optimal = wait->optimal;
+                                wmchild->heading = wait->heading;
+                                wmchild->set_parent(wait);
+                                constraints->updateCellSafeIntervals({wmchild->i, wmchild->j});
+                                intervals = constraints->findIntervals(*wmchild, EAT, close, map);
+                                if (!intervals.empty()){
+                                    wmchild->set_interval(intervals[0]);
+                                    wmchild->interval_id = movechild->interval.id;
+                                    successors.push_front(*wmchild);
+                                }
+                            }
+                        }
+                        ++expanded;
+                    }
+                    ++i;
+                }
+            }
+
         }
     }
     return successors;
