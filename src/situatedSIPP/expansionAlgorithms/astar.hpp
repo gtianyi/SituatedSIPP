@@ -34,10 +34,7 @@ public:
             // curNode.close_id = close_id;
             // close_id++;
             close.insert({curNode.i * map.width + curNode.j, curNode});
-            DEBUG_MSG("Finding Successors");
-            curNode.debug();
-            for (RTNode s : searchClassPtr->findSuccessors(&curNode, map)) {
-                s.debug();
+            for (RTNode s : searchClassPtr->findSuccessors(curNode, map)) {
                 if (searchClassPtr->config->use_likhachev) {
                     range    = close.equal_range(s.i * map.width + s.j);
                     bool add = true;
@@ -64,7 +61,6 @@ public:
                     //DEBUG_MSG("    open size " << open.size());
                 }
             }
-            DEBUG_MSG("");
         }
         searchClassPtr->sresult.expansions += curExpansion;
     }

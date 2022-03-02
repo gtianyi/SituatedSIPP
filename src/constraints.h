@@ -21,10 +21,11 @@ public:
     std::vector<SafeInterval> getSafeIntervals(Node curNode, const std::unordered_multimap<int, Node> &close, int w);
     std::vector<SafeInterval> getSafeIntervals(RTNode curNode, const std::unordered_multimap<int, RTNode> &close, int w);
     std::vector<SafeInterval> getSafeIntervals(Node curNode);
+    std::vector<SafeInterval> getSafeIntervals(const RTNode& curNode);
     void addConstraints(const std::vector<Node> &sections, double size, double mspeed, const Map &map);
     void addConstraints(const std::vector<RTNode> &sections, double size, double mspeed, const Map &map);
     std::vector<SafeInterval> findIntervals(Node curNode, std::vector<double> &EAT, const std::unordered_multimap<int, Node> &close, const Map &map);
-    std::vector<SafeInterval> findIntervals(RTNode curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map);
+    std::vector<SafeInterval> findIntervals(const RTNode& curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map);
     SafeInterval getSafeInterval(int i, int j, int n) {return safe_intervals[i][j][n];}
     void resetSafeIntervals(int width, int height);
     void addStartConstraint(int i, int j, int size, std::vector<std::pair<int, int>> cells, double agentsize = 0.5);

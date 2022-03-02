@@ -214,10 +214,16 @@ std::vector<SafeInterval> Constraints::getSafeIntervals(RTNode curNode, const st
             if(!has)
                 intervals.push_back(safe_intervals[curNode.i][curNode.j][i]);
         }
+
     return intervals;
 }
 
 std::vector<SafeInterval> Constraints::getSafeIntervals(Node curNode)
+{
+    return safe_intervals[curNode.i][curNode.j];
+}
+
+std::vector<SafeInterval> Constraints::getSafeIntervals(const RTNode& curNode)
 {
     return safe_intervals[curNode.i][curNode.j];
 }
@@ -302,13 +308,16 @@ void Constraints::addConstraints(const std::vector<RTNode> &sections, double siz
 }
 
 
-std::vector<SafeInterval> Constraints::findIntervals(RTNode curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map)
-{
-    std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
+std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map){
+    
+    //std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
+    std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode);
+
     if(curNodeIntervals.empty())
         return curNodeIntervals;
     EAT.clear();
     LineOfSight los(agentsize);
+
     std::vector<std::pair<int,int>> cells = los.getCellsCrossedByLine(curNode.i, curNode.j, curNode.Parent->i, curNode.Parent->j, map);
     std::vector<section> sections(0);
     section sec;
@@ -337,8 +346,7 @@ std::vector<SafeInterval> Constraints::findIntervals(RTNode curNode, std::vector
         {
             goal_collision = false;
 
-            if(hasCollision(curNode, startTimeA, sections[j], goal_collision))
-            {
+            if(hasCollision(curNode, startTimeA, sections[j], goal_collision)){
                 double offset = 0.1;
                 startTimeA += offset;
                 cur_interval.begin += offset;
@@ -353,18 +361,21 @@ std::vector<SafeInterval> Constraints::findIntervals(RTNode curNode, std::vector
             else
                 j++;
         }
-        if(j == sections.size())
-        {
+        if(j == sections.size()){
             bool has = false;
-            for(auto rit = range.first; rit != range.second; rit++)
+            /*
+            for(auto rit = range.first; rit != range.second; rit++){
+                rit->second.debug();
                 if(rit->second.interval_id == cur_interval.id)
-                if((rit->second.g() + tweight*std::min(360 - fabs(curNode.heading - rit->second.heading), fabs(curNode.heading - rit->second.heading))/(180*rspeed) - cur_interval.begin) < CN_EPSILON)//take into account turning cost
-                {
-                    has = true;
-                    curNodeIntervals.erase(curNodeIntervals.begin() + i);
-                    i--;
-                    break;
-                }
+                    if((rit->second.g() + tweight*std::min(360 - fabs(curNode.heading - rit->second.heading), fabs(curNode.heading - rit->second.heading))/(180*rspeed) - cur_interval.begin) < CN_EPSILON){
+                        DEBUG_MSG("HAS");
+                        has = true;
+                        curNodeIntervals.erase(curNodeIntervals.begin() + i);
+                        i--;
+                        break;
+                    }
+            }
+            */
             if(!has)
             {
                 for(auto rit = range.first; rit != range.second; rit++)

@@ -9,6 +9,7 @@
 #include <boost/functional/hash.hpp>
 #include "../json.hpp"
 
+
 SearchResult rtsr2sr(const RTSearchResult& rtsr);
 
 class Realtime_SIPP : public AA_SIPP
@@ -25,10 +26,12 @@ public:
     void recordToOnlinePath(const RTNode& rootNode, const RTNode& frontierNode,
                             const timeval& begin, const timeval& end);
 
-    std::list<RTNode> findSuccessors(RTNode * curNode, const Map& map);
+    std::list<RTNode> findSuccessors(const RTNode & curNode, const Map& map);
     //std::list<RTNode> findSuccessorsUsingUnitWaitRepresentation(const RTNode curNode, const Map& map);
     virtual void      makePrimaryPath(RTNode curNode);
     virtual void      makeSecondaryPath(RTNode curNode);
+    RTNode * find_on_closed(const RTNode & n, const Map& map);
+    RTNode * place_on_closed(const RTNode & n, const Map& map);
     void   calculateLineSegment(std::vector<RTNode>& line, const RTNode& start,
                                 const RTNode& goal);
     RTNode resetParent(RTNode current, RTNode Parent, const Map& map);

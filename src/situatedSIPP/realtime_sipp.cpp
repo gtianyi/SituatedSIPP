@@ -3,7 +3,7 @@
 #include "structs.h"
 #include "subintervals.hpp"
 #include <math.h> 
-
+#include <assert.h>
 #include <cstddef>
 #include <string>
 #include <fstream>
@@ -564,45 +564,72 @@ double Realtime_SIPP::calcHeading(const RTNode& node, const RTNode& son)
     return heading;
 }
 
-std::list<RTNode> Realtime_SIPP::findSuccessors(RTNode * curNode, const Map&   map){
+RTNode * Realtime_SIPP::place_on_closed(const RTNode & n, const Map& map){
+    auto retval = find_on_closed(n, map);
+    if (retval == nullptr){
+        int i = n.i * map.width + n.j;
+        return &(close.emplace(i, n)->second);
+    }
+    return retval;
+}
+
+RTNode * Realtime_SIPP::find_on_closed(const RTNode & n, const Map& map){
+    int i = n.i * map.width + n.j;
+    auto range = close.equal_range(i);
+    for (auto close_elem = range.first; close_elem != range.second; close_elem++){
+        if (
+            close_elem->second.dynamic_g() == n.dynamic_g() &&
+            close_elem->second.static_g() == n.static_g()
+        ){
+            return &(close_elem->second);
+        }
+    }
+    return nullptr;
+}
+
+std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map&   map){
     std::list<RTNode>         successors;
     std::vector<double>       EAT;
     std::vector<SafeInterval> intervals;
+    auto * curNode = find_on_closed(curnode, map);
     std::vector<RTNode> moves = map.getValidRTMoves(curNode->i, curNode->j, config->connectedness , curagent);
+
+
     for (const auto& m : moves) {
-        auto movechild = *curNode + m; 
-        constraints->updateCellSafeIntervals({movechild.i, movechild.j});
-        if (lineofsight.checkTraversability(movechild.i, movechild.j, map)) {
+        auto * movechild = place_on_closed(*curNode + m, map); 
+        constraints->updateCellSafeIntervals({movechild->i, movechild->j});
+        if (lineofsight.checkTraversability(movechild->i, movechild->j, map)) {
             if (config->isUnitWaitRepresentation){
                 // check no wait
-                movechild.optimal = curNode->optimal;
-                movechild.heading = curNode->heading;
-                movechild.set_parent(curNode);
-                intervals = constraints->findIntervals(movechild, EAT, close, map);   
-                
+                movechild->optimal = curNode->optimal;
+                movechild->heading = curNode->heading;
+                movechild->set_parent(curNode);
+                constraints->updateCellSafeIntervals({movechild->i, movechild->j});
+                intervals = constraints->findIntervals(*movechild, EAT, close, map);   
                 if (!intervals.empty()){
-                    movechild.set_interval(intervals[0]);
-                    movechild.interval_id = movechild.interval.id;
-                    successors.push_front(movechild);
+                    movechild->set_interval(intervals[0]);
+                    movechild->interval_id = movechild->interval.id;
+                    successors.push_front(*movechild);
                 }
                 // check wait then move
-                RTNode wait = *curNode + RTNode(curNode->i, curNode->j, 0.0, config->unitWaitDuration, m.heading_id);
-                wait.optimal = curNode->optimal;
-                wait.heading = curNode->heading;
-                wait.set_parent(curNode);
-                wait.set_interval(curNode->interval);
-                wait.interval_id = wait.interval.id;
-                if (wait.g() <= curNode->interval.end){// wait is safe
-                    auto wmchild = wait + m;
-                    wmchild.optimal = wait.optimal;
-                    wmchild.heading = wait.heading;
-                    wmchild.set_parent(&wait);
-                    intervals = constraints->findIntervals(wmchild, EAT, close, map);
+                auto * wait = place_on_closed(*curNode + RTNode(0, 0, 0.0, config->unitWaitDuration, m.heading_id), map);
+                wait->optimal = curNode->optimal;
+                wait->heading = curNode->heading;
+                wait->set_parent(curNode);
+                wait->set_interval(curNode->interval);
+                wait->interval_id = wait->interval.id;
+                if (wait->g() <= curNode->interval.end){// wait is safe
+                    auto * wmchild = place_on_closed(*wait + m, map);
+                    wmchild->optimal = wait->optimal;
+                    wmchild->heading = wait->heading;
+                    wmchild->set_parent(wait);
+                    constraints->updateCellSafeIntervals({wmchild->i, wmchild->j});
+                    intervals = constraints->findIntervals(*wmchild, EAT, close, map);
+
                     if (!intervals.empty()){
-                        wmchild.set_interval(intervals[0]);
-                        wmchild.interval_id = movechild.interval.id;
-                        close.insert({wait.i * map.width + wait.j, wait});
-                        successors.push_front(wmchild);
+                        wmchild->set_interval(intervals[0]);
+                        wmchild->interval_id = movechild->interval.id;
+                        successors.push_front(*wmchild);
                     }
                 }
             }

@@ -20,7 +20,6 @@ public:
 
         auto cur       = bestFrontierNode;
         auto parentPtr = bestFrontierNode.Parent;
-
         while (parentPtr != nullptr && parentPtr->Parent != nullptr) {
             cur       = *parentPtr;
             parentPtr = cur.Parent;

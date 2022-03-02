@@ -126,7 +126,7 @@ public:
   }
 
   friend RTNode operator+(const RTNode& lhs, const RTNode& rhs){
-    return RTNode(lhs.i + rhs.i, lhs.j + rhs.j, lhs.static_g() + rhs.static_g(), lhs.dynamic_g() + rhs.dynamic_g(), lhs.heading_id); 
+    return *std::make_shared<RTNode>(lhs.i + rhs.i, lhs.j + rhs.j, lhs.static_g() + rhs.static_g(), lhs.dynamic_g() + rhs.dynamic_g(), lhs.heading_id); 
   }
 
   inline double g() const{
