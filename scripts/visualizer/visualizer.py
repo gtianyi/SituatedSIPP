@@ -60,15 +60,19 @@ class World:
         dx = sections[0].i2 - sections[0].i1
         dy = sections[0].j2 - sections[0].j1
         dpos = (dx**2 + dy**2)**0.5
-        dt = dpos/agent_speed
+        #if not agent_speed:
+        #agent_speed = dpos/sections[0].duration
+        dt = sections[0].duration#dpos/agent_speed
+        
         dwait = sections[0].duration - dt
         if (dt == 0):
             x = sections[0].i1
             y = sections[0].j1
         else:
+            #move_time = min(time_in_section, dt)
             move_time = max(0, (time_in_section - dwait)/dt)
             x = sections[0].i1 + move_time*dx
-            y = sections[0].j1 + (time_in_section/sections[0].duration)*dy
+            y = sections[0].j1 + move_time*dy
         
         rect = pygame.Rect(round(scale[0]*(x + (1/2 - agent_radius))) , round(scale[1]*(y + (1/2-agent_radius) )), scale[0]*2*agent_radius, scale[1]*2*agent_radius)
         pygame.draw.ellipse(surf, c[agent], rect)
@@ -97,7 +101,7 @@ class World:
                         path_start_time = self.online_soln_paths_t[j-1]
                     a_surf = self.render_agent("Agent", self.sizes[i], self.online_soln_paths[j], time, path_start_time, agent_speed)
                 else:
-                    a_surf = self.render_agent("Agent", self.sizes[i], p, time, agent_speed = agent_speed)
+                    a_surf = self.render_agent("Agent", self.sizes[i], p, time, agent_speed = None)
             else:
                 a_surf= self.render_agent("Obstacle", self.sizes[i], p, time)
             self.screen.blit(a_surf, (0, 0))
