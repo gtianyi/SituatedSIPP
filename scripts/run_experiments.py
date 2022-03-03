@@ -4,6 +4,7 @@ from glob import glob
 import subprocess
 import os
 import pandas as pd
+import numpy as np
 from multiprocessing import Pool
 import shutil
 import slack
@@ -34,10 +35,10 @@ output_folder = sys.argv[2]
 
 
 target_folder = {
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
-    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/": "rooms.xml",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "den520d.xml"
+    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/": "rooms.xml",
+    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
+    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "den520d.xml"
     }
 
 steplim = {
@@ -90,9 +91,12 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
         iuw = find_or_create(alg, "isunitwaitrepresentation")
         iuw.text = "false"
     identity = "_".join([config.split("/")[-1].replace(".xml", ""), task.split("/")[-1].replace(".xml", ""), lookahead, learning, dm, dec, exp, uw, ni])
-    os.mkdir(output_folder + identity)
-    outconfig = output_folder + identity + "/" + config.split("/")[-1]
-    tree.write(outconfig)
+    try:
+        os.mkdir(output_folder + identity)
+        outconfig = output_folder + identity + "/" + config.split("/")[-1]
+        tree.write(outconfig)
+    except:
+        outconfig = output_folder + identity + "/" + config.split("/")[-1]
     obs = task.replace(".xml", "_obs.xml")
     outfile = output_folder + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
     command = [program, task, config, outconfig, obs, outfile]
@@ -110,25 +114,39 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
 def run_commands(commands, server, bar, lock):
     slack_client = slack.WebClient(token=sys.argv[1])
     slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
-
+    did_not_work = []
     connection = Connection(server)
     for command in commands:
-        connection.run(" ".join(command), hide = "both")
+        while True:
+            r = connection.run(" ".join(command), hide = "both", warn = True)
+            if r.ok:
+                break
+            did_not_work.append(" ".join(command))
+            break
+            connection.close()
+            connection = Connection(server)
+            print(server)
+            print(" ".join(command))
+            print(r.stdout)
+            print(r.stderr)
+            print(r.exited)
         lock.acquire()
         bar.update(bar.value + 1)
         lock.release()
-
+    with open(server + "dnw.txt", "wt") as outlog:
+        for dnw in did_not_work:
+            print(dnw, file = outlog)
     slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["8", "16", "32", "64"]#[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["8", "16", "32", "64", "128", "256"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
-unitwait = ["0.1", "1.0"]#["NA"]
-numinterval = ["1"]
-dynmode = ["0", "1"]
+unitwait = ["NA"]#["0.1", "0.5","1.0"]#["NA"]
+numinterval = ["1", "3", "5"]
+dynmode = ["0", "1", "2"]
 print("Generating experiement files and folders.")
 n_tasks = 0
 for cfg in target_folder:
@@ -154,8 +172,37 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                     for ni in numinterval:
                                         commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
                                         bar.update(len(commands))
-print("Running experiements.")
+
+lookaheads = ["8", "16", "32", "64", "128", "256"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+learnings = ["nolearning", "dijkstralearning","plrtalearning"]
+expansion = ["astar"]
+decision = ["miniminbackup"]
+unitwait = ["0.1", "0.5","1.0"]#["NA"]
+numinterval = ["1"]
+dynmode = ["0", "1"]
+total = n_tasks * len(lookaheads) * len(dynmode) * len(learnings) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
+mlen = len(commands)
+
 with progressbar.ProgressBar(max_value=total) as bar:
+    bar.update(0)
+    for cfg in target_folder:
+        steplimit = steplim[cfg]
+        config = cfg + target_folder[cfg]
+        tasks = glob(cfg+ "/*task.xml")
+        for lookahead in lookaheads:
+            for task in tasks:
+                for learning in learnings:
+                    for dm in dynmode:
+                        for dec in decision:
+                            for exp in expansion:
+                                for uw in unitwait:
+                                    for ni in numinterval:
+                                        commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
+                                        bar.update(len(commands)-mlen)
+                                        
+print("Running experiements.")
+
+with progressbar.ProgressBar(max_value=len(commands)) as bar:
     lock = Lock()
     threads = []
     for i in range(len(ai_servers)):
