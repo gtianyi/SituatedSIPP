@@ -13,6 +13,7 @@ public:
 
         // Tianyi note: this goal test might be too much simplified, check
         // AA_SIPP::stpCriterion
+        DEBUG_MSG("Finding min");
         auto bestFrontierNode = searchClassPtr->findMin();
         if (curNode.i == goal_i && curNode.j == goal_j) {
             bestFrontierNode = curNode;
@@ -20,10 +21,15 @@ public:
 
         auto cur       = bestFrontierNode;
         auto parentPtr = bestFrontierNode.Parent;
+        DEBUG_MSG("Looping parent pointer");
         while (parentPtr != nullptr && parentPtr->Parent != nullptr) {
+            parentPtr->debug();
+            parentPtr->Parent->debug();
+            DEBUG_MSG("");
             cur       = *parentPtr;
             parentPtr = cur.Parent;
         }
+        DEBUG_MSG("DONE");
 
         /*DEBUG_MSG("curNode after search i, j, g: "*/
                   //<< curNode.i << " " << curNode.j << " " << curNode.g);

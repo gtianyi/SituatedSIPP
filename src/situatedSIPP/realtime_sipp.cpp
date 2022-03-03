@@ -297,6 +297,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         timeval beginOfRealtimeCycle, endOfRealtimeCycle;
         gettimeofday(&beginOfRealtimeCycle, NULL);
         timer.resume_expansion();
+        DEBUG_MSG("Expanding");
         expansionModulePtr->runSearch(curNode, goalNode, map, close, reexpanded,
                                       reexpanded_list, this);
         if (false && curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
@@ -339,6 +340,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // learning phase
         // update the heuristic in closed list
         //RTNode::debug_parents();
+        DEBUG_MSG("Learning");
         timer.resume_learning();
         learningModulePtr->learn(open, close);
         timer.stop_learning();
@@ -349,6 +351,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         // frontier node
         //
         timer.resume_decision();
+        DEBUG_MSG("Deciding");
         auto bestTLA = decisionModulePtr->backupAndRecordPartialPlan(
           curNode, beginOfRealtimeCycle, endOfRealtimeCycle, curagent.goal_i,
           curagent.goal_j, hppath, lppath, this);
@@ -362,6 +365,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         ++(sresult.steps);
         curNode.set_parent(nullptr);
         open.clear();
+        DEBUG_MSG("Pruning");
         curNode.prune_past();
         addOpen(curNode);
         // curExpansion = 0;
@@ -369,6 +373,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
         resetGoalNode.set_inf();
         goalNode = resetGoalNode;
         close.clear();
+        DEBUG_MSG("iteration done");
     }
     if (!resultPath.pathfound) {
         gettimeofday(&end, nullptr);
@@ -591,6 +596,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
     std::list<RTNode>         successors;
     std::vector<double>       EAT;
     std::vector<SafeInterval> intervals;
+    DEBUG_MSG("finding successor");
     auto * curNode = find_on_closed(curnode, map);
     std::vector<RTNode> moves = map.getValidRTMoves(curNode->i, curNode->j, config->connectedness , curagent);
     for (const auto& m : moves) {
@@ -645,8 +651,6 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                         // check wait then move
                         movechild->get_si_dynamic_h(movechild->g());
                         double wait_duration = movechild->get_si_dynamic_h(movechild->g()).second - movechild->g();
-                        DEBUG_MSG("Wait duration");
-                        DEBUG_MSG(wait_duration);
                         if (wait_duration > std::numeric_limits<double>::epsilon()){
                             auto * wait = place_on_closed(*curNode + RTNode(0, 0, 0.0, wait_duration, m.heading_id), map);
                             wait->optimal = curNode->optimal;
@@ -691,7 +695,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                 while((i < potential_intervals.size()) && (expanded < config->maxNumOfIntervalsPerMove)){
                     if (movechild->g() <= potential_intervals[i].end){
                         double wait_duration = potential_intervals[i].begin - movechild->g();
-                        if (wait_duration < 0.0){
+                        if (wait_duration <= std::numeric_limits<double>::epsilon()){
                             intervals = constraints->findIntervals(*movechild, EAT, close, map);
                             if (!intervals.empty()){
                                 movechild->set_interval(intervals[0]);
@@ -728,6 +732,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
 
         }
     }
+    DEBUG_MSG("Done");
     return successors;
 }
 /*
