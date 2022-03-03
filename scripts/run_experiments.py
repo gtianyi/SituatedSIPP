@@ -42,10 +42,10 @@ target_folder = {
     }
 
 steplim = {
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "12800",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "12800",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/":   "12800",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "31300"
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "1280",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "1280",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/":   "1280",
+    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "3130"
     }
 
 def find_or_create(tree, targ):
@@ -122,30 +122,31 @@ def run_commands(commands, server, bar, lock):
             if r.ok:
                 break
             did_not_work.append(" ".join(command))
-            break
             connection.close()
             connection = Connection(server)
             print(server)
             print(" ".join(command))
+            with open(server + "dnw.txt", "at") as outlog:
+            for dnw in did_not_work:
+                print(dnw, file = outlog)
+            break
             print(r.stdout)
             print(r.stderr)
             print(r.exited)
         lock.acquire()
         bar.update(bar.value + 1)
         lock.release()
-    with open(server + "dnw.txt", "wt") as outlog:
-        for dnw in did_not_work:
-            print(dnw, file = outlog)
+    
     slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["8", "16", "32", "64", "128", "256"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["32", "64", "128"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
 unitwait = ["NA"]#["0.1", "0.5","1.0"]#["NA"]
-numinterval = ["1", "3", "5"]
+numinterval = ["1", "3"]
 dynmode = ["0", "1", "2"]
 print("Generating experiement files and folders.")
 n_tasks = 0
@@ -173,11 +174,11 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                         commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
                                         bar.update(len(commands))
 
-lookaheads = ["8", "16", "32", "64", "128", "256"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["32", "64", "128"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
-unitwait = ["0.1", "0.5","1.0"]#["NA"]
+unitwait = ["0.1","1.0"]#["NA"]
 numinterval = ["1"]
 dynmode = ["0", "1"]
 total = n_tasks * len(lookaheads) * len(dynmode) * len(learnings) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
