@@ -154,14 +154,14 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
             path->SetAttribute(CNS_TAG_ATTR_DURATION, 0);
         }
         agent_elem->LinkEndChild(path);
-        if (sresult.pathInfo[i].pathfound)
+        if(true)//(sresult.pathInfo[i].pathfound)
         {
             auto iter = sresult.pathInfo[i].sections.begin();
             auto it = sresult.pathInfo[i].sections.begin();
             int partnumber(0);
             XMLElement *part;
-            while(it != --sresult.pathInfo[i].sections.end())
-            {
+            while(it != --sresult.pathInfo[i].sections.end()){
+                it->debug();
                 part = doc->NewElement(CNS_TAG_SECTION);
                 part->SetAttribute(CNS_TAG_ATTR_ID, partnumber);
                 part->SetAttribute(CNS_TAG_ATTR_SX, it->j);

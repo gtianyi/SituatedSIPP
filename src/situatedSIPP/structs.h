@@ -171,6 +171,9 @@ public:
     }
     _dynamic_h[*this] = h;
   }
+  auto get_sis() const{
+    return _subinterval_dynamic_h[*this];
+  }
 
   std::pair<double, double> get_si_dynamic_h(double t) const{
     return _subinterval_dynamic_h[*this].htn(t);
@@ -236,11 +239,11 @@ public:
   }
 
   void set_interval(SafeInterval i){
-    interval    = i;
+    interval = i;
     if (dynmode == 2){
       _subinterval_dynamic_h[*this].beginning = i.begin;
       _subinterval_dynamic_h[*this].ending = i.end;
-    }
+      }
   }
   
   static void dump_dh(){
@@ -352,7 +355,11 @@ public:
         DEBUG_MSG_NO_LINE_BREAK_RED(" ");
         DEBUG_MSG_NO_LINE_BREAK_RED(static_h());
         DEBUG_MSG_NO_LINE_BREAK_RED(" ");
-        DEBUG_MSG_RED(dynamic_h());
+        DEBUG_MSG_NO_LINE_BREAK_RED(dynamic_h());
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_NO_LINE_BREAK_RED(interval.begin);
+        DEBUG_MSG_NO_LINE_BREAK_RED(" ");
+        DEBUG_MSG_RED(interval.end);
     }
 };
 

@@ -32,6 +32,7 @@ public:
     virtual void      makeSecondaryPath(RTNode curNode);
     RTNode * find_on_closed(const RTNode & n, const Map& map);
     RTNode * place_on_closed(const RTNode & n, const Map& map);
+    auto find_iterator(const RTNode & n, const Map& map);
     void   calculateLineSegment(std::vector<RTNode>& line, const RTNode& start,
                                 const RTNode& goal);
     RTNode resetParent(RTNode current, RTNode Parent, const Map& map);

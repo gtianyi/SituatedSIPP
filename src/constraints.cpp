@@ -310,9 +310,9 @@ void Constraints::addConstraints(const std::vector<RTNode> &sections, double siz
 
 std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map){
     
-    //std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
-    std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode);
-
+    std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
+    //std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode);
+    (void) close;
     if(curNodeIntervals.empty())
         return curNodeIntervals;
     EAT.clear();
@@ -322,15 +322,14 @@ std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std:
     std::vector<section> sections(0);
     section sec;
     for(unsigned int i = 0; i < cells.size(); i++)
-        for(unsigned int j = 0; j < constraints[cells[i].first][cells[i].second].size(); j++)
-        {
+        for(unsigned int j = 0; j < constraints[cells[i].first][cells[i].second].size(); j++){
             sec = constraints[cells[i].first][cells[i].second][j];
             if(sec.g2 < curNode.Parent->g() || sec.g1 > (curNode.Parent->interval.end + curNode.g() - curNode.Parent->g()))
                 continue;
             if(std::find(sections.begin(), sections.end(), sec) == sections.end())
                 sections.push_back(sec);
         }
-    auto range = close.equal_range(curNode.i*map.width + curNode.j);
+    //auto range = close.equal_range(curNode.i*map.width + curNode.j);
 
     for(unsigned int i=0; i<curNodeIntervals.size(); i++)
     {
@@ -376,13 +375,18 @@ std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std:
                     }
             }
             */
-            if(!has)
-            {
-                for(auto rit = range.first; rit != range.second; rit++)
-                    if(rit->second.interval_id == cur_interval.id && (!planforturns || rit->second.heading_id == curNode.heading_id))
-                    {
+            if(!has){
+                /*
+                for(auto rit = range.first; rit != range.second; rit++){
+                    //DEBUG_MSG(rit->second.interval_id);
+                    //DEBUG_MSG(cur_interval.id);
+                    //DEBUG_MSG(rit->second.heading_id);
+                    //DEBUG_MSG(curNode.heading_id);
+                    if(rit->second.interval_id == cur_interval.id && (!planforturns || rit->second.heading_id == curNode.heading_id)){
                         reopened++;
                     }
+                }
+                */
                 EAT.push_back(cur_interval.begin);
             }
         }
