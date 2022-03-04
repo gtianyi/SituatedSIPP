@@ -227,7 +227,7 @@ with progressbar.ProgressBar(max_value=len(commands)) as bar:
             slack_thing += "end"
         for i in range(len(ai_servers)):
             c = []
-            for j in range(batch_i, batch_size, len(ai_servers)):
+            for j in range(batch_i, batch_i + batch_size, len(ai_servers)):
                 c.append(commands[j])
             threads.append(Thread(target = run_commands, args = (c, ai_servers[i], bar, lock, slack_thing)))
             threads[-1].start()
