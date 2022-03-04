@@ -114,9 +114,10 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
         #res = (float("inf"),timeout, 0)
     #return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[2], res[0], res[1]))
 
-def run_commands(commands, server, bar, lock):
-    slack_client = slack.WebClient(token=sys.argv[1])
-    slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
+def run_commands(commands, server, bar, lock, toslack = ""):
+    if "start" in toslack:
+        slack_client = slack.WebClient(token=sys.argv[1])
+        slack_client.chat_postMessage(channel='experiments', text="Devin just started running experiments on " + server + " est: 24 hours")
     did_not_work = []
     connection = Connection(server)
     for command in commands:
@@ -139,17 +140,18 @@ def run_commands(commands, server, bar, lock):
         lock.acquire()
         bar.update(bar.value + 1)
         lock.release()
-    
-    slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
+    if "end" in toslack:
+        slack_client = slack.WebClient(token=sys.argv[1])
+        slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["32", "64", "128"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["8", "16", "32"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
 unitwait = ["NA"]#["0.1", "0.5","1.0"]#["NA"]
-numinterval = ["1", "3"]
+numinterval = ["1"]
 dynmode = ["0", "1", "2"]
 print("Generating experiement files and folders.")
 n_tasks = 0
@@ -168,24 +170,24 @@ with progressbar.ProgressBar(max_value=total) as bar:
         config = cfg + target_folder[cfg]
         tasks = glob(cfg+ "/*task.xml")
         for lookahead in lookaheads:
-            for task in tasks:
-                for learning in learnings:
-                    for dm in dynmode:
-                        for dec in decision:
-                            for exp in expansion:
-                                for uw in unitwait:
-                                    for ni in numinterval:
+            for learning in learnings:
+                for dm in dynmode:
+                    for dec in decision:
+                        for exp in expansion:
+                            for uw in unitwait:
+                                for ni in numinterval:
+                                    for task in tasks:
                                         c = run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit)
                                         if c != "":
                                             commands.append(c)
                                         bar.update(acc)
                                         acc += 1
 
-lookaheads = ["32", "64", "128"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["8", "16", "32"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
-unitwait = ["0.1","1.0"]#["NA"]
+unitwait = ["0.1"]#["NA"]
 numinterval = ["1"]
 dynmode = ["0", "1"]
 total = n_tasks * len(lookaheads) * len(dynmode) * len(learnings) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
@@ -198,13 +200,13 @@ with progressbar.ProgressBar(max_value=total) as bar:
         config = cfg + target_folder[cfg]
         tasks = glob(cfg+ "/*task.xml")
         for lookahead in lookaheads:
-            for task in tasks:
-                for learning in learnings:
-                    for dm in dynmode:
-                        for dec in decision:
-                            for exp in expansion:
-                                for uw in unitwait:
-                                    for ni in numinterval:
+            for learning in learnings:
+                for dm in dynmode:
+                    for dec in decision:
+                        for exp in expansion:
+                            for uw in unitwait:
+                                for ni in numinterval:
+                                    for task in tasks:
                                         c = run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit)
                                         if c != "":
                                             commands.append(c)
@@ -212,18 +214,25 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                         acc += 1
 print("Running experiements.")
 
+
+batch_size = 120
 with progressbar.ProgressBar(max_value=len(commands)) as bar:
     lock = Lock()
     threads = []
-    for i in range(len(ai_servers)):
-        c = []
-        for j in range(i, len(commands), len(ai_servers)):
-            c.append(commands[j])
-        threads.append(Thread(target = run_commands, args = (c, ai_servers[i], bar, lock)))
-        threads[-1].start()
-    for i in range(len(threads)):
-        threads[i].join()
-        print(ai_servers[i] + " has completed!")
+    for batch_i in range(0, len(commands), batch_size):
+        slack_thing = ""
+        if batch_i == 0:
+            slack_thing += "start"
+        elif batch_i + batch_size >= len(commands):
+            slack_thing += "end"
+        for i in range(len(ai_servers)):
+            c = []
+            for j in range(batch_i, batch_size, len(ai_servers)):
+                c.append(commands[j])
+            threads.append(Thread(target = run_commands, args = (c, ai_servers[i], bar, lock, slack_thing)))
+            threads[-1].start()
+        for i in range(len(threads)):
+            threads[i].join()
 
 #results = pd.concat(outres, axis = 1).T
 #results["solved"] = results["solution length"] != 0
