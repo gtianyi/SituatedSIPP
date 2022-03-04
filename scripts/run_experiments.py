@@ -99,8 +99,11 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
         outconfig = output_folder + identity + "/" + config.split("/")[-1]
     obs = task.replace(".xml", "_obs.xml")
     outfile = output_folder + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
-    command = [program, task, config, outconfig, obs, outfile]
-    return command
+    if not os.path.exists(outfile.replace(".xml", "_log.xml")):
+        command = [program, task, config, outconfig, obs, outfile]
+        return command
+    else:
+        return ""
     #print(command)
     #subprocess.run(command)
     #try:
@@ -127,8 +130,8 @@ def run_commands(commands, server, bar, lock):
             print(server)
             print(" ".join(command))
             with open(server + "dnw.txt", "at") as outlog:
-            for dnw in did_not_work:
-                print(dnw, file = outlog)
+                for dnw in did_not_work:
+                    print(dnw, file = outlog)
             break
             print(r.stdout)
             print(r.stderr)
@@ -159,6 +162,7 @@ commands = []
 
 with progressbar.ProgressBar(max_value=total) as bar:
     bar.update(0)
+    acc = 0
     for cfg in target_folder:
         steplimit = steplim[cfg]
         config = cfg + target_folder[cfg]
@@ -171,8 +175,11 @@ with progressbar.ProgressBar(max_value=total) as bar:
                             for exp in expansion:
                                 for uw in unitwait:
                                     for ni in numinterval:
-                                        commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
-                                        bar.update(len(commands))
+                                        c = run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit)
+                                        if c != "":
+                                            commands.append(c)
+                                        bar.update(acc)
+                                        acc += 1
 
 lookaheads = ["32", "64", "128"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
@@ -183,7 +190,7 @@ numinterval = ["1"]
 dynmode = ["0", "1"]
 total = n_tasks * len(lookaheads) * len(dynmode) * len(learnings) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
 mlen = len(commands)
-
+acc = 0
 with progressbar.ProgressBar(max_value=total) as bar:
     bar.update(0)
     for cfg in target_folder:
@@ -198,9 +205,11 @@ with progressbar.ProgressBar(max_value=total) as bar:
                             for exp in expansion:
                                 for uw in unitwait:
                                     for ni in numinterval:
-                                        commands.append(run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit))
-                                        bar.update(len(commands)-mlen)
-                                        
+                                        c = run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit)
+                                        if c != "":
+                                            commands.append(c)
+                                        bar.update(acc)
+                                        acc += 1
 print("Running experiements.")
 
 with progressbar.ProgressBar(max_value=len(commands)) as bar:
