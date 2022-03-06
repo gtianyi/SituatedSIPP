@@ -7,13 +7,14 @@ bool XmlLogger::createLog(const char *FileName)
         return true;
 
     std::string value(FileName);
+    DEBUG_MSG(value);
     size_t dotPos = value.find_last_of(".");
     if(dotPos != std::string::npos)
         value.insert(dotPos,CN_LOG);
     else
         value += CN_LOG;
     LogFileName = value;
-
+    DEBUG_MSG(LogFileName);
     std::ofstream out(LogFileName);
     out<<"<?xml version=\"1.0\" ?>\n<root>\n</root>";
     out.close();
@@ -238,7 +239,8 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
 
             }
         }
-
+        (void)reexp;
+        /*
         reexp = doc->NewElement("reexpanded");
         agent_elem->LinkEndChild(reexp);
         for(auto s:sresult.pathInfo[i].reexpanded_list)
@@ -248,6 +250,7 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
             part->SetAttribute("y", s.i);
             reexp->LinkEndChild(part);
         }
+        */
     }
 }
 
