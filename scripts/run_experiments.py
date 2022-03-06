@@ -54,7 +54,6 @@ def find_or_create(tree, targ):
         return x
     return ET.SubElement(tree, targ)
 
-    
 def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):    
     tree = ET.parse(config)
     root = tree.getroot()
@@ -91,19 +90,13 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
         iuw = find_or_create(alg, "isunitwaitrepresentation")
         iuw.text = "false"
     identity = "_".join([config.split("/")[-1].replace(".xml", ""), task.split("/")[-1].replace(".xml", ""), lookahead, learning, dm, dec, exp, uw, ni])
-    try:
-        os.mkdir(output_folder + identity)
-        outconfig = output_folder + identity + "/" + config.split("/")[-1]
-        tree.write(outconfig)
-    except:
-        outconfig = output_folder + identity + "/" + config.split("/")[-1]
+    os.mkdir(output_folder + identity)
+    outconfig = output_folder + identity + "/" + config.split("/")[-1]
+    tree.write(outconfig)
     obs = task.replace(".xml", "_obs.xml")
     outfile = output_folder + identity + "/" + config.split("/")[-1].replace("xml", "") + task.split("/")[-1].replace(".xml", "")  + ".xml"
-    if not os.path.exists(outfile.replace(".xml", "_log.xml")):
-        command = [program, task, config, outconfig, obs, outfile]
-        return command
-    else:
-        return ""
+    command = [program, task, config, outconfig, obs, outfile]
+    return command
     #print(command)
     #subprocess.run(command)
     #try:
@@ -114,6 +107,10 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
         #res = (float("inf"),timeout, 0)
     #return pd.Series(index = results.columns, data = (task, lookahead, learning, dm, True, res[2], res[0], res[1]))
 
+def sprun(commands):
+    for command in commands:
+        subprocess.run(command)
+
 def run_commands(commands, server, bar, lock, toslack = ""):
     if "start" in toslack:
         slack_client = slack.WebClient(token=sys.argv[1])
@@ -122,9 +119,10 @@ def run_commands(commands, server, bar, lock, toslack = ""):
     connection = Connection(server)
     for command in commands:
         while True:
-            r = connection.run(" ".join(command), hide = "both", warn = True)
+            r = connection.run(" ".join(command), hide = "both", warn = True, pty=True, replace_env = False)
             if r.ok:
                 break
+            break
             did_not_work.append(" ".join(command))
             connection.close()
             connection = Connection(server)
@@ -133,25 +131,25 @@ def run_commands(commands, server, bar, lock, toslack = ""):
             with open(server + "dnw.txt", "at") as outlog:
                 for dnw in did_not_work:
                     print(dnw, file = outlog)
-            break
             print(r.stdout)
             print(r.stderr)
             print(r.exited)
         lock.acquire()
         bar.update(bar.value + 1)
         lock.release()
+    connection.close()
     if "end" in toslack:
         slack_client = slack.WebClient(token=sys.argv[1])
         slack_client.chat_postMessage(channel='experiments', text="Devin: experiments finished on  " + server)
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["8", "16", "32"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = [ "4", "8"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
 unitwait = ["NA"]#["0.1", "0.5","1.0"]#["NA"]
-numinterval = ["1"]
+numinterval = ["1"]#, "3", "5", "7"]
 dynmode = ["0", "1", "2"]
 print("Generating experiement files and folders.")
 n_tasks = 0
@@ -161,6 +159,7 @@ for cfg in target_folder:
     n_tasks += len(glob(cfg+ "/*task.xml"))
 total = n_tasks * len(lookaheads) * len(dynmode) * len(learnings) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
 commands = []
+outfiles = []
 
 with progressbar.ProgressBar(max_value=total) as bar:
     bar.update(0)
@@ -178,12 +177,13 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                 for ni in numinterval:
                                     for task in tasks:
                                         c = run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit)
+                                        outfiles.append([-1])
                                         if c != "":
                                             commands.append(c)
                                         bar.update(acc)
                                         acc += 1
 
-lookaheads = ["8", "16", "32"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["4", "8"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
@@ -216,24 +216,8 @@ print("Running experiements.")
 
 
 batch_size = 120
-with progressbar.ProgressBar(max_value=len(commands)) as bar:
-    lock = Lock()
-    threads = []
-    for batch_i in range(0, len(commands), batch_size):
-        slack_thing = ""
-        if batch_i == 0:
-            slack_thing += "start"
-        elif batch_i + batch_size >= len(commands):
-            slack_thing += "end"
-        for i in range(len(ai_servers)):
-            c = []
-            for j in range(batch_i, batch_i + batch_size, len(ai_servers)):
-                c.append(commands[j])
-            threads.append(Thread(target = run_commands, args = (c, ai_servers[i], bar, lock, slack_thing)))
-            threads[-1].start()
-        for i in range(len(threads)):
-            threads[i].join()
-
+with Pool(1) as pool:
+    pool.map(sprun, commands)
 #results = pd.concat(outres, axis = 1).T
 #results["solved"] = results["solution length"] != 0
 #results.to_csv("even-even-more-results.csv")
