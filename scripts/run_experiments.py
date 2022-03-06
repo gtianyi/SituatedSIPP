@@ -7,9 +7,9 @@ import pandas as pd
 import numpy as np
 from multiprocessing import Pool
 import shutil
-import slack
+#import slack
 import socket
-from fabric import Connection
+#from fabric import Connection
 from threading import Thread, Lock
 import progressbar
 
@@ -27,7 +27,7 @@ ai_servers = [
 ]
 using_servers = ", ".join(map(lambda x: x.split(".")[0], ai_servers))
 working_dir = "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/scripts"
-program = "/home/aifs2/devin/Documents/SituatdSIPP/build_release/bin/ssipp"
+program = "../../build_release/bin/ssipp"
 
 timeout = str(10*60) # just to be safe
 
@@ -36,7 +36,7 @@ output_folder = sys.argv[2]
 
 target_folder = {
     #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/": "rooms.xml",
+    "../instances/singleagent-icaps2020/rooms/": "rooms.xml",
     #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
     #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "den520d.xml"
     }
@@ -44,7 +44,7 @@ target_folder = {
 steplim = {
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "1280",
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "1280",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/rooms/":   "1280",
+    "../instances/singleagent-icaps2020/rooms/":   "1280",
     "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "3130"
     }
 
@@ -109,7 +109,7 @@ def run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit):
 
 def sprun(commands):
     for command in commands:
-        subprocess.run(command)
+        subprocess.run(command, shell = True)
 
 def run_commands(commands, server, bar, lock, toslack = ""):
     if "start" in toslack:
@@ -144,7 +144,7 @@ def run_commands(commands, server, bar, lock, toslack = ""):
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = [ "4", "8"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = [ "2", "16", "32"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
@@ -158,6 +158,7 @@ for cfg in target_folder:
     config = cfg + target_folder[cfg]
     n_tasks += len(glob(cfg+ "/*task.xml"))
 total = n_tasks * len(lookaheads) * len(dynmode) * len(learnings) * len(decision) * len(expansion) * len(unitwait) * len(numinterval)
+print(total)
 commands = []
 outfiles = []
 
@@ -177,13 +178,13 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                 for ni in numinterval:
                                     for task in tasks:
                                         c = run_exp(config, task, lookahead, learning, dm, dec, exp, uw, ni, steplimit)
-                                        outfiles.append([-1])
+                                        outfiles.append(c[-1])
                                         if c != "":
                                             commands.append(c)
                                         bar.update(acc)
                                         acc += 1
 
-lookaheads = ["4", "8"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["2", "16", "32"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
@@ -214,10 +215,10 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                         acc += 1
 print("Running experiements.")
 
-
 batch_size = 120
-with Pool(1) as pool:
-    pool.map(sprun, commands)
+for command in progressbar.progressbar(commands):
+    subprocess.call(command, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
+    #pool.map(sprun, commands)
 #results = pd.concat(outres, axis = 1).T
 #results["solved"] = results["solution length"] != 0
 #results.to_csv("even-even-more-results.csv")
