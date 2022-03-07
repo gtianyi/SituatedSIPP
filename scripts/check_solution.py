@@ -85,15 +85,21 @@ def agent_pos(solution, agent, t):
     for section in solution:
         if (time <= t) and (t <= time + section.duration):
             dx = ((section.i2 - section.i1)**2 + (section.j2 - section.j1)**2)**0.5
+            if dx == 0.0:
+                print(vars(section))
             movetime = dx/agent.mspeed
             waittime = section.duration - movetime
             if waittime <= 0.0:
                 waittime = 0.0
-            dt = (t - time - waittime)/movetime
-            if dt < 0:
-                dt = 0
-            i = (1.0 - dt)*section.i1 + dt*section.i2 
-            j = (1.0 - dt)*section.j1 + dt*section.j2
+            if movetime > 0.0:
+                dt = (t - time - waittime)/movetime
+                if dt < 0:
+                    dt = 0
+                i = (1.0 - dt)*section.i1 + dt*section.i2 
+                j = (1.0 - dt)*section.j1 + dt*section.j2
+            else:
+                i = section.i1
+                j = section.j1
             size = agent.size
             return i, j, size
         time += section.duration
@@ -132,4 +138,6 @@ def check_solution(log, obstacles):
         for obstacle in obs:
             op = obstacle_pos(obstacle, t)
             if not safe(ap, op):
-                print(collision, t)
+                print("collision", t, obstacle.id)
+                print(ap)
+                print(op)
