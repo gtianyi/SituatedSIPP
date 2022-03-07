@@ -64,9 +64,11 @@ void Constraints::updateCellSafeIntervals(std::pair<int, int> cell)
         for(int l = 0; l < constraints[cells[k].first][cells[k].second].size(); l++)
             if(std::find(secs.begin(), secs.end(), constraints[cells[k].first][cells[k].second][l]) == secs.end())
                 secs.push_back(constraints[cells[k].first][cells[k].second][l]);
-    for(int k = 0; k < secs.size(); k++)
-    {
+    DEBUG_MSG(secs.size());
+    for(int k = 0; k < secs.size(); k++){
         section sec = secs[k];
+        DEBUG_MSG("Size");
+        DEBUG_MSG(sec.size);
         double radius = agentsize + sec.size;
         int i0(secs[k].i1), j0(secs[k].j1), i1(secs[k].i2), j1(secs[k].j2), i2(cell.first), j2(cell.second);
         SafeInterval interval;
