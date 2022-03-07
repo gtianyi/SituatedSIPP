@@ -648,7 +648,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
             if (config->isUnitWaitRepresentation){
                 // check no wait
                 intervals = constraints->findIntervals(movechild_ref, EAT, close, map);
-                if (!intervals.empty() && intervals[0].begin <= movechild_ref.g()){
+                if (!intervals.empty() && intervals[0].begin <= movechild_ref.g() && intervals[0].end >= movechild_ref.g()){
                     movechild_ref.set_interval(intervals[0]);
                     movechild_ref.interval_id = movechild_ref.interval.id;
                     auto * movechild = place_on_closed(movechild_ref, map);
@@ -670,7 +670,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                     wmchild_ref.set_parent(wait);
                     constraints->updateCellSafeIntervals({wmchild_ref.i, wmchild_ref.j});
                     intervals = constraints->findIntervals(wmchild_ref, EAT, close, map);
-                    if (!intervals.empty() && intervals[0].begin <= wmchild_ref.g()){
+                    if (!intervals.empty() && intervals[0].begin <= wmchild_ref.g() && intervals[0].end >= wmchild_ref.g()){
                         wmchild_ref.set_interval(intervals[0]);
                         wmchild_ref.interval_id = wmchild_ref.interval.id;
                         auto * wmchild = place_on_closed(wmchild_ref, map);
@@ -684,7 +684,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                 int i = 0;
                 int expanded = 0;
                 while((i < potential_intervals.size()) && (expanded < config->maxNumOfIntervalsPerMove)){
-                    if ((movechild_ref.g() >= potential_intervals[i].begin) && (movechild_ref.g() <= potential_intervals[i].end)){
+                    if ((movechild_ref.g() >= potential_intervals[i].begin) && (movechild_ref.g() <= potential_intervals[i].end) && intervals[0].end >= movechild_ref.g()){
                         movechild_ref.set_interval(potential_intervals[i]);
                         movechild_ref.interval_id = movechild_ref.interval.id;
                         auto * movechild = place_on_closed(movechild_ref, map);
@@ -706,7 +706,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                                 wmchild_ref.set_parent(wait);
                                 constraints->updateCellSafeIntervals({wmchild_ref.i, wmchild_ref.j});
                                 intervals = constraints->findIntervals(wmchild_ref, EAT, close, map);
-                                if (!intervals.empty() && intervals[0].begin <= wmchild_ref.g()){
+                                if (!intervals.empty() && intervals[0].begin <= wmchild_ref.g() && intervals[0].end >= wmchild_ref.g()){
                                     wmchild_ref.set_interval(intervals[0]);
                                     wmchild_ref.interval_id = wmchild_ref.interval.id;
                                     auto * wmchild = place_on_closed(wmchild_ref, map);
@@ -740,7 +740,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                 int i = 0;
                 int expanded = 0;
                 while((i < potential_intervals.size()) && (expanded < config->maxNumOfIntervalsPerMove)){
-                    if ((movechild_ref.g() >= potential_intervals[i].begin) && (movechild_ref.g() <= potential_intervals[i].end)){
+                    if ((movechild_ref.g() >= potential_intervals[i].begin) && (movechild_ref.g() <= potential_intervals[i].end)&& intervals[0].end >= movechild_ref.g()){
                         double wait_duration = potential_intervals[i].begin - movechild_ref.g();
                         if (wait_duration <= std::numeric_limits<double>::epsilon()){ //don't wait
                             intervals = constraints->findIntervals(movechild_ref, EAT, close, map);
@@ -767,7 +767,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                                 wmchild_ref.set_parent(wait);
                                 constraints->updateCellSafeIntervals({wmchild_ref.i, wmchild_ref.j});
                                 intervals = constraints->findIntervals(wmchild_ref, EAT, close, map);
-                                if (!intervals.empty() && intervals[0].begin <= wmchild_ref.g()){
+                                if (!intervals.empty() && intervals[0].begin <= wmchild_ref.g() && intervals[0].end >= wmchild_ref.g()){
                                     auto * wmchild = place_on_closed(wmchild_ref, map);
                                     wmchild->set_interval(intervals[0]);
                                     wmchild->interval_id = wmchild->interval.id;
