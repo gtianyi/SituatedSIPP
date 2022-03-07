@@ -312,8 +312,8 @@ void Constraints::addConstraints(const std::vector<RTNode> &sections, double siz
 
 std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map){
     
-    std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
-    //std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode);
+    //std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
+    std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode);
     (void) close;
     if(curNodeIntervals.empty())
         return curNodeIntervals;
