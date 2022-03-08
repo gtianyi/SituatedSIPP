@@ -85,8 +85,6 @@ def agent_pos(solution, agent, t):
     for section in solution:
         if (time <= t) and (t <= time + section.duration):
             dx = ((section.i2 - section.i1)**2 + (section.j2 - section.j1)**2)**0.5
-            if dx == 0.0:
-                print(vars(section))
             movetime = dx/agent.mspeed
             waittime = section.duration - movetime
             if waittime <= 0.0:
@@ -119,25 +117,27 @@ def obstacle_pos(obstacle, t):
 
 def safe(ap, op):
     dx = ((ap[0] - op[0])**2 + (ap[1] - op[1])**2)**0.5 - ap[2] - op[2]
-    return dx >= 0.0
+    return dx
 
 
 def check_solution(log, obstacles):
+    print("Checking " + log)
     log = ET.parse(log)
     obs = ET.parse(obstacles)
-
     solution, agent = read_solution_path(log)
     obs = read_dynamic_obstacles(obs)
 
     total_time = 0.0
     for section in solution:
         total_time += section.duration
+    print(total_time)
         
     for t in np.arange(0, total_time, 0.1):
         ap = agent_pos(solution, agent, t)
         for obstacle in obs:
             op = obstacle_pos(obstacle, t)
-            if not safe(ap, op):
-                print("collision", t, obstacle.id)
+            dx = safe(ap, op)
+            if dx < -0.0001:
+                print("collision", t, obstacle.id, dx)
                 print(ap)
                 print(op)

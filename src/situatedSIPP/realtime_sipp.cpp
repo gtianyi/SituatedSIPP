@@ -680,11 +680,11 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                 }
             }
             else if(config->dynmode == 2){//subintervals
-                auto potential_intervals = constraints->getSafeIntervals(movechild_ref);
+                auto potential_intervals = constraints->findIntervals(movechild_ref, EAT, close, map);
                 int i = 0;
                 int expanded = 0;
                 while((i < potential_intervals.size()) && (expanded < config->maxNumOfIntervalsPerMove)){
-                    if ((movechild_ref.g() >= potential_intervals[i].begin) && (movechild_ref.g() <= potential_intervals[i].end) && intervals[0].end >= movechild_ref.g()){
+                    if ((movechild_ref.g() >= potential_intervals[i].begin) && (movechild_ref.g() <= potential_intervals[i].end) && potential_intervals[i].end >= movechild_ref.g()){
                         movechild_ref.set_interval(potential_intervals[i]);
                         movechild_ref.interval_id = movechild_ref.interval.id;
                         auto * movechild = place_on_closed(movechild_ref, map);
@@ -740,11 +740,11 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                 int i = 0;
                 int expanded = 0;
                 while((i < potential_intervals.size()) && (expanded < config->maxNumOfIntervalsPerMove)){
-                    if ((movechild_ref.g() >= potential_intervals[i].begin) && (movechild_ref.g() <= potential_intervals[i].end)&& intervals[0].end >= movechild_ref.g()){
+                    if ((movechild_ref.g() >= potential_intervals[i].begin) && (movechild_ref.g() <= potential_intervals[i].end)&& potential_intervals[i].end >= movechild_ref.g()){
                         double wait_duration = potential_intervals[i].begin - movechild_ref.g();
                         if (wait_duration <= std::numeric_limits<double>::epsilon()){ //don't wait
                             intervals = constraints->findIntervals(movechild_ref, EAT, close, map);
-                            if (!intervals.empty() && intervals[0].begin <= movechild_ref.g()){ // need to see if there is a relevant interval
+                            if (!intervals.empty() && intervals[0].begin <= movechild_ref.g() && (movechild_ref.g() <= intervals[0].end)){ // need to see if there is a relevant interval
                                 movechild_ref.set_interval(intervals[0]);
                                 movechild_ref.interval_id = movechild_ref.interval.id;
                                 auto * movechild = place_on_closed(movechild_ref, map);

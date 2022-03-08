@@ -64,11 +64,8 @@ void Constraints::updateCellSafeIntervals(std::pair<int, int> cell)
         for(int l = 0; l < constraints[cells[k].first][cells[k].second].size(); l++)
             if(std::find(secs.begin(), secs.end(), constraints[cells[k].first][cells[k].second][l]) == secs.end())
                 secs.push_back(constraints[cells[k].first][cells[k].second][l]);
-    DEBUG_MSG(secs.size());
     for(int k = 0; k < secs.size(); k++){
         section sec = secs[k];
-        DEBUG_MSG("Size");
-        DEBUG_MSG(sec.size);
         double radius = agentsize + sec.size;
         int i0(secs[k].i1), j0(secs[k].j1), i1(secs[k].i2), j1(secs[k].j2), i2(cell.first), j2(cell.second);
         SafeInterval interval;
@@ -309,7 +306,7 @@ void Constraints::addConstraints(const std::vector<RTNode> &sections, double siz
     }
 }
 
-
+/*
 std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map){
     
     //std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
@@ -323,15 +320,148 @@ std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std:
     std::vector<std::pair<int,int>> cells = los.getCellsCrossedByLine(curNode.i, curNode.j, curNode.Parent->i, curNode.Parent->j, map);
     std::vector<section> sections(0);
     section sec;
-    for(unsigned int i = 0; i < cells.size(); i++)
+    for(unsigned int i = 0; i < cells.size(); i++){
+        DEBUG_MSG("Constraints");
+        DEBUG_MSG_NO_LINE_BREAK(cells[i].first);
+        DEBUG_MSG_NO_LINE_BREAK(" ");
+        DEBUG_MSG(cells[i].second);
         for(unsigned int j = 0; j < constraints[cells[i].first][cells[i].second].size(); j++){
+            sec = constraints[cells[i].first][cells[i].second][j];
+            DEBUG_MSG_NO_LINE_BREAK(sec.i1);
+            DEBUG_MSG_NO_LINE_BREAK(" ");
+            DEBUG_MSG_NO_LINE_BREAK(sec.j1);
+            DEBUG_MSG_NO_LINE_BREAK(" ");
+            DEBUG_MSG_NO_LINE_BREAK(sec.g1);
+            DEBUG_MSG_NO_LINE_BREAK("->");
+            DEBUG_MSG_NO_LINE_BREAK(sec.i2);
+            DEBUG_MSG_NO_LINE_BREAK(" ");
+            DEBUG_MSG_NO_LINE_BREAK(sec.j2);
+            DEBUG_MSG_NO_LINE_BREAK(" ");
+            DEBUG_MSG(sec.g2);
+            if(sec.g2 < curNode.Parent->g() || sec.g1 > curNode.g())
+                continue;
+            if(std::find(sections.begin(), sections.end(), sec) == sections.end())
+                sections.push_back(sec);
+        }
+    }
+    //auto range = close.equal_range(curNode.i*map.width + curNode.j);
+
+    for(unsigned int i=0; i<curNodeIntervals.size(); i++){
+        SafeInterval cur_interval(curNodeIntervals[i]);
+        if (cur_interval.begin > curNode.g() || cur_interval.end < curNode.g()){
+            curNodeIntervals.erase(curNodeIntervals.begin() + i);
+            i--;
+            continue;
+        }
+        if(cur_interval.begin < curNode.g())
+            cur_interval.begin = curNode.g();
+        double startTimeA = curNode.Parent->g();
+        //if(cur_interval.begin > startTimeA + curNode.g() - curNode.Parent->g())
+        //    startTimeA = cur_interval.begin - curNode.g() + curNode.Parent->g();
+        unsigned int j = 0;
+        bool goal_collision;
+        while(j < sections.size())
+        {
+            goal_collision = false;
+            
+            if((((startTimeA <= sections[j].g1 && sections[j].g1 <= curNode.g()) || 
+                (startTimeA <= sections[j].g2 && sections[j].g2 <= curNode.g()) ||
+                (sections[j].g1 <= startTimeA  && startTimeA <= sections[j].g2) ||
+                (sections[j].g1 <= curNode.g() && curNode.g() <= sections[j].g2)))){
+                if( hasCollision(curNode, startTimeA, sections[j], goal_collision)){
+                    DEBUG_MSG("Collision:");
+                    curNode.debug();
+                    DEBUG_MSG_NO_LINE_BREAK("StartTimeA:" );
+                    DEBUG_MSG(startTimeA);
+                    DEBUG_MSG_NO_LINE_BREAK(sections[j].i1);
+                    DEBUG_MSG_NO_LINE_BREAK(" ");
+                    DEBUG_MSG_NO_LINE_BREAK(sections[j].j1);
+                    DEBUG_MSG_NO_LINE_BREAK(" ");
+                    DEBUG_MSG_NO_LINE_BREAK(sections[j].g1);
+                    DEBUG_MSG_NO_LINE_BREAK("->");
+                    DEBUG_MSG_NO_LINE_BREAK(sections[j].i2);
+                    DEBUG_MSG_NO_LINE_BREAK(" ");
+                    DEBUG_MSG_NO_LINE_BREAK(sections[j].j2);
+                    DEBUG_MSG_NO_LINE_BREAK(" ");
+                    DEBUG_MSG(sections[j].g2);
+                    double offset = 0.1;
+                    startTimeA += offset;
+                    cur_interval.begin += offset;
+                    DEBUG_MSG("INTERVAL HAS BEEN CHANGED");
+                    j = 0;//start to check all constraints again, because time has changed
+                    if(goal_collision || cur_interval.begin > cur_interval.end || startTimeA > curNode.Parent->interval.end)
+                    {
+                        curNodeIntervals.erase(curNodeIntervals.begin() + i);
+                        i--;
+                        break;
+                    }
+                    
+                }
+                else{
+                    j++;
+                }
+            }
+            else{
+                curNodeIntervals.erase(curNodeIntervals.begin() + i);
+                i--;
+                break;
+                j++;
+            }
+        }
+        if(j == sections.size()){
+            bool has = false;
+            
+            for(auto rit = range.first; rit != range.second; rit++){
+                rit->second.debug();
+                if(rit->second.interval_id == cur_interval.id)
+                    if((rit->second.g() + tweight*std::min(360 - fabs(curNode.heading - rit->second.heading), fabs(curNode.heading - rit->second.heading))/(180*rspeed) - cur_interval.begin) < CN_EPSILON){
+                        DEBUG_MSG("HAS");
+                        has = true;
+                        curNodeIntervals.erase(curNodeIntervals.begin() + i);
+                        i--;
+                        break;
+                    }
+            }
+            
+            if(!has){
+                for(auto rit = range.first; rit != range.second; rit++){
+                    //DEBUG_MSG(rit->second.interval_id);
+                    //DEBUG_MSG(cur_interval.id);
+                    //DEBUG_MSG(rit->second.heading_id);
+                    //DEBUG_MSG(curNode.heading_id);
+                    if(rit->second.interval_id == cur_interval.id && (!planforturns || rit->second.heading_id == curNode.heading_id)){
+                        reopened++;
+                    }
+                }
+                EAT.push_back(cur_interval.begin);
+            }
+        }
+    }
+    return curNodeIntervals;
+}
+*/
+
+
+std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std::vector<double> &EAT, const std::unordered_multimap<int, RTNode> &close, const Map &map)
+{
+    std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
+    if(curNodeIntervals.empty())
+        return curNodeIntervals;
+    EAT.clear();
+    LineOfSight los(agentsize);
+    std::vector<std::pair<int,int>> cells = los.getCellsCrossedByLine(curNode.i, curNode.j, curNode.Parent->i, curNode.Parent->j, map);
+    std::vector<section> sections(0);
+    section sec;
+    for(unsigned int i = 0; i < cells.size(); i++)
+        for(unsigned int j = 0; j < constraints[cells[i].first][cells[i].second].size(); j++)
+        {
             sec = constraints[cells[i].first][cells[i].second][j];
             if(sec.g2 < curNode.Parent->g() || sec.g1 > (curNode.Parent->interval.end + curNode.g() - curNode.Parent->g()))
                 continue;
             if(std::find(sections.begin(), sections.end(), sec) == sections.end())
                 sections.push_back(sec);
         }
-    //auto range = close.equal_range(curNode.i*map.width + curNode.j);
+    auto range = close.equal_range(curNode.i*map.width + curNode.j);
 
     for(unsigned int i=0; i<curNodeIntervals.size(); i++)
     {
@@ -347,7 +477,8 @@ std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std:
         {
             goal_collision = false;
 
-            if(hasCollision(curNode, startTimeA, sections[j], goal_collision)){
+            if(hasCollision(curNode, startTimeA, sections[j], goal_collision))
+            {
                 double offset = 0.1;
                 startTimeA += offset;
                 cur_interval.begin += offset;
@@ -362,33 +493,25 @@ std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std:
             else
                 j++;
         }
-        if(j == sections.size()){
+        if(j == sections.size())
+        {
             bool has = false;
-            /*
-            for(auto rit = range.first; rit != range.second; rit++){
-                rit->second.debug();
+            for(auto rit = range.first; rit != range.second; rit++)
                 if(rit->second.interval_id == cur_interval.id)
-                    if((rit->second.g() + tweight*std::min(360 - fabs(curNode.heading - rit->second.heading), fabs(curNode.heading - rit->second.heading))/(180*rspeed) - cur_interval.begin) < CN_EPSILON){
-                        DEBUG_MSG("HAS");
-                        has = true;
-                        curNodeIntervals.erase(curNodeIntervals.begin() + i);
-                        i--;
-                        break;
-                    }
-            }
-            */
-            if(!has){
-                /*
-                for(auto rit = range.first; rit != range.second; rit++){
-                    //DEBUG_MSG(rit->second.interval_id);
-                    //DEBUG_MSG(cur_interval.id);
-                    //DEBUG_MSG(rit->second.heading_id);
-                    //DEBUG_MSG(curNode.heading_id);
-                    if(rit->second.interval_id == cur_interval.id && (!planforturns || rit->second.heading_id == curNode.heading_id)){
+                if((rit->second.g() + tweight*std::min(360 - fabs(curNode.heading - rit->second.heading), fabs(curNode.heading - rit->second.heading))/(180*rspeed) - cur_interval.begin) < CN_EPSILON)//take into account turning cost
+                {
+                    has = true;
+                    curNodeIntervals.erase(curNodeIntervals.begin() + i);
+                    i--;
+                    break;
+                }
+            if(!has)
+            {
+                for(auto rit = range.first; rit != range.second; rit++)
+                    if(rit->second.interval_id == cur_interval.id && (!planforturns || rit->second.heading_id == curNode.heading_id))
+                    {
                         reopened++;
                     }
-                }
-                */
                 EAT.push_back(cur_interval.begin);
             }
         }
@@ -401,6 +524,15 @@ std::vector<SafeInterval> Constraints::findIntervals(const RTNode& curNode, std:
 std::vector<SafeInterval> Constraints::findIntervals(Node curNode, std::vector<double> &EAT, const std::unordered_multimap<int, Node> &close, const Map &map)
 {
     std::vector<SafeInterval> curNodeIntervals = getSafeIntervals(curNode, close, map.width);
+    for (int i = 0; i < curNodeIntervals.size(); i++){
+        curNodeIntervals[i].begin += inflateintervals;
+        curNodeIntervals[i].end -= inflateintervals;
+        if (curNodeIntervals[i].end <= curNodeIntervals[i].begin){
+            curNodeIntervals.erase(curNodeIntervals.begin() + i);
+            i--;
+        }
+    }
+
     if(curNodeIntervals.empty())
         return curNodeIntervals;
     EAT.clear();
@@ -437,12 +569,15 @@ std::vector<SafeInterval> Constraints::findIntervals(Node curNode, std::vector<d
             {
                 double offset = 0.1;
                 startTimeA += offset;
+            
                 cur_interval.begin += offset;
                 j = 0;//start to check all constraints again, because time has changed
                 if(goal_collision || cur_interval.begin > cur_interval.end || startTimeA > curNode.Parent->interval.end)
                 {
                     curNodeIntervals.erase(curNodeIntervals.begin() + i);
                     i--;
+                    DEBUG_MSG("OFFSET");
+                    DEBUG_MSG(offset);
                     break;
                 }
             }
@@ -477,6 +612,9 @@ std::vector<SafeInterval> Constraints::findIntervals(Node curNode, std::vector<d
 
 bool Constraints::hasCollision(const Node &curNode, double startTimeA, const section &constraint, bool &goal_collision)
 {
+    DEBUG_MSG("Collision checking ");
+    curNode.debug();
+    DEBUG_MSG("");
     double endTimeA(startTimeA + curNode.g - curNode.Parent->g), startTimeB(constraint.g1), endTimeB(constraint.g2);
     if(startTimeA > endTimeB || startTimeB > endTimeA)
         return false;
@@ -525,9 +663,11 @@ bool Constraints::hasCollision(const Node &curNode, double startTimeA, const sec
         return false;
 }
 
-
 bool Constraints::hasCollision(const RTNode &curNode, double startTimeA, const section &constraint, bool &goal_collision)
 {
+    DEBUG_MSG("Collision checking ");
+    curNode.debug();
+    DEBUG_MSG("");
     double endTimeA(startTimeA + curNode.g() - curNode.Parent->g()), startTimeB(constraint.g1), endTimeB(constraint.g2);
     if(startTimeA > endTimeB || startTimeB > endTimeA)
         return false;
@@ -575,6 +715,61 @@ bool Constraints::hasCollision(const RTNode &curNode, double startTimeA, const s
     else
         return false;
 }
+
+/*
+bool Constraints::hasCollision(const RTNode &curNode, double startTimeA, const section &constraint, bool &goal_collision)
+{
+    DEBUG_MSG("Collision checking ");
+    curNode.debug();
+    DEBUG_MSG("");
+    double endTimeA(startTimeA + curNode.g() - curNode.Parent->g()), startTimeB(constraint.g1), endTimeB(constraint.g2);
+    if(startTimeA > endTimeB || startTimeB > endTimeA)
+        return false;
+    Vector2D A(curNode.Parent->i,curNode.Parent->j);
+    Vector2D VA((curNode.i - curNode.Parent->i)/(curNode.g() - curNode.Parent->g()), (curNode.j - curNode.Parent->j)/(curNode.g() - curNode.Parent->g()));
+    Vector2D B(constraint.i1, constraint.j1);
+    Vector2D VB((constraint.i2 - constraint.i1)/(constraint.g2 - constraint.g1), (constraint.j2 - constraint.j1)/(constraint.g2 - constraint.g1));
+    if(startTimeB > startTimeA)
+    {
+      // Move A to the same time instant as B
+      A += VA*(startTimeB-startTimeA);
+      startTimeA=startTimeB;
+    }
+    else if(startTimeB < startTimeA)
+    {
+      B += VB*(startTimeA - startTimeB);
+      startTimeB = startTimeA;
+    }
+    double r(constraint.size + agentsize + inflateintervals); //combined radius
+    Vector2D w(B - A);
+    double c(w*w - r*r);
+    if(c < 0)
+    {
+        if(constraint.g2 == CN_INFINITY)
+            goal_collision = true;
+        return true;
+    } // Agents are currently colliding
+
+    // Use the quadratic formula to detect nearest collision (if any)
+    Vector2D v(VA - VB);
+    double a(v*v);
+    double b(w*v);
+
+    double dscr(b*b - a*c);
+    if(dscr <= 0)
+        return false;
+
+    double ctime = (b - sqrt(dscr))/a;
+    if(ctime > -CN_EPSILON && ctime < std::min(endTimeB,endTimeA) - startTimeA + CN_EPSILON)
+    {
+        if(constraint.g2 == CN_INFINITY)
+            goal_collision = true;
+        return true;
+    }
+    else
+        return false;
+}
+*/
 
 void Constraints::debug_safe_intervals(){
     DEBUG_MSG_NO_LINE_BREAK_RED("j");
