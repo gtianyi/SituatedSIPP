@@ -3,6 +3,7 @@
 #include "../structs.h"
 #include "../searchresult.h"
 #include "../config.h"
+#include "../safeIntervals.hpp"
 //#include "learningAlgorithms/learningAlgorithmBase.hpp"
 #include "subintervals.hpp"
 #include <unordered_map>
@@ -202,6 +203,27 @@ public:
   }
   void set_dynamic_g(double val){
     d_g = val;
+  }
+
+  bool isSafe(const SafeIntervals & safe_intervals) const{
+    return safe_intervals.isSafe(i, j, g());
+  }
+
+  bool isSafe() const{
+    return std::isfinite(interval.begin);
+  }
+
+  bool isValidMove() const{
+    // check that child has a valid safe interval
+    if (!isSafe() || g() < interval.begin || g() > interval.end){
+      return false;
+    }
+    // check that child interval extends to cover parent
+    if (Parent->g() <= interval.begin){
+      return false;
+    }
+    // check that parent interval covers child
+    return Parent->interval.end >= g();
   }
 
   void set_zero(){

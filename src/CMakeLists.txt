@@ -14,7 +14,8 @@ set( SOURCE_FILES
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.cpp
      constraints.cpp
      situatedSIPP/subintervals.cpp
-     tracy/TracyClient.cpp )
+     tracy/TracyClient.cpp
+     safeIntervals.cpp )
 
 set( HEADER_FILES
      tinyxml2.h
@@ -37,7 +38,8 @@ set( HEADER_FILES
      situatedSIPP/subintervals.hpp
      structs.h
      json.hpp
-     constraints.h )
+     constraints.h
+     safeIntervals.hpp )
 
 add_executable(ssipp ${SOURCE_FILES} ${HEADER_FILES} )
 target_link_libraries(ssipp CONAN_PKG::boost)

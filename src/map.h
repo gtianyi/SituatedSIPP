@@ -10,7 +10,8 @@
 #include "tinyxml2.h"
 #include "gl_const.h"
 #include "lineofsight.h"
-#include "situatedSIPP/structs.h"
+
+class RTNode;
 
 class Map
 {

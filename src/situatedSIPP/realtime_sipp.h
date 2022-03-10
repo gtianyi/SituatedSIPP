@@ -16,17 +16,17 @@ class Realtime_SIPP : public AA_SIPP
 {
 public:
     Realtime_SIPP(const Config& config);
-    SearchResult startSearch(Map& map, Task& task, DynamicObstacles& obstacles);
+    SearchResult startSearch(Map& map, Task& task, DynamicObstacles& obstacles,const SafeIntervals & safe_intervals);
     RTSearchResult startRTSearch(Map& map, Task& task,
-                                 DynamicObstacles& obstacles);
-    bool   findPath(unsigned int numOfCurAgent, const Map& map) override;
+                                 DynamicObstacles& obstacles, const SafeIntervals& safe_intervals);
+    bool   findPath(unsigned int numOfCurAgent, const Map& map, const SafeIntervals& safe_intervals) override;
     RTNode findMin();
     bool   stopCriterion(const RTNode& curNode, RTNode& goalNode);
     double calcHeading(const RTNode& node, const RTNode& son);
     void recordToOnlinePath(const RTNode& rootNode, const RTNode& frontierNode,
                             const timeval& begin, const timeval& end);
 
-    std::list<RTNode> findSuccessors(const RTNode & curNode, const Map& map);
+    std::list<RTNode> findSuccessors(const RTNode & curNode, const Map& map, const SafeIntervals& safe_intervals);
     //std::list<RTNode> findSuccessorsUsingUnitWaitRepresentation(const RTNode curNode, const Map& map);
     virtual void      makePrimaryPath(RTNode curNode);
     virtual void      makeSecondaryPath(RTNode curNode);

@@ -81,6 +81,8 @@ void Mission::createSearch()
         delete m_pSearch;
         m_pSearch = new Realtime_SIPP(m_config);
     }
+
+    safe_intervals = SafeIntervals(m_map, m_obstacles, m_task.getAgent(0).size);
     //else if (m_config.algtype == 5) {
     //    delete m_pSearch;
     //    m_pSearch = new Situated_SIPP(m_config);
@@ -102,7 +104,7 @@ void Mission::createLog()
 void Mission::startSearch()
 {
     // std::cout<<"SEARCH STARTED\n";
-    sr = m_pSearch->startSearch(m_map, m_task, m_obstacles);
+    sr = m_pSearch->startSearch(m_map, m_task, m_obstacles, safe_intervals);
 
 }
 

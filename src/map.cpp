@@ -1,4 +1,5 @@
 #include "map.h"
+#include "situatedSIPP/structs.h"
 using namespace tinyxml2;
 
 Map::Map()

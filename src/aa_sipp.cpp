@@ -1,5 +1,6 @@
 #include "aa_sipp.h"
 #include "debug.h"
+#include "safeIntervals.hpp"
 #include "structs.h"
 
 AA_SIPP::AA_SIPP(const Config& config)
@@ -345,7 +346,7 @@ bool AA_SIPP::changePriorities(int bad_i)
 }
 
 SearchResult AA_SIPP::startSearch(Map& map, Task& task,
-                                  DynamicObstacles& obstacles)
+                                  DynamicObstacles& obstacles, const SafeIntervals & safe_intervals)
 {
     focal_heuristic = Heuristic(config->connectedness);
     focal_heuristic.init(map.width, map.height, task.getNumberOfAgents());
@@ -363,6 +364,7 @@ SearchResult AA_SIPP::startSearch(Map& map, Task& task,
     QueryPerformanceCounter(&begin);
     QueryPerformanceFrequency(&freq);
 #endif
+    (void)safe_intervals;
     bool   solution_found(false);
     int    tries(0);
     int    bad_i(0);
@@ -411,7 +413,7 @@ SearchResult AA_SIPP::startSearch(Map& map, Task& task,
                 constraints->removeStartConstraint(cells, curagent.start_i,
                                                    curagent.start_j);
             }
-            if (findPath(current_priorities[numOfCurAgent], map)) {
+            if (findPath(current_priorities[numOfCurAgent], map, safe_intervals)) {
                 constraints->addConstraints(
                   sresult.pathInfo[current_priorities[numOfCurAgent]].sections,
                   curagent.size, curagent.mspeed, map);
@@ -479,9 +481,9 @@ auto AA_SIPP::resetParent(Node current, Node Parent, const Map& map) -> Node
     return current;
 }
 
-bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map)
+bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, const SafeIntervals & safe_intervals)
 {
-
+(void)safe_intervals;
 #ifdef __linux__
     timeval begin, end;
     gettimeofday(&begin, NULL);

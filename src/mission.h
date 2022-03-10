@@ -3,13 +3,14 @@
 
 #include "map.h"
 #include "config.h"
+#include "safeIntervals.hpp"
 #include "xmlLogger.h"
 #include "searchresult.h"
 #include "aa_sipp.h"
 #include "situatedSIPP/realtime_sipp.h"
-#include "situatedSIPP/situated_sipp.h"
 #include "task.h"
 #include "dynamicobstacles.h"
+#include "safeIntervals.hpp"
 
 class Mission
 {
@@ -36,6 +37,7 @@ private:
     AA_SIPP*         m_pSearch;
     XmlLogger*       m_pLogger;
     SearchResult     sr;
+    SafeIntervals    safe_intervals;
     const char*      mapName;
     const char*      taskName;
     const char*      configName;

@@ -29,7 +29,7 @@ public:
 
     AA_SIPP(const Config &config);
     virtual ~AA_SIPP();
-    virtual SearchResult startSearch(Map &map, Task &task, DynamicObstacles &obstacles);
+    virtual SearchResult startSearch(Map &map, Task &task, DynamicObstacles &obstacles, const SafeIntervals & safe_intervals);
     SearchResult sresult;
 
     template <typename T>
@@ -51,7 +51,7 @@ protected:
     void calculateLineSegment(std::vector<Node> &line, const Node &start, const Node &goal);
     void addConstraints(){}
     Node resetParent(Node current, Node Parent, const Map &map);
-    virtual bool findPath(unsigned int numOfCurAgent, const Map &map);
+    virtual bool findPath(unsigned int numOfCurAgent, const Map &map, const SafeIntervals & safe_intervals);
     std::vector<conflict> CheckConflicts(const Task &task);//bruteforce checker. It splits final(already built) trajectories into sequences of points and checks distances between them
     void setPriorities(const Task &task);
     bool changePriorities(int bad_i);

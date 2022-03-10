@@ -8,7 +8,7 @@ public:
     void runSearch(RTNode& curNode, RTNode& goalNode, const Map& map,
                    std::unordered_multimap<int, RTNode>& close, int& reexpanded,
                    std::list<RTNode>& reexpanded_list,
-                   SearchClass*       searchClassPtr) override
+                   SearchClass*       searchClassPtr, const SafeIntervals& safe_intervals) override
     {
 
         int curExpansion(0);
