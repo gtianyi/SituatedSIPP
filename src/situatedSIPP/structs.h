@@ -205,7 +205,7 @@ public:
     d_g = val;
   }
 
-  bool isSafe(const SafeIntervals & safe_intervals) const{
+  bool isSafe(SafeIntervals & safe_intervals) const{
     return safe_intervals.isSafe(i, j, g());
   }
 
@@ -219,7 +219,7 @@ public:
       return false;
     }
     // check that child interval extends to cover parent
-    if (Parent->g() <= interval.begin){
+    if (Parent->g() < interval.begin){
       return false;
     }
     // check that parent interval covers child

@@ -63,7 +63,7 @@ SearchResult rtsr2sr(const RTSearchResult& rtsr)
 }
 
 SearchResult Realtime_SIPP::startSearch(Map& map, Task& task,
-                                        DynamicObstacles& obstacles, const SafeIntervals & safe_intervals)
+                                        DynamicObstacles& obstacles, SafeIntervals & safe_intervals)
 {
     RTSearchResult rtsr = startRTSearch(map, task, obstacles, safe_intervals);
     return rtsr2sr(rtsr);
@@ -72,7 +72,7 @@ SearchResult Realtime_SIPP::startSearch(Map& map, Task& task,
 }
 
 RTSearchResult Realtime_SIPP::startRTSearch(Map& map, Task& task,
-                                            DynamicObstacles& obstacles,const SafeIntervals & safe_intervals)
+                                            DynamicObstacles& obstacles, SafeIntervals & safe_intervals)
 {
     (void)obstacles;
     focal_heuristic = Heuristic(config->connectedness);
@@ -165,7 +165,7 @@ int                                                     RTNode::dynmode = 0;
 
 std::string RTNode::expansionOrderStr = "Not Set";
 
-bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, const SafeIntervals & safe_intervals)
+bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeIntervals & safe_intervals)
 {
     double prior_g = 0.0;
 
@@ -243,7 +243,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, const S
             resultPath.path            = lppath;
             resultPath.iterationPath   = onlinePlanSections;
             resultPath.pathlength      = curNode.g();
-            resultPath.reopened        = constraints->reopened; //;
+            resultPath.reopened        = -1; //;
             resultPath.reexpanded      = reexpanded;
             resultPath.reexpanded_list = reexpanded_list;
             sresult.pathfound          = true;
@@ -279,7 +279,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, const S
             resultPath.path            = lppath;
             resultPath.iterationPath   = onlinePlanSections;
             resultPath.pathlength      = curNode.g();
-            resultPath.reopened        = constraints->reopened; //;
+            resultPath.reopened        = -1; //;
             resultPath.reexpanded      = reexpanded;
             resultPath.reexpanded_list = reexpanded_list;
             sresult.pathfound          = true;
@@ -357,7 +357,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, const S
         resultPath.path            = lppath;
         resultPath.iterationPath   = onlinePlanSections;
         resultPath.pathlength      = curNode.g();
-        resultPath.reopened        = constraints->reopened; //;
+        resultPath.reopened = -1;
         resultPath.reexpanded      = reexpanded;
         resultPath.reexpanded_list = reexpanded_list;
         sresult.pathInfo[numOfCurAgent] = resultPath;
@@ -585,7 +585,7 @@ auto Realtime_SIPP::find_iterator(const RTNode & n, const Map& map){
     return close.end();
 }
 
-std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map&   map, const SafeIntervals& safe_intervals){
+std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map&   map, SafeIntervals& safe_intervals){
     std::list<RTNode>         successors;
     std::vector<double>       EAT;
     std::vector<SafeInterval> intervals;
@@ -631,8 +631,8 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
             else if(config->dynmode == 2){//subintervals
                 auto potential_intervals = safe_intervals.get_safe_intervals(movechild_ref.i, movechild_ref.j, movechild_ref.g());
                 int expanded = 0;
-                while((potential_intervals.first != potential_intervals.second) && (expanded < config->maxNumOfIntervalsPerMove)){
-                    auto pi = potential_intervals.first;
+                auto pi = potential_intervals.begin();
+                while((pi != potential_intervals.end()) && (expanded < config->maxNumOfIntervalsPerMove)){
                     movechild_ref.set_interval(SafeInterval(pi->first, pi->second));
                     movechild_ref.interval_id = movechild_ref.interval.id;
                     //auto * movechild = place_on_closed(movechild_ref, map);
@@ -646,6 +646,11 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                         wait_ref.set_parent(curNode);
                         wait_ref.set_interval(curNode->interval);
                         wait_ref.interval_id = wait_ref.interval.id;
+                        DEBUG_MSG("CHECK WAIT");
+                        wait_ref.Parent->debug();
+                        wait_ref.debug();
+                        DEBUG_MSG(wait_ref.isValidMove());
+                        DEBUG_MSG("");
                         if (wait_ref.isValidMove()){// wait is safe
                             auto wmchild_ref = wait_ref + m;
                             wmchild_ref.optimal = wait_ref.optimal;
@@ -654,6 +659,11 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                             wmchild_ref.set_parent(wait);
                             wmchild_ref.set_interval(safe_intervals.getSafeInterval(wmchild_ref.i, wmchild_ref.j, wmchild_ref.g()));
                             wmchild_ref.interval_id = wmchild_ref.interval.id;
+                            DEBUG_MSG("CHECK WMC");
+                            wmchild_ref.Parent->debug();
+                            wmchild_ref.debug();
+                            DEBUG_MSG(wmchild_ref.isValidMove());
+                            DEBUG_MSG("");
                             if (wmchild_ref.isValidMove()){
                                 auto * wmchild = place_on_closed(wmchild_ref, map);
                                 assert ((wmchild->g() >= wmchild->interval.begin) && (wmchild->g() <= wmchild->interval.end));
@@ -671,14 +681,14 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                         
                     }
                     ++expanded;
-                    ++potential_intervals.first;
+                    ++pi;
                 }
             }
             else{   // regular intervals
                 auto potential_intervals = safe_intervals.get_safe_intervals(movechild_ref.i, movechild_ref.j, movechild_ref.g());
                 int expanded = 0;
-                while((potential_intervals.first != potential_intervals.second) && (expanded < config->maxNumOfIntervalsPerMove)){
-                    auto pi = potential_intervals.first;
+                auto pi = potential_intervals.begin();
+                while((pi != potential_intervals.end()) && (expanded < config->maxNumOfIntervalsPerMove)){
                     movechild_ref.set_interval(SafeInterval(pi->first, pi->second));
                     movechild_ref.interval_id = movechild_ref.interval.id;
                     double wait_duration = pi->first - movechild_ref.g();
@@ -714,7 +724,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                         
                     }
                     ++expanded;
-                    ++potential_intervals.first;
+                    ++pi;
                 }
             }
 

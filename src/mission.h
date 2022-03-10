@@ -37,7 +37,7 @@ private:
     AA_SIPP*         m_pSearch;
     XmlLogger*       m_pLogger;
     SearchResult     sr;
-    SafeIntervals    safe_intervals;
+    SafeIntervals *   safe_intervals;
     const char*      mapName;
     const char*      taskName;
     const char*      configName;

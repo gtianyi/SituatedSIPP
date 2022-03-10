@@ -346,7 +346,7 @@ bool AA_SIPP::changePriorities(int bad_i)
 }
 
 SearchResult AA_SIPP::startSearch(Map& map, Task& task,
-                                  DynamicObstacles& obstacles, const SafeIntervals & safe_intervals)
+                                  DynamicObstacles& obstacles, SafeIntervals & safe_intervals)
 {
     focal_heuristic = Heuristic(config->connectedness);
     focal_heuristic.init(map.width, map.height, task.getNumberOfAgents());
@@ -481,8 +481,7 @@ auto AA_SIPP::resetParent(Node current, Node Parent, const Map& map) -> Node
     return current;
 }
 
-bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, const SafeIntervals & safe_intervals)
-{
+bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeIntervals & safe_intervals){
 (void)safe_intervals;
 #ifdef __linux__
     timeval begin, end;

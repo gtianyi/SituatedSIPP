@@ -8,22 +8,6 @@
 
 class Map;
 
-class SafeIntervals{
-    private:
-        std::vector<boost::container::flat_set<std::pair<double, double>>> _safe_intervals;
-        Map map;
-        inline int get_index(int i, int j) const{return i * (int)map.width + j;}
-    public:
-        SafeIntervals(){};
-        SafeIntervals(Map map, const DynamicObstacles& obstacles, double agent_size); // populates safe intervals
-        bool isSafe(int i, int j, double t) const;
-        SafeInterval getSafeInterval(int i, int j, double beginning) const;
-        boost::container::flat_set<std::pair<double, double>> get_safe_intervals(int i, int j) const; // return safe intervals at location.
-        std::pair<boost::container::flat_set<std::pair<double, double>>::iterator, boost::container::flat_set<std::pair<double, double>>::iterator> get_safe_intervals(int i, int j, double beginning) const; // now get rid of any that end before beginning.
-        std::pair<boost::container::flat_set<std::pair<double, double>>::iterator, boost::container::flat_set<std::pair<double, double>>::iterator> get_safe_intervals(int i, int j, double beginning, double ending) const; // and start after ending. 
-        void dump(const std::string & fn) const;
-};
-
 
 inline void collision_interval(int i, int j, const Node& source, const Node& destination, double agent_size, double obstacle_size, std::pair<double, double> & retval){
     retval.first = std::numeric_limits<double>::quiet_NaN();
@@ -117,4 +101,68 @@ inline void combine_intervals(boost::container::flat_set<std::pair<double, doubl
     for (int i = 0; i < new_intervals_begin.size(); i++){
         intervals.emplace_hint(intervals.end(), new_intervals_begin[i], new_intervals_end[i]);
     }
+
 }
+
+inline void lazy_compute_safe_intervals(int i, int j, const DynamicObstacles& obstacles, const Map& map, double agent_size, boost::container::flat_set<std::pair<double, double>> * retval){
+    if (map.CellIsObstacle(i, j)){
+        return;
+    }
+    auto col_interval = std::pair<double, double>(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
+    auto inter_holder = std::vector<std::pair<double, double>>();
+    std::vector<double> new_intervals_begin = std::vector<double>();
+    std::vector<double> new_intervals_end = std::vector<double>();
+
+    int num_obs = obstacles.getNumberOfObstacles();
+    for (int ind=0; ind<num_obs; ind++ ){
+        const auto& sections = obstacles.getSections(ind);
+        double obstacle_size = obstacles.getSize(ind);
+        for (int section_ind = 1; section_ind<sections.size(); section_ind++){
+            collision_interval(i, j, sections[section_ind-1], sections[section_ind], agent_size, obstacle_size, col_interval);
+            if (!std::isnan(col_interval.first)){
+                inter_holder.emplace_back(col_interval);
+            }
+            if ((section_ind == sections.size()-1) && (sections[section_ind].i == i) && (sections[section_ind].j == j)){
+                inter_holder.emplace_back(sections[section_ind].g, std::numeric_limits<double>::infinity());
+            }
+        }
+    }
+    for (auto inter :inter_holder){
+        retval->insert(inter);
+    }
+    combine_intervals(*retval, new_intervals_begin, new_intervals_end); 
+    invert_intervals(*retval, new_intervals_begin, new_intervals_end);
+    DEBUG_MSG_NO_LINE_BREAK(i);
+    DEBUG_MSG_NO_LINE_BREAK(" ");
+    DEBUG_MSG_NO_LINE_BREAK(j);
+    DEBUG_MSG_NO_LINE_BREAK(" ");
+    DEBUG_MSG(retval->size());
+}
+
+
+class SafeIntervals{
+    private:
+        std::vector<boost::container::flat_set<std::pair<double, double>>* > _safe_intervals;
+        std::vector<bool> _generated_safe_intervals;
+        const Map& map;
+        const DynamicObstacles& obstacles;
+        double agent_size;
+        inline int get_index(int i, int j) const{return i * (int)map.width + j;}
+    public:
+        SafeIntervals(const Map& map, const DynamicObstacles& obstacles, double agent_size); // populates safe intervals
+        ~SafeIntervals(){
+            for (int i = 0; i<_safe_intervals.size(); i++){
+                _safe_intervals[i]->clear();
+                delete _safe_intervals[i];
+            }
+        }
+        bool isSafe(int i, int j, double t);
+        SafeInterval getSafeInterval(int i, int j, double beginning);
+        boost::container::flat_set<std::pair<double, double>> get_safe_intervals(int i, int j); // return safe intervals at location.
+        boost::container::flat_set<std::pair<double, double>> get_safe_intervals(int i, int j, double beginning); // now get rid of any that end before beginning.
+        boost::container::flat_set<std::pair<double, double>> get_safe_intervals(int i, int j, double beginning, double ending); // and start after ending. 
+        void dump(const std::string & fn) const;
+};
+
+
+
