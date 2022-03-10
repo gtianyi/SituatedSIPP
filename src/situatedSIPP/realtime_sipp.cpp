@@ -501,8 +501,7 @@ RTNode Realtime_SIPP::findMin()
 
 bool Realtime_SIPP::stopCriterion(const RTNode& curNode, RTNode& goalNode)
 {
-    if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j &&
-        curNode.interval.end == CN_INFINITY) {
+    if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
         if (!config->planforturns ||
             curagent.goal_heading == CN_HEADING_WHATEVER) {
             goalNode = curNode;

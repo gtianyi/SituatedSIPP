@@ -318,7 +318,9 @@ public:
 
   void set_parent(RTNode* parent, bool best = true){
     if (best){
-      Parent = parent;
+      if (Parent == nullptr || parent == nullptr || parent->g() < Parent->g()){
+        Parent = parent;
+      }
     }
     if(parent){
       auto prange = get_parents();

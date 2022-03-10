@@ -13,9 +13,13 @@ public:
 
         int curExpansion(0);
         // expansion phase
-        while (!searchClassPtr->stopCriterion(curNode, goalNode) && curExpansion < searchClassPtr->lookaheadBudget) {
+        while ((curNode.i != goalNode.i || curNode.j != goalNode.j) && curExpansion < searchClassPtr->lookaheadBudget) {
             curExpansion++;
             curNode = searchClassPtr->findMin();
+            curNode.debug();
+            goalNode.debug();
+            DEBUG_MSG(searchClassPtr->stopCriterion(curNode, goalNode));
+            DEBUG_MSG(" ");
             auto range = close.equal_range(curNode.i * map.width + curNode.j);
             for (auto it = range.first; it != range.second; it++) {
                 if (it->second.interval_id ==
