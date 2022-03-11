@@ -155,7 +155,13 @@ public:
       return d_g;
   }
   void set_static_h(double val) const{
+    DEBUG_MSG_NO_LINE_BREAK(static_key().first);
+    DEBUG_MSG_NO_LINE_BREAK(" ");
+    DEBUG_MSG(static_key().second);
+    DEBUG_MSG(val);
     _static_h[static_key()] = val;
+    DEBUG_MSG(_static_h[static_key()]);
+    DEBUG_MSG("");
   }
 
   void prep_dijkstra() const{

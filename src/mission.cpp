@@ -136,7 +136,6 @@ void Mission::saveSearchResultsToLog(){
     std::cout << "LOG STARTED\n";
     m_pLogger->writeToLogInput(taskName, mapName, configName, obstaclesName);
     m_pLogger->writeToLogSummary(sr);
-    DEBUG_MSG(sr.pathInfo[0].sections.size());
     if (true){//(sr.pathfound) {
         m_pLogger->writeToLogMap(m_map, sr);
         m_pLogger->writeToLogPath(sr, m_task, m_config);

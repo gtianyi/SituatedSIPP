@@ -37,16 +37,20 @@ public:
             // close_id++;
             close.insert({curNode.i * map.width + curNode.j, curNode});
             DEBUG_MSG("finding successors");
-            auto successors = searchClassPtr->findSuccessors(curNode, map, safe_intervals);
+            auto successors = searchClassPtr->findSuccessors(curNode, map, safe_intervals, goalNode);
+            /*
             int acc = 0;
             for (auto s: successors){
                 ++acc;
+                assert (s.Parent == nullptr || s.Parent->i != goalNode.i || s.Parent->j != goalNode.j);
                 if (s.i == goalNode.i && s.j == goalNode.j){
-                    successors.resize(acc);
+                    successors.push_front(s);
+                    successors.resize(1);
                     break;
                 }
             }
-            for (auto s : searchClassPtr->findSuccessors(curNode, map, safe_intervals)){
+            */
+            for (auto s : successors){
                 if (searchClassPtr->config->use_likhachev) {
                     range    = close.equal_range(s.i * map.width + s.j);
                     bool add = true;

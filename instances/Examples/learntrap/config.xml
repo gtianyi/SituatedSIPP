@@ -4,7 +4,7 @@
 		<allowanyangle>false</allowanyangle>
 		<connectedness>3</connectedness>
 		<rescheduling>random</rescheduling>
-		<startsafeinterval>3</startsafeinterval>
+		<startsafeinterval>1</startsafeinterval>
 		<prioritization>fifo</prioritization>
 		<steplimit>100</steplimit>
 		<issituated>true</issituated>

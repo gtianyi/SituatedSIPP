@@ -7,7 +7,6 @@ bool XmlLogger::createLog(const char *FileName)
         return true;
 
     std::string value(FileName);
-    DEBUG_MSG(value);
     size_t dotPos = value.find_last_of(".");
     if(dotPos != std::string::npos)
         value.insert(dotPos,CN_LOG);
@@ -162,7 +161,6 @@ void XmlLogger::writeToLogPath(const SearchResult &sresult, const Task &task, co
             int partnumber(0);
             XMLElement *part;
             while(it != --sresult.pathInfo[i].sections.end()){
-                it->debug();
                 part = doc->NewElement(CNS_TAG_SECTION);
                 part->SetAttribute(CNS_TAG_ATTR_ID, partnumber);
                 part->SetAttribute(CNS_TAG_ATTR_SX, it->j);
