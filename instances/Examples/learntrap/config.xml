@@ -4,17 +4,18 @@
 		<allowanyangle>false</allowanyangle>
 		<connectedness>3</connectedness>
 		<rescheduling>random</rescheduling>
-		<startsafeinterval>1</startsafeinterval>
+		<startsafeinterval>0</startsafeinterval>
 		<prioritization>fifo</prioritization>
-		<steplimit>100</steplimit>
+		<steplimit>1000</steplimit>
 		<issituated>true</issituated>
 		<planforturns>false</planforturns>
 		<waitbeforemove>0</waitbeforemove>
 		<algtype>4</algtype>
-		<fixedlookahead>2</fixedlookahead>
+		<maxnumofintervalspermove>1</maxnumofintervalspermove>
+		<fixedlookahead>32</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
-		<learningalgorithm>plrtalearning</learningalgorithm>
+		<learningalgorithm>dijkstralearning</learningalgorithm>
 		<isunitwaitrepresentation>false</isunitwaitrepresentation>
 		<unitwaitduration>0.1</unitwaitduration>
 		<dynmode>2</dynmode>

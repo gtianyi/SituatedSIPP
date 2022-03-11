@@ -190,11 +190,11 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
     goalNode.set_dynamic_h(0.0);
     goalNode.set_interval(safe_intervals.getSafeInterval(goalNode.i, goalNode.j, goalNode.g()));
     
-    goalNode.debug_si();
+    //goalNode.debug_si();
     //goalNode.set_static_h(0.0);
-    goalNode.debug();
-    DEBUG_MSG(goalNode.static_h());
-    DEBUG_MSG(goalNode.dynamic_h());
+    //goalNode.debug();
+    //DEBUG_MSG(goalNode.static_h());
+    //DEBUG_MSG(goalNode.dynamic_h());
 
     // curNode.F           = getHValue(curNode.i, curNode.j);
     //curNode.set_static_h(curNode.static_h());
@@ -220,7 +220,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
         prior_g = curNode.g();
         debug_h(curNode, map);
         curNode.debug();
-        goalNode.debug();
+        //goalNode.debug();
         assert (goalNode.h() == 0.0);
         assert (curNode.isSafe(safe_intervals));
         assert (curNode.g() >= curNode.interval.begin);
@@ -337,6 +337,13 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
             lookaheadBudget = (int)std::max(1.0, std::floor((bestTLA.g() - prior_g)*config->fixedlookahead));
          
         }
+        /*
+        DEBUG_MSG("OPEN");
+        for (const auto& n: open){
+            n.debug();
+        }
+        DEBUG_MSG("");
+        */
         // 2) re-root the search tree to the best successor node
         curNode = bestTLA;
         ++(sresult.steps);
@@ -651,12 +658,20 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                 while((pi != potential_intervals.end()) && (expanded < config->maxNumOfIntervalsPerMove)){
                     movechild_ref.set_interval(SafeInterval(pi->first, pi->second));
                     movechild_ref.interval_id = movechild_ref.interval.id;
+                    double wait_duration = pi->first - curNode->g();
+                    auto wait_ref = *curNode + RTNode(0, 0, 0.0, wait_duration, m.heading_id);
                     //auto * movechild = place_on_closed(movechild_ref, map);
                     // check wait then move
                     //movechild_ref.get_si_dynamic_h(pi->first);
-                    double wait_duration = movechild_ref.get_si_dynamic_h(pi->first).second - movechild_ref.g();
+                    double goal_time = wait_ref.get_si_dynamic_h(wait_ref.g()).second;
+                    if (std::isnan(goal_time) || goal_time > curNode->interval.end){
+                        goal_time = curNode->interval.end;
+                    }
+                    wait_duration = goal_time - m.g() - curNode->g();
+                    
+               
                     if (wait_duration > std::numeric_limits<double>::epsilon()){
-                        auto wait_ref = *curNode + RTNode(0, 0, 0.0, wait_duration, m.heading_id);
+                        wait_ref = *curNode + RTNode(0, 0, 0.0, wait_duration, m.heading_id);
                         wait_ref.optimal = curNode->optimal;
                         wait_ref.heading = curNode->heading;
                         wait_ref.set_parent(curNode);
@@ -697,7 +712,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                 while((pi != potential_intervals.end()) && (expanded < config->maxNumOfIntervalsPerMove)){
                     movechild_ref.set_interval(SafeInterval(pi->first, pi->second));
                     movechild_ref.interval_id = movechild_ref.interval.id;
-                    double wait_duration = pi->first - movechild_ref.g();
+                    double wait_duration = pi->first - curNode->g();
                     if (wait_duration > std::numeric_limits<double>::epsilon()){
                         auto wait_ref = *curNode + RTNode(0, 0, 0.0, wait_duration, m.heading_id);
                         wait_ref.optimal = curNode->optimal;
@@ -736,8 +751,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
 
         }
     }
-    DEBUG_MSG("Returning");
-    DEBUG_MSG(successors.size());
+    
     return successors;
 }
 /*

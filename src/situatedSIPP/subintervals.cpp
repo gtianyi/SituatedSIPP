@@ -65,6 +65,12 @@ double SetOfSubIntervals::ht(double t) const{
 
 std::pair<double, double> SetOfSubIntervals::htn(double t) const{
     auto retval = std::pair<double, double>(INFINITY, NAN);
+    DEBUG_MSG_NO_LINE_BREAK(beginning);
+    DEBUG_MSG_NO_LINE_BREAK(" ");
+    DEBUG_MSG_NO_LINE_BREAK(t);
+    DEBUG_MSG_NO_LINE_BREAK(" ");
+    DEBUG_MSG(ending);
+
     if ((t >= beginning) && (t <= ending)){
         if (subintervals.empty()){
             retval.first = 0.0;
