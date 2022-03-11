@@ -25,7 +25,7 @@ public:
     double calcHeading(const RTNode& node, const RTNode& son);
     void recordToOnlinePath(const RTNode& rootNode, const RTNode& frontierNode,
                             const timeval& begin, const timeval& end);
-
+    bool open_empty()const {return open.empty();}
     std::list<RTNode> findSuccessors(const RTNode & curNode, const Map& map, SafeIntervals& safe_intervals);
     //std::list<RTNode> findSuccessorsUsingUnitWaitRepresentation(const RTNode curNode, const Map& map);
     virtual void      makePrimaryPath(RTNode curNode);

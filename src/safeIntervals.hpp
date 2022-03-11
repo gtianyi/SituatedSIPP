@@ -132,11 +132,6 @@ inline void lazy_compute_safe_intervals(int i, int j, const DynamicObstacles& ob
     }
     combine_intervals(*retval, new_intervals_begin, new_intervals_end); 
     invert_intervals(*retval, new_intervals_begin, new_intervals_end);
-    DEBUG_MSG_NO_LINE_BREAK(i);
-    DEBUG_MSG_NO_LINE_BREAK(" ");
-    DEBUG_MSG_NO_LINE_BREAK(j);
-    DEBUG_MSG_NO_LINE_BREAK(" ");
-    DEBUG_MSG(retval->size());
 }
 
 

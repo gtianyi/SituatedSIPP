@@ -13,13 +13,11 @@ public:
 
         int curExpansion(0);
         // expansion phase
-        while ((curNode.i != goalNode.i || curNode.j != goalNode.j) && curExpansion < searchClassPtr->lookaheadBudget) {
+        while (!searchClassPtr->open_empty() &&(curNode.i != goalNode.i || curNode.j != goalNode.j) && curExpansion < searchClassPtr->lookaheadBudget) {
             curExpansion++;
+            DEBUG_MSG("Finding min");
             curNode = searchClassPtr->findMin();
-            curNode.debug();
-            goalNode.debug();
-            DEBUG_MSG(searchClassPtr->stopCriterion(curNode, goalNode));
-            DEBUG_MSG(" ");
+            DEBUG_MSG("min found");
             auto range = close.equal_range(curNode.i * map.width + curNode.j);
             for (auto it = range.first; it != range.second; it++) {
                 if (it->second.interval_id ==
@@ -38,7 +36,17 @@ public:
             // curNode.close_id = close_id;
             // close_id++;
             close.insert({curNode.i * map.width + curNode.j, curNode});
-            for (RTNode s : searchClassPtr->findSuccessors(curNode, map, safe_intervals)){
+            DEBUG_MSG("finding successors");
+            auto successors = searchClassPtr->findSuccessors(curNode, map, safe_intervals);
+            int acc = 0;
+            for (auto s: successors){
+                ++acc;
+                if (s.i == goalNode.i && s.j == goalNode.j){
+                    successors.resize(acc);
+                    break;
+                }
+            }
+            for (auto s : searchClassPtr->findSuccessors(curNode, map, safe_intervals)){
                 if (searchClassPtr->config->use_likhachev) {
                     range    = close.equal_range(s.i * map.width + s.j);
                     bool add = true;
