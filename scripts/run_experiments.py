@@ -144,7 +144,7 @@ def run_commands(commands, server, bar, lock, toslack = ""):
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["4", "8", "32", "128", "256"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
@@ -184,7 +184,7 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                         bar.update(acc)
                                         acc += 1
 
-lookaheads = [ "16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["4", "8", "32", "128", "256"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
