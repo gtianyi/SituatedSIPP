@@ -16,7 +16,7 @@ auto AA_SIPP::stopCriterion(const Node& curNode, Node& goalNode) -> bool
 {
     if (open.empty()) {
         DEBUG_MSG("Break lookahead, OPEN list is empty! ");
-        if (curNode.interval.end == CN_INFINITY){
+        if (curNode.interval.end == INFINITY){
             sresult.agentFate = "trapped";
         }
         else{
@@ -25,7 +25,7 @@ auto AA_SIPP::stopCriterion(const Node& curNode, Node& goalNode) -> bool
         return true;
     }
     if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j &&
-        curNode.interval.end == CN_INFINITY) {
+        curNode.interval.end == INFINITY) {
         if (!config->planforturns ||
             curagent.goal_heading == CN_HEADING_WHATEVER) {
             goalNode = curNode;
@@ -39,7 +39,7 @@ auto AA_SIPP::stopCriterion(const Node& curNode, Node& goalNode) -> bool
         }
     }
     if (goalNode.F - CN_EPSILON < curNode.F ||
-        (goalNode.g < CN_INFINITY &&
+        (goalNode.g < INFINITY &&
          fabs(goalNode.g - goalNode.interval.begin) < CN_EPSILON)) {
         return true;
     }
@@ -261,7 +261,7 @@ void AA_SIPP::setPriorities(const Task& task)
         }
         int k = task.getNumberOfAgents() - 1;
         while (k >= 0) {
-            double mindist = CN_INFINITY;
+            double mindist = INFINITY;
             int    min_i   = -1;
             for (unsigned int i = 0; i < dists.size(); i++) {
                 if (mindist > dists[i]) {
@@ -274,7 +274,7 @@ void AA_SIPP::setPriorities(const Task& task)
             } else {
                 current_priorities[task.getNumberOfAgents() - k - 1] = min_i;
             }
-            dists[min_i] = CN_INFINITY;
+            dists[min_i] = INFINITY;
             k--;
         }
     } else // random
@@ -500,7 +500,7 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeIntervals
     constraints->updateCellSafeIntervals({curagent.start_i, curagent.start_j});
     //constraints->debug_safe_intervals();
     Node curNode(curagent.start_i, curagent.start_j, -1, 0, 0),
-      goalNode(curagent.goal_i, curagent.goal_j, -1, CN_INFINITY, CN_INFINITY);
+      goalNode(curagent.goal_i, curagent.goal_j, -1, INFINITY, INFINITY);
     curNode.F           = getHValue(curNode.i, curNode.j);
     curNode.interval    = constraints->getSafeInterval(curNode.i, curNode.j, 0);
     curNode.interval_id = curNode.interval.id;
@@ -558,7 +558,7 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeIntervals
             //debug_open(open);
         }
     }
-    if (goalNode.g < CN_INFINITY) {
+    if (goalNode.g < INFINITY) {
         makePrimaryPath(goalNode);
 #ifdef __linux__
         gettimeofday(&end, nullptr);

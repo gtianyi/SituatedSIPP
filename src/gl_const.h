@@ -1,6 +1,6 @@
 #ifndef GL_CONST_H
 #define GL_CONST_H
-
+#include <cmath>
 //constants
 #define PI                  3.14159265359
 #define CN_EPSILON          1e-9
@@ -19,7 +19,7 @@
 #define CNS_DEFAULT_INITIALPRIORITIZATION   CNS_IP_FIFO
 #define CN_DEFAULT_LOGLVL                   CN_LOGLVL_NORM
 #define CNS_DEFAULT_LOGLVL                  CNS_LOGLVL_NORM
-#define CN_DEFAULT_TIMELIMIT                CN_INFINITY
+#define CN_DEFAULT_TIMELIMIT                INFINITY
 #define CNS_DEFAULT_TIMELIMIT               "'infinity' (no limit)"
 #define CN_DEFAULT_STEPLIMIT                100000000000
 #define CNS_DEFAULT_STEPLIMIT              "100,000,000,000 steps"

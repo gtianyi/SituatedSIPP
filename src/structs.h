@@ -63,7 +63,7 @@ struct SafeInterval
     double begin;
     double end;
     int id;
-    SafeInterval(double begin_=0, double end_=CN_INFINITY, int id_=0):begin(begin_), end(end_), id(id_) {}
+    SafeInterval(double begin_=0, double end_= INFINITY, int id_=0):begin(begin_), end(end_), id(id_) {}
     bool operator== (const SafeInterval& other) const{
       return (begin == other.begin) && (end == other.end);
 

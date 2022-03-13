@@ -234,10 +234,11 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
                 assert (curNode.dynamic_g() >= curNode.Parent->dynamic_g());
             }
         }
-
+        //double ci = curNode.i;
+        //double cj = curNode.j;
         if (curNode.i == curagent.goal_i && curNode.j == curagent.goal_j) {
             DEBUG_MSG("goal reached yay!");
-            if (curNode.Parent){
+            if (curNode.Parent != nullptr){
                 hppath.push_back(*curNode.Parent);
                 lppath.push_back(*curNode.Parent);
             }
@@ -306,7 +307,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
         gettimeofday(&endOfRealtimeCycle, nullptr);
         if (open.empty()) {
             DEBUG_MSG("Break lookahead, OPEN list is empty! ");
-            if (curNode.interval.end == CN_INFINITY){
+            if (curNode.interval.end == INFINITY){
                 sresult.agentFate = "trapped";
             }
             else{
@@ -321,8 +322,13 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
         timer.resume_learning();
         learningModulePtr->learn(open, close);
         timer.stop_learning();
+        DEBUG_MSG("OPEN");
+        for (const auto& n: open){
+            n.debug();
+        }
+        DEBUG_MSG("");
+        RTNode::debug_parents();
 
-        RTNode::clear_parents();
         // decision-making phase
         // 1) commit the the toplevel action that would lead to the best search
         // frontier node
@@ -332,18 +338,25 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
         auto bestTLA = decisionModulePtr->backupAndRecordPartialPlan(
           curNode, beginOfRealtimeCycle, endOfRealtimeCycle, curagent.goal_i,
           curagent.goal_j, hppath, lppath, this);
+        //assert (std::abs(ci - bestTLA.i) <= 1 && std::abs(cj - bestTLA.j) <= 1);
+        /*
+        DEBUG_MSG_RELEASE_NO_LINE_BREAK(ci);
+        DEBUG_MSG_RELEASE_NO_LINE_BREAK(" ");
+        DEBUG_MSG_RELEASE_NO_LINE_BREAK(cj);
+        DEBUG_MSG_RELEASE_NO_LINE_BREAK(" ");
+        DEBUG_MSG_RELEASE_NO_LINE_BREAK(bestTLA.i);
+        DEBUG_MSG_RELEASE_NO_LINE_BREAK(" ");
+        DEBUG_MSG_RELEASE(bestTLA.j);
+        */
+        //DEBUG_MSG_RELEASE((std::abs(ci - bestTLA.i) <= 1 && std::abs(cj - bestTLA.j) <= 1));
         timer.stop_decision();
         if (config->issituated){
             lookaheadBudget = (int)std::max(1.0, std::floor((bestTLA.g() - prior_g)*config->fixedlookahead));
          
         }
-        /*
-        DEBUG_MSG("OPEN");
-        for (const auto& n: open){
-            n.debug();
-        }
-        DEBUG_MSG("");
-        */
+        
+        
+        
         // 2) re-root the search tree to the best successor node
         curNode = bestTLA;
         ++(sresult.steps);
@@ -359,6 +372,7 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
         resetGoalNode.set_interval(safe_intervals.getSafeInterval(resetGoalNode.i, resetGoalNode.j, resetGoalNode.g()));
         goalNode = resetGoalNode;
         close.clear();
+        RTNode::clear_parents();
     }
     if (!resultPath.pathfound) {
         gettimeofday(&end, nullptr);
@@ -386,7 +400,6 @@ bool Realtime_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeInt
         sresult.makespan = std::max(sresult.makespan, curNode.g());
     }
     debug_h_to_file("debug_h.json");
-    DEBUG_MSG(sresult.pathInfo[0].sections.size());
     return resultPath.pathfound;
 }
 
@@ -395,7 +408,7 @@ void Realtime_SIPP::recordToOnlinePath(const RTNode&  rootNode,
                                        const timeval& begin, const timeval& end)
 {
     auto curNode = frontierNode;
-
+    (void)rootNode;
     std::list<RTNode>   path;
     std::vector<RTNode> sections;
     path.push_front(curNode);
@@ -452,7 +465,8 @@ void Realtime_SIPP::recordToOnlinePath(const RTNode&  rootNode,
       open.size() +
       close.size(); // this is wrong becauwse open is cleaned up every iteration
     partialPath.path       = path;
-    partialPath.pathlength = frontierNode.g() - rootNode.g();
+    partialPath.pathlength = frontierNode.g() -
+     curNode.g();
     onlinePlanSections.push_back(partialPath);
 }
 
@@ -536,13 +550,13 @@ bool Realtime_SIPP::stopCriterion(const RTNode& curNode, RTNode& goalNode)
         }
     }
     if (goalNode.F() - CN_EPSILON < curNode.F() ||
-        (goalNode.g() < CN_INFINITY &&
+        (goalNode.g() < INFINITY &&
          fabs(goalNode.g() - goalNode.interval.begin) < CN_EPSILON)) {
         return true;
     }
     if (open.empty()) {
         // std::cout << "OPEN list is empty! ";
-        if (curNode.interval.end == CN_INFINITY){
+        if (curNode.interval.end == INFINITY){
             sresult.agentFate = "trapped";
         }
         else{
@@ -611,7 +625,8 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
     if (curnode.i == goalNode.i && curnode.j == goalNode.j){
         return successors;
     }
-
+    double min_wait = std::max(1/config->fixedlookahead, 1/1000);
+    
     auto * curNode = find_on_closed(curnode, map);
     std::vector<RTNode> moves = map.getValidRTMoves(curNode->i, curNode->j, config->connectedness , curagent);
     for (const auto& m : moves) {
@@ -667,10 +682,12 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                     if (std::isnan(goal_time) || goal_time > curNode->interval.end){
                         goal_time = curNode->interval.end;
                     }
+                    DEBUG_MSG("wait duration");
                     wait_duration = goal_time - m.g() - curNode->g();
-                    
+                    DEBUG_MSG(goal_time);
+                    DEBUG_MSG(wait_duration);
                
-                    if (wait_duration > std::numeric_limits<double>::epsilon()){
+                    if (wait_duration > min_wait && std::isfinite(wait_duration)){
                         wait_ref = *curNode + RTNode(0, 0, 0.0, wait_duration, m.heading_id);
                         wait_ref.optimal = curNode->optimal;
                         wait_ref.heading = curNode->heading;
@@ -678,10 +695,10 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                         wait_ref.set_interval(curNode->interval);
                         wait_ref.interval_id = wait_ref.interval.id;
                         if (wait_ref.isValidMove()){// wait is safe
-                            auto wmchild_ref = wait_ref + m;
-                            wmchild_ref.optimal = wait_ref.optimal;
-                            wmchild_ref.heading = wait_ref.heading;
                             auto * wait = place_on_closed(wait_ref, map);
+                            auto wmchild_ref = *wait + m;
+                            wmchild_ref.optimal = wait->optimal;
+                            wmchild_ref.heading = wait->heading;
                             wmchild_ref.set_parent(wait);
                             wmchild_ref.set_interval(safe_intervals.getSafeInterval(wmchild_ref.i, wmchild_ref.j, wmchild_ref.g()));
                             wmchild_ref.interval_id = wmchild_ref.interval.id;
@@ -713,7 +730,7 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                     movechild_ref.set_interval(SafeInterval(pi->first, pi->second));
                     movechild_ref.interval_id = movechild_ref.interval.id;
                     double wait_duration = pi->first - curNode->g();
-                    if (wait_duration > std::numeric_limits<double>::epsilon()){
+                    if (wait_duration > min_wait){
                         auto wait_ref = *curNode + RTNode(0, 0, 0.0, wait_duration, m.heading_id);
                         wait_ref.optimal = curNode->optimal;
                         wait_ref.heading = curNode->heading;
@@ -721,10 +738,10 @@ std::list<RTNode> Realtime_SIPP::findSuccessors(const RTNode& curnode, const Map
                         wait_ref.set_interval(curNode->interval);
                         wait_ref.interval_id = wait_ref.interval.id;
                         if (wait_ref.isValidMove()){// wait is safe
-                            auto wmchild_ref = wait_ref + m;
-                            wmchild_ref.optimal = wait_ref.optimal;
-                            wmchild_ref.heading = wait_ref.heading;
                             auto * wait = place_on_closed(wait_ref, map);
+                            auto wmchild_ref = *wait + m;
+                            wmchild_ref.optimal = wait->optimal;
+                            wmchild_ref.heading = wait->heading;
                             wmchild_ref.set_parent(wait);
                             wmchild_ref.set_interval(safe_intervals.getSafeInterval(wmchild_ref.i, wmchild_ref.j, wmchild_ref.g()));
                             wmchild_ref.interval_id = wmchild_ref.interval.id;

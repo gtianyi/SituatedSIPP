@@ -15,9 +15,7 @@ public:
         // expansion phase
         while (!searchClassPtr->open_empty() &&(curNode.i != goalNode.i || curNode.j != goalNode.j) && curExpansion < searchClassPtr->lookaheadBudget) {
             curExpansion++;
-            DEBUG_MSG("Finding min");
             curNode = searchClassPtr->findMin();
-            DEBUG_MSG("min found");
             auto range = close.equal_range(curNode.i * map.width + curNode.j);
             for (auto it = range.first; it != range.second; it++) {
                 if (it->second.interval_id ==
@@ -36,7 +34,6 @@ public:
             // curNode.close_id = close_id;
             // close_id++;
             close.insert({curNode.i * map.width + curNode.j, curNode});
-            DEBUG_MSG("finding successors");
             auto successors = searchClassPtr->findSuccessors(curNode, map, safe_intervals, goalNode);
             /*
             int acc = 0;
