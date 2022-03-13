@@ -15,7 +15,7 @@
 		<fixedlookahead>3</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
-		<learningalgorithm>plrtalearning</learningalgorithm>
+		<learningalgorithm>nolearning</learningalgorithm>
 		<isunitwaitrepresentation>false</isunitwaitrepresentation>
 		<unitwaitduration>0.1</unitwaitduration>
 		<dynmode>2</dynmode>

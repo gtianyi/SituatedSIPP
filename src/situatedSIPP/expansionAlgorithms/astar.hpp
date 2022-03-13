@@ -47,6 +47,8 @@ public:
                 }
             }
             */
+            DEBUG_MSG_NO_LINE_BREAK("Successors of ");
+            curNode.debug();
             for (auto s : successors){
                 if (searchClassPtr->config->use_likhachev) {
                     range    = close.equal_range(s.i * map.width + s.j);
@@ -69,7 +71,7 @@ public:
                         searchClassPtr->addOpen(s);
                     }
                 } else {
-                    
+                    s.debug();
                     searchClassPtr->addOpen(s);
                     //DEBUG_MSG("    open size " << open.size());
                 }

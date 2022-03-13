@@ -366,6 +366,9 @@ public:
       if (dynmode == 0){
         boost::hash_combine(seed, s_g + d_g);
       }
+      else{
+        boost::hash_combine(seed, interval.end);
+      }
       return seed;
   }
   
