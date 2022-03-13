@@ -12,7 +12,6 @@ set( SOURCE_FILES
      situatedSIPP/learningAlgorithms/DijkstraLearning.cpp
      situatedSIPP/learningAlgorithms/PlrtaLearning.cpp
      situatedSIPP/learningAlgorithms/learningAlgorithmBase.cpp
-     constraints.cpp
      situatedSIPP/subintervals.cpp
      tracy/TracyClient.cpp
      safeIntervals.cpp )
@@ -38,7 +37,6 @@ set( HEADER_FILES
      situatedSIPP/subintervals.hpp
      structs.h
      json.hpp
-     constraints.h
      safeIntervals.hpp )
 
 add_executable(ssipp ${SOURCE_FILES} ${HEADER_FILES} )

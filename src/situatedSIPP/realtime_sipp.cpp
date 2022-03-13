@@ -13,7 +13,6 @@
 Realtime_SIPP::Realtime_SIPP(const Config& config_)
     : AA_SIPP(config_)
 {
-    constraints = nullptr;
     if (map_configStringToLearningModule.find(config->learningalgorithm) ==
         map_configStringToLearningModule.end()) {
         std::cerr << "unknown learning algorithm!";

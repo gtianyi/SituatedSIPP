@@ -12,7 +12,7 @@
 		<waitbeforemove>0</waitbeforemove>
 		<algtype>4</algtype>
 		<maxnumofintervalspermove>1</maxnumofintervalspermove>
-		<fixedlookahead>2</fixedlookahead>
+		<fixedlookahead>3</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
 		<learningalgorithm>plrtalearning</learningalgorithm>

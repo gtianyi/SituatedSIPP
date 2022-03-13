@@ -6,7 +6,7 @@
 AA_SIPP::AA_SIPP(const Config& config)
 {
     this->config = std::make_shared<const Config>(config);
-    constraints  = nullptr;
+    //constraints  = nullptr;
     open_id      = 0;
 }
 
@@ -105,7 +105,7 @@ std::list<Node> AA_SIPP::findSuccessors(const Node curNode, const Map& map)
             newNode.i          = curNode.i + m.i;
             newNode.j          = curNode.j + m.j;
             newNode.heading_id = m.heading_id;
-            constraints->updateCellSafeIntervals({newNode.i, newNode.j});
+            //constraints->updateCellSafeIntervals({newNode.i, newNode.j});
             newNode.heading = calcHeading(curNode, newNode);
             angleNode       = curNode; // the same state, but with extended g-value
             angleNode.g +=
@@ -116,7 +116,7 @@ std::list<Node> AA_SIPP::findSuccessors(const Node curNode, const Map& map)
             newNode.Parent  = &angleNode;
             newNode.optimal = curNode.optimal;
             h_value = config->h_weight * getHValue(newNode.i, newNode.j);
-
+            /*
             if (angleNode.g <= angleNode.interval.end) {
                 intervals =
                   constraints->findIntervals(newNode, EAT, close, map);
@@ -129,6 +129,7 @@ std::list<Node> AA_SIPP::findSuccessors(const Node curNode, const Map& map)
                     successors.push_front(newNode);
                 }
             }
+            */
             if (config->allowanyangle) {
                 newNode = resetParent(newNode, curNode, map);
                 if (newNode.Parent->i != parent->i ||
@@ -147,8 +148,8 @@ std::list<Node> AA_SIPP::findSuccessors(const Node curNode, const Map& map)
                     if (angleNode.g > angleNode.interval.end) {
                         continue;
                     }
-                    intervals =
-                      constraints->findIntervals(newNode, EAT, close, map);
+                    //intervals =
+                    //  constraints->findIntervals(newNode, EAT, close, map);
                     for (unsigned int k = 0; k < intervals.size(); k++) {
                         newNode.interval    = intervals[k];
                         newNode.Parent      = parent->Parent;
@@ -347,7 +348,8 @@ bool AA_SIPP::changePriorities(int bad_i)
 
 SearchResult AA_SIPP::startSearch(Map& map, Task& task,
                                   DynamicObstacles& obstacles, SafeIntervals & safe_intervals)
-{
+{   
+    (void)obstacles;
     focal_heuristic = Heuristic(config->connectedness);
     focal_heuristic.init(map.width, map.height, task.getNumberOfAgents());
     for (unsigned int numOfCurAgent = 0;
@@ -371,19 +373,21 @@ SearchResult AA_SIPP::startSearch(Map& map, Task& task,
     double timespent(0);
     priorities.clear();
     setPriorities(task);
-    do {
+    do {/*
         constraints = new Constraints(map.width, map.height);
         for (int k = 0; k < obstacles.getNumberOfObstacles(); k++) {
             constraints->addConstraints(obstacles.getSections(k),
                                         obstacles.getSize(k),
                                         obstacles.getMSpeed(k), map);
         }
+        */
         sresult.pathInfo.clear();
         sresult.pathInfo.resize(task.getNumberOfAgents());
         sresult.agents       = task.getNumberOfAgents();
         sresult.agentsSolved = 0;
         sresult.flowtime     = 0;
         sresult.makespan     = 0;
+        /*
         for (int k = 0; k < task.getNumberOfAgents(); k++) {
             curagent = task.getAgent(k);
             constraints->setParams(curagent.size, curagent.mspeed,
@@ -399,9 +403,11 @@ SearchResult AA_SIPP::startSearch(Map& map, Task& task,
                   cells, curagent.size);
             }
         }
+        */
         for (unsigned int numOfCurAgent = 0;
              numOfCurAgent < task.getNumberOfAgents(); numOfCurAgent++) {
             curagent = task.getAgent(current_priorities[numOfCurAgent]);
+            /*
             constraints->setParams(curagent.size, curagent.mspeed,
                                    curagent.rspeed, config->planforturns,
                                    config->inflatecollisionintervals,
@@ -413,11 +419,8 @@ SearchResult AA_SIPP::startSearch(Map& map, Task& task,
                 constraints->removeStartConstraint(cells, curagent.start_i,
                                                    curagent.start_j);
             }
-            if (findPath(current_priorities[numOfCurAgent], map, safe_intervals)) {
-                constraints->addConstraints(
-                  sresult.pathInfo[current_priorities[numOfCurAgent]].sections,
-                  curagent.size, curagent.mspeed, map);
-            } else {
+            */
+            if (!findPath(current_priorities[numOfCurAgent], map, safe_intervals)) {
                 bad_i = current_priorities[numOfCurAgent];
                 break;
             }
@@ -426,7 +429,7 @@ SearchResult AA_SIPP::startSearch(Map& map, Task& task,
             }
         }
 
-        delete constraints;
+        //delete constraints;
         tries++;
 #ifdef __linux__
         gettimeofday(&end, nullptr);
@@ -493,16 +496,16 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeIntervals
 #endif
     close.clear();
     open.clear();
-    constraints->use_likhachev = config->use_likhachev;
+    //constraints->use_likhachev = config->use_likhachev;
     ResultPathInfo resultPath;
-    constraints->resetSafeIntervals(map.width, map.height);
+    //constraints->resetSafeIntervals(map.width, map.height);
     //constraints->debug_safe_intervals();
-    constraints->updateCellSafeIntervals({curagent.start_i, curagent.start_j});
+    //constraints->updateCellSafeIntervals({curagent.start_i, curagent.start_j});
     //constraints->debug_safe_intervals();
     Node curNode(curagent.start_i, curagent.start_j, -1, 0, 0),
       goalNode(curagent.goal_i, curagent.goal_j, -1, INFINITY, INFINITY);
     curNode.F           = getHValue(curNode.i, curNode.j);
-    curNode.interval    = constraints->getSafeInterval(curNode.i, curNode.j, 0);
+    //curNode.interval    = constraints->getSafeInterval(curNode.i, curNode.j, 0);
     curNode.interval_id = curNode.interval.id;
     curNode.heading     = curagent.start_heading;
     curNode.optimal     = true;
@@ -578,7 +581,7 @@ bool AA_SIPP::findPath(unsigned int numOfCurAgent, const Map& map, SafeIntervals
         resultPath.generated       = open.size() + close.size();
         resultPath.path            = lppath;
         resultPath.pathlength      = goalNode.g;
-        resultPath.reopened        = constraints->reopened; //;
+        //resultPath.reopened        = constraints->reopened; //;
         resultPath.reexpanded      = reexpanded;
         resultPath.reexpanded_list = reexpanded_list;
         sresult.pathfound          = true;

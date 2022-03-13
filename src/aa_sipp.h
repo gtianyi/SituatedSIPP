@@ -7,13 +7,13 @@
 #include <algorithm>
 #include <unordered_map>
 #include <random>
-#include "constraints.h"
 #include "lineofsight.h"
 #include "config.h"
 #include "searchresult.h"
 #include "task.h"
 #include "dynamicobstacles.h"
 #include "heuristic.h"
+#include "safeIntervals.hpp"
 #ifdef __linux__
     #include <sys/time.h>
 #else
@@ -67,7 +67,7 @@ protected:
     std::vector<int> current_priorities;
     LineOfSight lineofsight;
     Agent curagent;
-    Constraints *constraints;
+    //Constraints *constraints;
 };
 
 #endif // AA_SIPP_H
