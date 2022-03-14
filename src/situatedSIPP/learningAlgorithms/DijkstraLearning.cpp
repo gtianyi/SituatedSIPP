@@ -89,7 +89,7 @@ void DijkstraLearning::learn_subintervals(RTOPEN_container& open, std::unordered
       }
       double c =  cost(n, parent) + n.h();
       if (true || parent.static_h() + get_dynamic_h(parent) > c){
-          parent.add_dynamic_h(n, cost(n, parent), c - parent.static_h());
+          parent.add_dynamic_h(n, n.g()-parent.g(), c - parent.static_h());
           if (oit != orange.second){
            oit = open_sorted_by_h.erase(oit);
           } 

@@ -35,17 +35,17 @@ output_folder = sys.argv[2]
 
 
 target_folder = {
-    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
+    #"../instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
     "../instances/singleagent-icaps2020/rooms/": "rooms.xml",
-    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
-    #"/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "den520d.xml"
+    #"../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
+    #"../instances/singleagent-icaps2020/den520d/": "den520d.xml"
     }
 
 steplim = {
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/empty64x64/": "1280",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/warehouse/": "1280",
+    "../instances/singleagent-icaps2020/empty64x64/": "1280",
+    "../instances/singleagent-icaps2020/warehouse/": "1280",
     "../instances/singleagent-icaps2020/rooms/":   "1280",
-    "/home/aifs2/devin/Documents/SituatdSIPP/SituatedSIPP/instances/singleagent-icaps2020/den520d/": "3130"
+    "../instances/singleagent-icaps2020/den520d/": "3130"
     }
 
 def find_or_create(tree, targ):
@@ -144,12 +144,12 @@ def run_commands(commands, server, bar, lock, toslack = ""):
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["4", "8", "32", "128", "256"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+lookaheads = ["256", "512", "1024"]#["32", "64", "128"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
 unitwait = ["NA"]#["0.1", "0.5","1.0"]#["NA"]
-numinterval = ["1"]#, "3", "5", "7"]
+numinterval = ["1", "3"]#, "3", "5", "7"]
 dynmode = ["0", "1", "2"]
 print("Generating experiement files and folders.")
 n_tasks = 0
@@ -184,7 +184,7 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                         bar.update(acc)
                                         acc += 1
 
-lookaheads = ["4", "8", "32", "128", "256"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+#lookaheads = ["2", "4", "8", "16", "32", "64", "128"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
 learnings = ["nolearning", "dijkstralearning","plrtalearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]

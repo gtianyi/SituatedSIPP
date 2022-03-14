@@ -1,6 +1,7 @@
 #include "./learningAlgorithmBase.hpp"
 #include "set"
 #include "vector"
+#include <cmath>
 
 // needs to know about agent speed
 double LearningAlgorithm::cost(const RTNode& n1, const RTNode& n2) const{
