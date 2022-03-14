@@ -10,7 +10,7 @@ public:
                    std::list<RTNode>& reexpanded_list,
                    SearchClass*       searchClassPtr, SafeIntervals& safe_intervals) override
     {
-
+        (void)reexpanded_list;
         int curExpansion(0);
         // expansion phase
         while (!searchClassPtr->open_empty() &&(curNode.i != goalNode.i || curNode.j != goalNode.j) && curExpansion < searchClassPtr->lookaheadBudget) {
@@ -23,7 +23,7 @@ public:
                                          // curNode.heading_id)
                 {
                     reexpanded++;
-                    reexpanded_list.push_back(curNode);
+                    //reexpanded_list.push_back(curNode);
                     if (searchClassPtr->config->planforturns &&
                         it->second.heading_id != curNode.heading_id) {
                         reexpanded--;
