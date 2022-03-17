@@ -40,7 +40,11 @@ void DijkstraLearning::learn_graph(RTOPEN_container& open, std::unordered_multim
           break;
         }
       }
-      double c =  cost(n, parent) + n.h();
+      double c =   n.g() - parent.g() + n.h();
+      DEBUG_MSG("c");
+      DEBUG_MSG(c);
+      parent.debug();
+      n.debug();
       if ((close.find(parent) != close.end()) && (parent.static_h() + get_dynamic_h(parent) > c)){
         set_dynamic_h(parent, c - parent.static_h());
         if (oit != orange.second){
@@ -87,7 +91,7 @@ void DijkstraLearning::learn_subintervals(RTOPEN_container& open, std::unordered
           break;
         }
       }
-      double c =  cost(n, parent) + n.h();
+      double c =  parent.g() - n.g() + n.h();
       if (true || parent.static_h() + get_dynamic_h(parent) > c){
           parent.add_dynamic_h(n, n.g()-parent.g(), c - parent.static_h());
           if (oit != orange.second){

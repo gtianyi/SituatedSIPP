@@ -12,13 +12,13 @@
 		<waitbeforemove>0</waitbeforemove>
 		<algtype>4</algtype>
 		<maxnumofintervalspermove>1</maxnumofintervalspermove>
-		<fixedlookahead>3</fixedlookahead>
+		<fixedlookahead>8</fixedlookahead>
 		<expansionalgorithm>astar</expansionalgorithm>
 		<decisionalgorithm>miniminbackup</decisionalgorithm>
-		<learningalgorithm>nolearning</learningalgorithm>
-		<isunitwaitrepresentation>false</isunitwaitrepresentation>
+		<learningalgorithm>dijkstralearning</learningalgorithm>
+		<isunitwaitrepresentation>true</isunitwaitrepresentation>
 		<unitwaitduration>0.1</unitwaitduration>
-		<dynmode>2</dynmode>
+		<dynmode>1</dynmode>
 	</algorithm>
 	<options>
 		<loglevel>2</loglevel>

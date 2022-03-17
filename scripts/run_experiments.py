@@ -35,10 +35,10 @@ output_folder = sys.argv[2]
 
 
 target_folder = {
-    #"../instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
+    "../instances/singleagent-icaps2020/warehouse/": "warehouse.xml",
     "../instances/singleagent-icaps2020/rooms/": "rooms.xml",
-    #"../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
-    #"../instances/singleagent-icaps2020/den520d/": "den520d.xml"
+    "../instances/singleagent-icaps2020/empty64x64/": "empty64x64.xml",
+    "../instances/singleagent-icaps2020/den520d/": "den520d.xml"
     }
 
 steplim = {
@@ -144,13 +144,13 @@ def run_commands(commands, server, bar, lock, toslack = ""):
 
 
 results = pd.DataFrame(columns = ["task", "lookahead", "expansion algorithm", "decision algorithm","learning algorithm", "dynmode", "solved", "solution length", "solution duration", "runtime"])
-lookaheads = ["256", "512", "1024"]#["32", "64", "128"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
-learnings = ["nolearning", "dijkstralearning","plrtalearning"]
+lookaheads = ["4", "8", "16", "32", "64", "128","256", "512"]#["32", "64", "128"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+learnings = ["dijkstralearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
 unitwait = ["NA"]#["0.1", "0.5","1.0"]#["NA"]
 numinterval = ["1", "3"]#, "3", "5", "7"]
-dynmode = ["0", "1", "2"]
+dynmode = ["0", "1","2"]
 print("Generating experiement files and folders.")
 n_tasks = 0
 for cfg in target_folder:
@@ -184,8 +184,8 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                         bar.update(acc)
                                         acc += 1
 
-#lookaheads = ["2", "4", "8", "16", "32", "64", "128"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
-learnings = ["nolearning", "dijkstralearning","plrtalearning"]
+#lookaheads =[] #["2", "4", "8", "16", "32", "64", "128"]#["16", "64"]##[] #["2048", "4096", "8192"]#["2", "256", "512", "1024"]#
+learnings = ["dijkstralearning"]
 expansion = ["astar"]
 decision = ["miniminbackup"]
 unitwait = ["0.1"]#["NA"]
@@ -215,10 +215,24 @@ with progressbar.ProgressBar(max_value=total) as bar:
                                         acc += 1
 print("Running experiements.")
 
-batch_size = 120
-for command in progressbar.progressbar(commands):
+def runc(command):
     subprocess.call(command, stdout = subprocess.DEVNULL, stderr = subprocess.DEVNULL)
-    #pool.map(sprun, commands)
+    
+
+
+batch_size = 16
+threads = []
+for command in progressbar.progressbar(commands):
+    if len(threads) >= batch_size:
+        for thread in threads:
+            thread.join()
+        threads = []
+    threads.append(Thread(target = runc, args = (command,)))
+    threads[-1].start()
+for thread in threads:
+    thread.join()
+
+#pool.map(sprun, commands)
 #results = pd.concat(outres, axis = 1).T
 #results["solved"] = results["solution length"] != 0
 #results.to_csv("even-even-more-results.csv")
