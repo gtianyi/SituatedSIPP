@@ -91,7 +91,7 @@ void DijkstraLearning::learn_subintervals(RTOPEN_container& open, std::unordered
           break;
         }
       }
-      double c =  parent.g() - n.g() + n.h();
+      //double c =  n.g() - parent.g() + n.h();
       if (true || parent.static_h() + get_dynamic_h(parent) > c){
           parent.add_dynamic_h(n, n.g()-parent.g(), c - parent.static_h());
           if (oit != orange.second){
