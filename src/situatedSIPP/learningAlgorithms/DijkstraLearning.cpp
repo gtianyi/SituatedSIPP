@@ -92,13 +92,11 @@ void DijkstraLearning::learn_subintervals(RTOPEN_container& open, std::unordered
         }
       }
       //double c =  n.g() - parent.g() + n.h();
-      if (true || parent.static_h() + get_dynamic_h(parent) > c){
-          parent.add_dynamic_h(n, n.g()-parent.g(), c - parent.static_h());
-          if (oit != orange.second){
-           oit = open_sorted_by_h.erase(oit);
-          } 
-          open_sorted_by_h.emplace(parent.h(), parent);  
-      }
+        parent.add_dynamic_h(n, n.g()-parent.g(), c - parent.static_h());
+        if (oit != orange.second){
+          oit = open_sorted_by_h.erase(oit);
+        } 
+        open_sorted_by_h.emplace(parent.h(), parent);  
     }
   }
 };

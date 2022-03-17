@@ -100,13 +100,11 @@ void PlrtaLearning::learn_subintervals(RTOPEN_container& open, std::unordered_mu
         set_static_h(parent.i, parent.j, c);
       }
       c = n.dynamic_g() + n.dynamic_h() - parent.dynamic_g();
-      if ((c < get_dynamic_h(parent))){
-        parent.add_dynamic_h(n, n.g()- parent.g(), c);
-        if(oit != open_sorted_by_h.end()){
-          open_sorted_by_h.erase(oit);
-        }
-        open_sorted_by_h.emplace(parent.h(), parent);
+      parent.add_dynamic_h(n, n.g()- parent.g(), c);
+      if(oit != open_sorted_by_h.end()){
+        open_sorted_by_h.erase(oit);
       }
+      open_sorted_by_h.emplace(parent.h(), parent);
     }
   }
 };
